@@ -1,14 +1,18 @@
 import * as express from "express";
 import { AuthenticationController } from "../controllers/authentication";
+import { Role } from "../models/role";
 
 const router = express.Router();
 
-router.get("/", AuthenticationController.protected, async (req: any, res: any, next) => {
-  try {
-    const user = req.user
-    return res.status(200).send(user);
-  } catch (error) {
-    console.log(error);
+router.get(
+  "/",
+  async (req: any, res: any, next) => {
+    try {
+      const role = await Role.query().select();
+      return res.status(200).send(role);
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 export default router;

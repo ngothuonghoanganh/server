@@ -10,23 +10,23 @@ class Us {
         return res.status(400).send("Id is not empty");
       }
       const listEntity = [
-        "user.Id",
-        "user.UserName",
-        "user.FirstName",
-        "user.LastName",
-        "user.Email",
-        "user.Phone",
-        "user.RoleId",
-        "user.CreateDate",
-        "user.Avt",
+        "users.Id",
+        "users.UserName",
+        "users.FirstName",
+        "users.LastName",
+        "users.Email",
+        "users.Phone",
+        "users.RoleId",
+        "users.CreateDate",
+        "users.Avt",
         "role.RoleName",
       ];
       let currentUser = await User.query()
         .select(...listEntity)
-        .join("role", "role.Id", "user.RoleId")
-        .where("user.IsDeleted", false)
-        .andWhereNot("user.Id", req.user.Id)
-        .andWhere("user.Id", userId)
+        .join("role", "role.Id", "users.RoleId")
+        .where("users.IsDeleted", false)
+        .andWhereNot("users.Id", req.user.Id)
+        .andWhere("users.Id", userId)
         .first();
 
       return res.send(currentUser);
