@@ -3,19 +3,6 @@ import { AuthenticationController } from "../controllers/authentication";
 
 const router = express.Router();
 
-/**
- * @swagger
- *  /api/:
- *    get:
- *      summary: test
- *      tags:
- *        - test api
- *      responses:
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- */
 router.get("/", AuthenticationController.protected, async (req: any, res: any, next) => {
   try {
     const user = req.user

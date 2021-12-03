@@ -7,7 +7,7 @@ export class File extends Model {
   static get tableName() {
     return "file";
   }
-  Id?: number;
+  Id?: string;
   Url?: string;
   IsDeleted?: boolean;
 }

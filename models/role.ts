@@ -6,7 +6,7 @@ export class Role extends Model {
   static get tableName() {
     return "role";
   }
-  Id?: Number;
+  Id?: string;
   RoleName!: string;
   Description?: string;
   IsDeleted?: boolean;

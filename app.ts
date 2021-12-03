@@ -24,32 +24,6 @@ const port = 3000;
 
 const server: http.Server = http.createServer(app);
 
-// swagger config
-const swaggerDefinition = {
-  openapi: "3.0.0",
-  info: {
-    title: "Express API for JSONPlaceholder",
-    version: "1.0.0",
-    description:
-      "This is a REST API application made with Express. It retrieves data from JSONPlaceholder.",
-  },
-  servers: [
-    {
-      url: "http://localhost:3000",
-      description: "Development server",
-    },
-    {
-      url: process.env.STG_HOST || "http://localhost:3000",
-      description: "Development server",
-    },
-  ],
-};
-const options = {
-  swaggerDefinition,
-  // Paths to files containing OpenAPI definitions
-  apis: ["./routes/*.ts"],
-};
-
 // logger config
 const stream: StreamOptions = {
   write: (message) => Logger.http(message),
