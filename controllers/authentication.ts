@@ -7,7 +7,7 @@ import { Role } from "../models/role";
 class Auth {
   private sendJWTToken = async (user: User, statusCode: number, res: any) => {
     try {
-      const token = this.signToken(user.Id as number);
+      const token = this.signToken(user.Id as any);
 
       const cookieOptions = {
         httpOnly: true,
@@ -45,9 +45,9 @@ class Auth {
 
       const user: any = await User.query()
         .select()
-        .select("user.*", "role.RoleName")
-        .join("role", "role.Id", "user.RoleId")
-        .where("user.UserName", username)
+        .select("users.*", "role.RoleName")
+        .join("role", "role.Id", "users.RoleId")
+        .where("users.UserName", username)
         .andWhere("user.IsDeleted", false)
         .first();
       if (user) {
@@ -75,14 +75,14 @@ class Auth {
       const token = req.cookies.jwt;
       const userId = req.headers.userid;
       const listEntity = [
-        "user.Id",
-        "user.UserName",
-        "user.FirstName",
-        "user.LastName",
-        "user.Email",
-        "user.Phone",
-        "user.RoleId",
-        "user.CreateDate",
+        "users.Id",
+        "users.UserName",
+        "users.FirstName",
+        "users.LastName",
+        "users.Email",
+        "users.Phone",
+        "users.RoleId",
+        "users.CreateDate",
         "role.RoleName",
       ];
       if (!token && !userId) {
@@ -94,17 +94,17 @@ class Auth {
       if (userId) {
         currentUser = await User.query()
           .select(...listEntity)
-          .join("role", "role.Id", "user.RoleId")
-          .where("user.Id", userId)
-          .andWhere("user.IsDeleted", false)
+          .join("role", "role.Id", "users.RoleId")
+          .where("users.Id", userId)
+          .andWhere("users.IsDeleted", false)
           .first();
       } else {
         const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
         currentUser = await User.query()
           .select(...listEntity)
-          .join("role", "role.Id", "user.RoleId")
-          .where("user.Id", verify.id)
-          .andWhere("user.IsDeleted", false)
+          .join("role", "role.Id", "users.RoleId")
+          .where("users.Id", verify.id)
+          .andWhere("users.IsDeleted", false)
           .first();
       }
 
@@ -160,9 +160,9 @@ class Auth {
         });
       }
       user = await User.query()
-        .select("user.*", "role.RoleName")
-        .join("role", "role.Id", "user.RoleId")
-        .where("googleId", googleId)
+        .select("users.*", "role.RoleName")
+        .join("role", "role.Id", "users.RoleId")
+        .where("users.googleId", googleId)
         .first();
       return this.sendJWTToken(user, 200, res);
     } catch (error) {
@@ -191,7 +191,7 @@ class Auth {
 
       let role: Role = await Role.query()
         .select()
-        .where("RoleName", "Caster")
+        .where("RoleName", "Customer")
         .first();
 
       await User.query().insert({
@@ -216,15 +216,15 @@ class Auth {
       // const { userId = "" } = req.params;
 
       const listEntity = [
-        "user.Id",
-        "user.UserName",
-        "user.FirstName",
-        "user.LastName",
-        "user.Email",
-        "user.Phone",
-        "user.RoleId",
-        "user.CreateDate",
-        "user.Avt",
+        "users.Id",
+        "users.UserName",
+        "users.FirstName",
+        "users.LastName",
+        "users.Email",
+        "users.Phone",
+        "users.RoleId",
+        "users.CreateDate",
+        "users.Avt",
         "role.RoleName",
       ];
 
@@ -232,9 +232,9 @@ class Auth {
       // if (userId === null || userId === undefined || userId === "" || userId) {
       currentUser = await User.query()
         .select(...listEntity)
-        .join("role", "role.Id", "user.RoleId")
-        .where("user.IsDeleted", false)
-        .andWhereNot("user.Id", req.user.Id);
+        .join("role", "role.Id", "users.RoleId")
+        .where("users.IsDeleted", false)
+        .andWhereNot("users.Id", req.user.Id);
       // }
       //  else {
       //   currentUser = await User.query()
@@ -255,24 +255,24 @@ class Auth {
   public getMe = async (req: any, res: any, next: any) => {
     try {
       const listEntity = [
-        "user.Id",
-        "user.UserName",
-        "user.FirstName",
-        "user.LastName",
-        "user.Email",
-        "user.Phone",
-        "user.RoleId",
-        "user.CreateDate",
-        "user.Avt",
+        "users.Id",
+        "users.UserName",
+        "users.FirstName",
+        "users.LastName",
+        "users.Email",
+        "users.Phone",
+        "users.RoleId",
+        "users.CreateDate",
+        "users.Avt",
         "role.RoleName",
       ];
 
       return res.send(
         await User.query()
           .select(...listEntity)
-          .join("role", "role.Id", "user.RoleId")
-          .where("user.IsDeleted", false)
-          .andWhere("user.Id", req.user.Id)
+          .join("role", "role.Id", "users.RoleId")
+          .where("users.IsDeleted", false)
+          .andWhere("users.Id", req.user.Id)
           .first()
       );
     } catch (error) {
