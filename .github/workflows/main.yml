@@ -18,5 +18,5 @@ jobs:
           uses: Azure/pipelines@v1
           with:
             azure-devops-project-url: https://anhnthse130011@dev.azure.com/anhnthse130011/EC/_git/EC
-            azure-pipeline-name: 'My Pipeline'
+            azure-pipeline-name: 'My Pipelines'
             azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
