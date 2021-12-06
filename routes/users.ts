@@ -8,7 +8,7 @@ router.post("/login", AuthenticationController.login);
 
 router.post("/loginWithGoogle", AuthenticationController.loginWithGoogle);
 
-router.post("/", AuthenticationController.createUser);
+router.post("/register", AuthenticationController.createUser);
 
 router.post(
   "/logout",
@@ -35,5 +35,7 @@ router.delete(
   AuthenticationController.protected,
   UserController.deleteUser
 );
+
+
 
 export default router;

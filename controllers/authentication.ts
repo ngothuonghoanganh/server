@@ -1,13 +1,13 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-import { User } from "../models/user";
+import { Users } from "../models/user";
 import { Role } from "../models/role";
 
 class Auth {
-  private sendJWTToken = async (user: User, statusCode: number, res: any) => {
+  private sendJWTToken = async (user: Users, statusCode: number, res: any) => {
     try {
-      const token = this.signToken(user.Id as any);
+      const token = this.signToken(user.id as any);
 
       const cookieOptions = {
         httpOnly: true,
@@ -43,7 +43,7 @@ class Auth {
         return res.status(400).send("Cannot find username or password !");
       }
 
-      const user: any = await User.query()
+      const user: any = await Users.query()
         .select()
         .select("users.*", "role.RoleName")
         .join("role", "role.Id", "users.RoleId")
@@ -92,7 +92,7 @@ class Auth {
       }
       let currentUser;
       if (userId) {
-        currentUser = await User.query()
+        currentUser = await Users.query()
           .select(...listEntity)
           .join("role", "role.Id", "users.RoleId")
           .where("users.Id", userId)
@@ -100,7 +100,7 @@ class Auth {
           .first();
       } else {
         const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
-        currentUser = await User.query()
+        currentUser = await Users.query()
           .select(...listEntity)
           .join("role", "role.Id", "users.RoleId")
           .where("users.Id", verify.id)
@@ -141,7 +141,7 @@ class Auth {
         phone = "",
       } = req.body;
 
-      let user: any = await User.query()
+      let user: any = await Users.query()
         .select()
         .where("googleId", googleId)
         .first();
@@ -150,16 +150,16 @@ class Auth {
         .where("RoleName", "Audience")
         .first();
       if (!user) {
-        await User.query().insert({
-          GoogleId: googleId,
-          FirstName: fitstName,
-          LastName: lastName,
-          Email: email,
-          Phone: phone,
-          RoleId: role.Id,
+        await Users.query().insert({
+          googleid: googleId,
+          firstname: fitstName,
+          lastname: lastName,
+          email: email,
+          phone: phone,
+          roleid: role.id,
         });
       }
-      user = await User.query()
+      user = await Users.query()
         .select("users.*", "role.RoleName")
         .join("role", "role.Id", "users.RoleId")
         .where("users.googleId", googleId)
@@ -178,12 +178,12 @@ class Auth {
         firstName = "",
         lastName = "",
         email = "",
-        phone = "",
+        phone,
         avt = "",
       } = req.body;
 
-      if (!username || !password) {
-        return res.status(400).send("username or password does not exist!");
+      if (!username || !password || !phone) {
+        return res.status(400).send("username or phone or password does not exist!");
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -191,19 +191,28 @@ class Auth {
 
       let role: Role = await Role.query()
         .select()
-        .where("RoleName", "Customer")
+        .where("rolename", "Customer")
         .first();
 
-      await User.query().insert({
-        UserName: username,
-        Password: password,
-        FirstName: firstName,
-        LastName: lastName,
-        Email: email,
-        Phone: phone,
-        RoleId: role.Id,
-        Avt: avt,
+      await Users.query().insert({
+        username: username,
+        password: password,
+        firstname: firstName,
+        lastname: lastName,
+        email: email,
+        phone: phone,
+        roleid: role.id,
+        avt: avt,
       });
+      // await Users.query().insert({
+      //   username: username,
+      //   password: password,
+      //   firstname: firstName,
+      //   lastname: lastName,
+      //   email: email,
+      //   phone: phone,
+      //   roleid: 
+      // })
 
       return res.send("register success");
     } catch (error) {
@@ -230,7 +239,7 @@ class Auth {
 
       let currentUser;
       // if (userId === null || userId === undefined || userId === "" || userId) {
-      currentUser = await User.query()
+      currentUser = await Users.query()
         .select(...listEntity)
         .join("role", "role.Id", "users.RoleId")
         .where("users.IsDeleted", false)
@@ -268,7 +277,7 @@ class Auth {
       ];
 
       return res.send(
-        await User.query()
+        await Users.query()
           .select(...listEntity)
           .join("role", "role.Id", "users.RoleId")
           .where("users.IsDeleted", false)

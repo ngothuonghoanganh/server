@@ -1,4 +1,4 @@
-import { User } from "../models/user";
+import { Users } from "../models/user";
 import bcrypt from "bcrypt";
 import console from "console";
 
@@ -21,7 +21,7 @@ class Us {
         "users.Avt",
         "role.RoleName",
       ];
-      let currentUser = await User.query()
+      let currentUser = await Users.query()
         .select(...listEntity)
         .join("role", "role.Id", "users.RoleId")
         .where("users.IsDeleted", false)
@@ -37,7 +37,7 @@ class Us {
 
   public listUser = async (req: any, res: any, next: any) => {
     try {
-      const List = await User.query().select().where("IsDeleted", false);
+      const List = await Users.query().select().where("IsDeleted", false);
       return res.send(List);
     } catch (error) {
       console.error(error);
@@ -65,20 +65,20 @@ class Us {
       if (password) {
         const salt = await bcrypt.genSalt(10);
         password = await bcrypt.hash(password, salt);
-        await User.query()
+        await Users.query()
           .update({
-            Password: password,
+            password: password,
           })
           .where("Id", userId)
           .andWhere("IsDeleted", false);
       }
-      await User.query()
+      await Users.query()
         .update({
-          FirstName: firstName,
-          LastName: lastName,
-          Email: email,
-          Phone: phone,
-          Avt: avt,
+          firstname: firstName,
+          lastname: lastName,
+          email: email,
+          phone: phone,
+          avt: avt,
         })
         .where("Id", userId)
         .andWhere("IsDeleted", false);
@@ -94,9 +94,9 @@ class Us {
       if (!userId || userId === "") {
         return res.send("Id is not empty");
       }
-      await User.query()
+      await Users.query()
         .update({
-          IsDeleted: true,
+          isdeleted: true,
         })
         .where("Id", userId)
         .andWhere("IsDeleted", false);
