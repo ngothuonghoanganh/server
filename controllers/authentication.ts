@@ -185,6 +185,10 @@ class Auth {
         return res.status(400).send("username or phone or password does not exist!");
       }
 
+      if(!firstName || !lastName){
+        return res.status(400).send('first name, last name are required');
+      }
+
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
 
