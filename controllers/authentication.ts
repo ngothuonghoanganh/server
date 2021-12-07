@@ -44,14 +44,13 @@ class Auth {
       }
 
       const user: any = await Users.query()
-        .select()
-        .select("users.*", "role.RoleName")
-        .join("role", "role.Id", "users.RoleId")
-        .where("users.UserName", username)
-        .andWhere("user.IsDeleted", false)
+        .select("users.*", "role.rolename")
+        .join("role", "role.id", "users.roleid")
+        .where("users.username", username)
+        .andWhere("users.isdeleted", false)
         .first();
       if (user) {
-        const validPassword = await bcrypt.compare(password, user.Password);
+        const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
           return res.status(400).send("Invalid Password");
         }
@@ -60,9 +59,9 @@ class Auth {
       }
 
       if (!user) {
-        return res.status(401).send("username or password not true");
+        return res.status(401).send("username or password is not true");
       }
-      delete user.Password;
+      delete user.password;
 
       return this.sendJWTToken(user, 200, res);
     } catch (error) {
@@ -75,15 +74,15 @@ class Auth {
       const token = req.cookies.jwt;
       const userId = req.headers.userid;
       const listEntity = [
-        "users.Id",
-        "users.UserName",
-        "users.FirstName",
-        "users.LastName",
-        "users.Email",
-        "users.Phone",
-        "users.RoleId",
-        "users.CreateDate",
-        "role.RoleName",
+        "users.id",
+        "users.username",
+        "users.firstname",
+        "users.lastname",
+        "users.email",
+        "users.phone",
+        "users.roleid",
+        "users.createat",
+        "role.rolename",
       ];
       if (!token && !userId) {
         return res
@@ -94,17 +93,17 @@ class Auth {
       if (userId) {
         currentUser = await Users.query()
           .select(...listEntity)
-          .join("role", "role.Id", "users.RoleId")
-          .where("users.Id", userId)
-          .andWhere("users.IsDeleted", false)
+          .join("role", "role.id", "users.roleid")
+          .where("users.id", userId)
+          .andWhere("users.isdeleted", false)
           .first();
       } else {
         const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
         currentUser = await Users.query()
           .select(...listEntity)
-          .join("role", "role.Id", "users.RoleId")
-          .where("users.Id", verify.id)
-          .andWhere("users.IsDeleted", false)
+          .join("role", "role.id", "users.roleid")
+          .where("users.id", verify.id)
+          .andWhere("users.isdeleted", false)
           .first();
       }
 
@@ -143,11 +142,11 @@ class Auth {
 
       let user: any = await Users.query()
         .select()
-        .where("googleId", googleId)
+        .where("googleid", googleId)
         .first();
       let role: Role = await Role.query()
         .select()
-        .where("RoleName", "Audience")
+        .where("rolename", "Customer")
         .first();
       if (!user) {
         await Users.query().insert({
@@ -160,9 +159,9 @@ class Auth {
         });
       }
       user = await Users.query()
-        .select("users.*", "role.RoleName")
-        .join("role", "role.Id", "users.RoleId")
-        .where("users.googleId", googleId)
+        .select("users.*", "role.rolename")
+        .join("role", "role.id", "users.roleid")
+        .where("users.googleid", googleId)
         .first();
       return this.sendJWTToken(user, 200, res);
     } catch (error) {
@@ -225,25 +224,25 @@ class Auth {
       // const { userId = "" } = req.params;
 
       const listEntity = [
-        "users.Id",
-        "users.UserName",
-        "users.FirstName",
-        "users.LastName",
-        "users.Email",
-        "users.Phone",
-        "users.RoleId",
-        "users.CreateDate",
-        "users.Avt",
-        "role.RoleName",
+        "users.id",
+        "users.username",
+        "users.firstname",
+        "users.lastname",
+        "users.email",
+        "users.phone",
+        "users.roleid",
+        "users.createat",
+        "users.avt",
+        "role.rolename",
       ];
 
       let currentUser;
       // if (userId === null || userId === undefined || userId === "" || userId) {
       currentUser = await Users.query()
         .select(...listEntity)
-        .join("role", "role.Id", "users.RoleId")
-        .where("users.IsDeleted", false)
-        .andWhereNot("users.Id", req.user.Id);
+        .join("role", "role.id", "users.roleid")
+        .where("users.isdeleted", false)
+        .andWhereNot("users.id", req.user.Id);
       // }
       //  else {
       //   currentUser = await User.query()
@@ -264,24 +263,24 @@ class Auth {
   public getMe = async (req: any, res: any, next: any) => {
     try {
       const listEntity = [
-        "users.Id",
-        "users.UserName",
-        "users.FirstName",
-        "users.LastName",
-        "users.Email",
-        "users.Phone",
-        "users.RoleId",
-        "users.CreateDate",
-        "users.Avt",
-        "role.RoleName",
+        "users.id",
+        "users.username",
+        "users.firstname",
+        "users.lastname",
+        "users.email",
+        "users.phone",
+        "users.roleid",
+        "users.createat",
+        "users.avt",
+        "role.rolename",
       ];
 
       return res.send(
         await Users.query()
           .select(...listEntity)
-          .join("role", "role.Id", "users.RoleId")
-          .where("users.IsDeleted", false)
-          .andWhere("users.Id", req.user.Id)
+          .join("role", "role.id", "users.roleid")
+          .where("users.isdeleted", false)
+          .andWhere("users.id", req.user.Id)
           .first()
       );
     } catch (error) {

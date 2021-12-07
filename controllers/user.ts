@@ -10,23 +10,23 @@ class Us {
         return res.status(400).send("Id is not empty");
       }
       const listEntity = [
-        "users.Id",
-        "users.UserName",
-        "users.FirstName",
-        "users.LastName",
-        "users.Email",
-        "users.Phone",
-        "users.RoleId",
-        "users.CreateDate",
-        "users.Avt",
-        "role.RoleName",
+        "users.id",
+        "users.username",
+        "users.firstname",
+        "users.lastname",
+        "users.email",
+        "users.phone",
+        "users.roleid",
+        "users.createat",
+        "users.avt",
+        "role.rolename",
       ];
       let currentUser = await Users.query()
         .select(...listEntity)
-        .join("role", "role.Id", "users.RoleId")
-        .where("users.IsDeleted", false)
-        .andWhereNot("users.Id", req.user.Id)
-        .andWhere("users.Id", userId)
+        .join("role", "role.id", "users.roleid")
+        .where("users.isdeleted", false)
+        .andWhereNot("users.id", req.user.Id)
+        .andWhere("users.id", userId)
         .first();
 
       return res.send(currentUser);
@@ -37,7 +37,7 @@ class Us {
 
   public listUser = async (req: any, res: any, next: any) => {
     try {
-      const List = await Users.query().select().where("IsDeleted", false);
+      const List = await Users.query().select().where("isdeleted", false);
       return res.send(List);
     } catch (error) {
       console.error(error);
@@ -69,8 +69,8 @@ class Us {
           .update({
             password: password,
           })
-          .where("Id", userId)
-          .andWhere("IsDeleted", false);
+          .where("id", userId)
+          .andWhere("isdeleted", false);
       }
       await Users.query()
         .update({
@@ -80,8 +80,8 @@ class Us {
           phone: phone,
           avt: avt,
         })
-        .where("Id", userId)
-        .andWhere("IsDeleted", false);
+        .where("id", userId)
+        .andWhere("isdeleted", false);
       return res.send("Update successful");
     } catch (error) {
       console.error(error);
@@ -98,8 +98,8 @@ class Us {
         .update({
           isdeleted: true,
         })
-        .where("Id", userId)
-        .andWhere("IsDeleted", false);
+        .where("id", userId)
+        .andWhere("isdeleted", false);
       return res.send("Delete successful");
     } catch (error) {
       console.error(error);
