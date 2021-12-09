@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import console from "console";
 
 class Us {
+  //hàm này chưa xài
   public getUser = async (req: any, res: any, next: any) => {
     try {
       const { userId = "" } = req.params;
@@ -17,7 +18,7 @@ class Us {
         "users.email",
         "users.phone",
         "users.roleid",
-        "users.createat",
+        "users.createdat",
         "users.avt",
         "role.rolename",
       ];

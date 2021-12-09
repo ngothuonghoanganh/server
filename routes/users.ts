@@ -34,6 +34,7 @@ router.delete(
   "/:userId",
   AuthenticationController.protected,
   UserController.deleteUser
+
 );
 
 

@@ -81,7 +81,7 @@ class Auth {
         "users.email",
         "users.phone",
         "users.roleid",
-        "users.createat",
+        "users.createdat",
         "role.rolename",
       ];
       if (!token && !userId) {
@@ -223,6 +223,7 @@ class Auth {
     }
   };
 
+  //hàm này k xài
   public getAllUsers = async (req: any, res: any, next: any) => {
     try {
       // const { userId = "" } = req.params;
@@ -274,7 +275,7 @@ class Auth {
         "users.email",
         "users.phone",
         "users.roleid",
-        "users.createat",
+        "users.createdat",
         "users.avt",
         "role.rolename",
       ];
@@ -284,7 +285,7 @@ class Auth {
           .select(...listEntity)
           .join("role", "role.id", "users.roleid")
           .where("users.isdeleted", false)
-          .andWhere("users.id", req.user.Id)
+          .andWhere("users.id", req.user.id)
           .first()
       );
     } catch (error) {
