@@ -223,7 +223,7 @@ class Auth {
     }
   };
 
-  //hàm này k xài
+  //do not use
   public getAllUsers = async (req: any, res: any, next: any) => {
     try {
       // const { userId = "" } = req.params;

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import console from "console";
 
 class Us {
-  //hàm này chưa xài
+  //do not use
   public getUser = async (req: any, res: any, next: any) => {
     try {
       const { userId = "" } = req.params;
@@ -38,7 +38,7 @@ class Us {
 
   public listUser = async (req: any, res: any, next: any) => {
     try {
-      const List = await Users.query().select().where("isdeleted", false);
+      const List = await Users.query().select();
       return res.send(List);
     } catch (error) {
       console.error(error);
