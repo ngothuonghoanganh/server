@@ -10,7 +10,7 @@ class Auth {
       const token = this.signToken(user.id as any);
 
       const cookieOptions = {
-        httpOnly: true,
+        expiresIn: "24h",
       };
 
       res.cookie("jwt", token, cookieOptions);
@@ -71,7 +71,7 @@ class Auth {
 
   public protected = async (req: any, res: any, next: any) => {
     try {
-      const token = req.cookies.jwt;
+      const token = req.cookies.jwt || req.headers.cookie;
       const userId = req.headers.userid;
       const listEntity = [
         "users.id",
@@ -182,11 +182,13 @@ class Auth {
       } = req.body;
 
       if (!username || !password || !phone) {
-        return res.status(400).send("username or phone or password does not exist!");
+        return res
+          .status(400)
+          .send("username or phone or password does not exist!");
       }
 
-      if(!firstName || !lastName){
-        return res.status(400).send('first name, last name are required');
+      if (!firstName || !lastName) {
+        return res.status(400).send("first name, last name are required");
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -214,7 +216,7 @@ class Auth {
       //   lastname: lastName,
       //   email: email,
       //   phone: phone,
-      //   roleid: 
+      //   roleid:
       // })
 
       return res.send("register success");
@@ -291,6 +293,18 @@ class Auth {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  public checkRole = (roles: Array<string>) => {
+    // console.log(role)
+    return (req: any, res: any, next: any) => {
+      const user = req.user;
+      // console.log(user);
+      if (!roles.includes(user.rolename)) {
+        return res.status(403).send("this user don't have permission")
+      }
+      return next()
+    };
   };
 }
 

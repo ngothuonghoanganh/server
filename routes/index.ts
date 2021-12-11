@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.get(
   "/",
+  AuthenticationController.protected,
+  AuthenticationController.checkRole(["Customer","Supplier"]),
   async (req: any, res: any, next) => {
     try {
       const role = await Role.query().select();
