@@ -22,7 +22,10 @@ router.get(
   AuthenticationController.getMe
 );
 
-router.get("/", AuthenticationController.protected, UserController.listUser);
+router.get(
+  "/", AuthenticationController.protected,
+ UserController.listUser
+ );
 
 router.put(
   "/:userId",

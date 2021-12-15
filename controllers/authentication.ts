@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { Users } from "../models/user";
 import { Role } from "../models/role";
 
-class Auth {
+class Authentication {
   private sendJWTToken = async (user: Users, statusCode: number, res: any) => {
     try {
       const token = this.signToken(user.id as any);
@@ -47,6 +47,7 @@ class Auth {
         .select("users.*", "role.rolename")
         .join("role", "role.id", "users.roleid")
         .where("users.username", username)
+        .orWhere('users.phone', username)
         .andWhere("users.isdeleted", false)
         .first();
       if (user) {
@@ -121,10 +122,11 @@ class Auth {
     try {
       res.clearCookie("jwt");
 
-      res.status(204).json({
+      res.status(200).json({
         status: "success",
         data: null,
       });
+
     } catch (error) {
       console.error(error);
     }
@@ -138,15 +140,22 @@ class Auth {
         lastName = "",
         email = "",
         phone = "",
+        roleName = "Customer"
       } = req.body;
 
+      if(!googleId){
+        return res.status(400).send({
+          message: 'login failed',
+          data: null
+        });
+      }
       let user: any = await Users.query()
         .select()
         .where("googleid", googleId)
         .first();
       let role: Role = await Role.query()
         .select()
-        .where("rolename", "Customer")
+        .where("rolename", roleName)
         .first();
       if (!user) {
         await Users.query().insert({
@@ -179,6 +188,7 @@ class Auth {
         email = "",
         phone,
         avt = "",
+        roleName = "Customer"
       } = req.body;
 
       if (!username || !password || !phone) {
@@ -187,8 +197,19 @@ class Auth {
           .send("username or phone or password does not exist!");
       }
 
+      let user = await await Users.query()
+        .select('users.username')
+        .where('username', username)
+        .first();
+      if (user) {
+        return res.status(400).send('username is exist in system, please use another one.');
+      }
       if (!firstName || !lastName) {
         return res.status(400).send("first name, last name are required");
+      }
+
+      if (!email) {
+        return res.status(400).send('email is mandatory');
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -196,7 +217,7 @@ class Auth {
 
       let role: Role = await Role.query()
         .select()
-        .where("rolename", "Customer")
+        .where("rolename", roleName)
         .first();
 
       await Users.query().insert({
@@ -220,10 +241,16 @@ class Auth {
       // })
 
       return res.send("register success");
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error.message.includes("duplicate key value violates unique constraint")) {
+        return res.status(400).send({
+          message: "username or phone is already in use",
+          data: null
+        })
+      }
     }
-  };
+  }
+
 
   //do not use
   public getAllUsers = async (req: any, res: any, next: any) => {
@@ -308,4 +335,4 @@ class Auth {
   };
 }
 
-export const AuthenticationController = new Auth();
+export const AuthenticationController = new Authentication();
