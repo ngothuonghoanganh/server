@@ -2,7 +2,7 @@ import { Users } from "../models/user";
 import bcrypt from "bcrypt";
 import console from "console";
 
-class Us {
+class UsersController {
   //do not use
   public getUser = async (req: any, res: any, next: any) => {
     try {
@@ -54,7 +54,6 @@ class Us {
         firstName = "",
         lastName = "",
         email = "",
-        phone = "",
         avt = "",
       } = req.body;
       if (!userId || userId === "") {
@@ -78,7 +77,6 @@ class Us {
           firstname: firstName,
           lastname: lastName,
           email: email,
-          phone: phone,
           avt: avt,
         })
         .where("id", userId)
@@ -108,4 +106,4 @@ class Us {
   };
 }
 
-export const UserController = new Us();
+export const UserController = new UsersController();

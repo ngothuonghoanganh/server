@@ -3,11 +3,12 @@ import * as connection from "./db/connection";
 
 Model.knex(connection.knex);
 
-export class File extends Model {
+export class Files extends Model {
   static get tableName() {
-    return "file";
+    return "files";
   }
-  Id?: string;
-  Url?: string;
-  IsDeleted?: boolean;
+  id?: string;
+  name?: string;
+  url?: string;
+  isdeleted?: boolean;
 }

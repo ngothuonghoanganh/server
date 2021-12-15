@@ -14,8 +14,10 @@ import cookies_reader from "./services/cookies";
 import indexRoute from "./routes/index";
 import userRoute from "./routes/users";
 import fileRoute from "./routes/files";
+import categoryRoute from './routes/category';
 
 import Logger from "./lib/logger";
+import { CateController } from "./controllers/category";
 
 const upload = multer();
 dotenv.config();
@@ -59,6 +61,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", indexRoute);
 app.use("/api/users", userRoute);
 app.use("/api/files", fileRoute);
+app.use('/api/category', categoryRoute);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
