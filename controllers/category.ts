@@ -33,7 +33,10 @@ class CategoriesController {
                 .select('categories.*')
                 .where('isdeleted', false)
                 .andWhere('userid', id);
-            res.send(List);
+            return res.status(200).send({
+                data: List,
+                message: 'got the list categories',
+            });
         } catch (error) {
             console.log(error);
         }
@@ -59,7 +62,10 @@ class CategoriesController {
                 })
                 .where("id", categoryId)
                 .andWhere("isdeleted", false);
-            return res.send('Category updated');
+            return res.status(200).send({
+                data: null,
+                message: 'updated category name ' + categoryName,
+            });
         } catch (error) {
             console.log(error);
         }
