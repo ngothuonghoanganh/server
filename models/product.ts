@@ -17,8 +17,9 @@ export class Products extends Model{
     quantityforwholesale?: number;
     description?: string;
     image?: string;
-    categoriesid?: string;
+    categoryid?: string;
     createdat?: Date;
     updatedat?: Date;
+    isdeleted?: boolean;
 
 }

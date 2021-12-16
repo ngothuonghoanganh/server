@@ -15,6 +15,7 @@ import indexRoute from "./routes/index";
 import userRoute from "./routes/users";
 import fileRoute from "./routes/files";
 import categoryRoute from './routes/category';
+import productRouter from'./routes/product';
 
 import Logger from "./lib/logger";
 import { CateController } from "./controllers/category";
@@ -61,7 +62,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", indexRoute);
 app.use("/api/users", userRoute);
 app.use("/api/files", fileRoute);
-app.use('/api/category', categoryRoute);
+app.use('/api/categories', categoryRoute);
+app.use('/api/products', productRouter);
+
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
