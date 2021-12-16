@@ -40,6 +40,11 @@ router.delete(
 
 );
 
+router.get(
+  '/:phone',
+  UserController.getUserByPhone
+)
+
 
 
 export default router;

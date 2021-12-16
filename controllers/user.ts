@@ -1,6 +1,7 @@
 import { Users } from "../models/user";
 import bcrypt from "bcrypt";
 import console from "console";
+import { rmSync } from "fs";
 
 class UsersController {
   //do not use
@@ -104,6 +105,21 @@ class UsersController {
       console.error(error);
     }
   };
+
+  public getUserByPhone = async (req: any, res: any, next: any) => {
+    try {
+      const { phone } = req.params;
+      const user: any = await Users.query()
+        .select('users.*')
+        .where('phone', phone);
+      return res.status(200).send({
+        message: 'list user by phone',
+        data: user
+      })
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export const UserController = new UsersController();
