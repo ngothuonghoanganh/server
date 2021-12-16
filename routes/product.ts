@@ -6,9 +6,9 @@ const router=express.Router();
 
 router.get(
     '/',
-    AuthenticationController.protected,
-    AuthenticationController.checkRole(["Supplier"]),
-    ProductController.getAllProductByUserId
+    // AuthenticationController.protected,
+    // AuthenticationController.checkRole(["Supplier"]),
+    ProductController.getAllProduct
 )
 
 router.put(

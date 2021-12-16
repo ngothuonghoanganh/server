@@ -106,12 +106,12 @@ class ProductsController {
 
     }
 
-    public getAllProductByUserId = async (req: any, res: any, next: any) => {
+    public getAllProduct = async (req: any, res: any, next: any) => {
         try {
-            const { id } = req.user;
+            // const { id } = req.user;
             const List = await Products.query()
                 .select('products.*')
-                .where('userid', id)
+                // .where('userid', id)
                 .andWhere('isdeleted', false);
 
             return res.status(200).send({
