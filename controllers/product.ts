@@ -44,9 +44,7 @@ class ProductsController {
                     image: image,
                     categoryid: categoryId
                 })
-
-
-            return res.send({
+            return res.status(200).send({
                 status: 200,
                 message: 'inserted product: ' + name,
                 data: prod
@@ -81,7 +79,7 @@ class ProductsController {
                 return res.status(400).send('Make sure retail price and whole sale Price is a integer number and whole sale price <= retail price');
             }
 
-            const product: any = await Products.query()
+            await Products.query()
                 .update({
                     name: name,
                     retailprice: retailPrice,
@@ -95,10 +93,13 @@ class ProductsController {
                 .where('userid', id)
                 .andWhere('id', productId)
                 .andWhere('isdeleted', false);
-            // console.log(product);
+
+            const productUpdated: any = await Products.query()
+                .select()
+                .where('id', productId)
             return res.status(200).send({
                 message: 'updated product: ' + name,
-                data: null
+                data: productUpdated
             })
         } catch (error) {
             console.log(error);
