@@ -1,6 +1,7 @@
 import * as express from 'express'
 import { ProductController } from '../controllers/product'
 import { AuthenticationController } from '../controllers/authentication'
+import { Products } from '../models/product';
 
 const router=express.Router();
 
@@ -19,10 +20,15 @@ router.put(
 )
 
 router.post(
-    '/:categoryId',
+    '/',
     AuthenticationController.protected,
     AuthenticationController.checkRole(["Supplier"]),
     ProductController.createNewProduct
+)
+
+router.get(
+    '/AllProdsAndCates',
+    ProductController.getAllProductsAndCates
 )
 
 
