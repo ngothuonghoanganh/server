@@ -27,7 +27,7 @@ router.post(
 )
 
 router.get(
-    '/AllProdsAndCates',
+    '/All',
     ProductController.getAllProductsAndCates
 )
 
