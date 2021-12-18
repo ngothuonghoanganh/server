@@ -1,11 +1,12 @@
 import { Products } from '../models/product';
 import console from 'console';
+import knex from 'knex';
 
 class ProductsController {
     public createNewProduct = async (req: any, res: any, next: any) => {
         try {
             const { id } = req.user;
-            const { categoryId } = req.params;
+            const { categoryId = null } = req.body;
             console.log(categoryId)
             let {
                 name,
@@ -119,6 +120,27 @@ class ProductsController {
                 message: 'loaded product with name ',
                 data: List
             });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public getAllProductsAndCates = async (req: any, res: any, next: any) => {
+        try {
+            let listEntity = [
+                'products.*',
+                'categories.categoryname as categoryname',
+                'categories.id as categoryid'
+            ]
+            const prods = await Products.query()
+                .select(...listEntity)
+                .leftOuterJoin('categories', 'categories.id', 'products.categoryid')
+                .where('products.isdeleted', false);
+            
+            return res.status(200).send({
+                message: 'get success',
+                data: prods
+            })
         } catch (error) {
             console.log(error);
         }
