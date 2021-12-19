@@ -3,7 +3,7 @@ import { ProductController } from '../controllers/product'
 import { AuthenticationController } from '../controllers/authentication'
 import { Products } from '../models/product';
 
-const router=express.Router();
+const router = express.Router();
 
 router.get(
     '/',
@@ -31,6 +31,11 @@ router.get(
     AuthenticationController.protected,
     AuthenticationController.checkRole(["Supplier"]),
     ProductController.getAllProductsAndCates
+)
+
+router.get(
+    '/:productId',
+    ProductController.getProductById
 )
 
 
