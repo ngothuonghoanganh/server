@@ -28,6 +28,8 @@ router.post(
 
 router.get(
     '/All',
+    AuthenticationController.protected,
+    AuthenticationController.checkRole(["Supplier"]),
     ProductController.getAllProductsAndCates
 )
 
