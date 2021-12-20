@@ -194,6 +194,29 @@ class ProductsController {
       console.log(error);
     }
   };
+
+  public deleteProduct = async (req: any, res: any, next: any) => {
+    try {
+      const { id } = req.user;
+      const { productId } = req.params;
+      let { isDeleted = true } = req.body;
+
+      await Products.query()
+        .update({
+          isdeleted: isDeleted,
+        })
+        .where("userid", id)
+        .andWhere("id", productId)
+        .andWhere("isdeleted", false);
+
+      return res.status(200).send({
+        message: "Delete Success",
+        data: null,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 export const ProductController = new ProductsController();
