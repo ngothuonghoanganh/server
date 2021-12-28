@@ -4,6 +4,7 @@ import { UserController } from "../controllers/user";
 
 const router = express.Router();
 
+// authentication
 router.post("/login", AuthenticationController.login);
 
 router.post("/loginWithGoogle", AuthenticationController.loginWithGoogle);
@@ -15,6 +16,8 @@ router.post(
   AuthenticationController.protected,
   AuthenticationController.logout
 );
+
+// user infomation
 
 router.get(
   "/profile/me",

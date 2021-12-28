@@ -1,27 +1,32 @@
-import * as express from 'express';
-import { AuthenticationController } from '../controllers/authentication';
-import { CateController } from '../controllers/category';
+import * as express from "express";
+import { AuthenticationController } from "../controllers/authentication";
+import { CateController } from "../controllers/category";
 
 const router = express.Router();
 
 router.post(
-    '/',
-    AuthenticationController.protected,
-    AuthenticationController.checkRole(["Supplier"]),
-    CateController.createNewCate
-)
+  "/",
+  AuthenticationController.protected,
+  AuthenticationController.checkRole(["Supplier"]),
+  CateController.createNewCate
+);
 
 router.get(
-    '/',
-    AuthenticationController.protected,
-    AuthenticationController.checkRole(["Supplier"]),
-    CateController.getAllCate
-)
+  "/",
+  AuthenticationController.protected,
+  AuthenticationController.checkRole(["Supplier"]),
+  CateController.getAllCate
+);
 
 router.put(
-    '/:categoryId',
-    AuthenticationController.protected,
-    AuthenticationController.checkRole(["Supplier"]),
-    CateController.updateCate
-)
-export default router
+  "/:categoryId",
+  AuthenticationController.protected,
+  AuthenticationController.checkRole(["Supplier"]),
+  CateController.updateCate
+);
+
+// Categories mobile
+router.get("/:userId", CateController.getAllCateMobi);
+router.get("/:categoryId", CateController.getOne);
+
+export default router;
