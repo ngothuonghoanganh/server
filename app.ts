@@ -18,7 +18,7 @@ import categoryRoute from './routes/category';
 import productRouter from'./routes/product';
 
 import Logger from "./lib/logger";
-import { CateController } from "./controllers/category";
+import cronjob from "./controllers/cron/cronjob"
 
 const upload = multer();
 dotenv.config();
@@ -26,6 +26,9 @@ const app: Application = express();
 const port = 3000;
 
 const server: http.Server = http.createServer(app);
+
+// cronjob config
+cronjob.run()
 
 // logger config
 const stream: StreamOptions = {
