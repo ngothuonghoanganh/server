@@ -21,5 +21,5 @@ export class Products extends Model{
     createdat?: Date;
     updatedat?: Date;
     isdeleted?: boolean;
-
+    typeofproduct?: string;
 }
