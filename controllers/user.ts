@@ -56,6 +56,7 @@ class UsersController {
         lastName = "",
         email = "",
         avt = "",
+        phone ="",
       } = req.body;
       if (!userId || userId === "") {
         return res.status(400).send("Id is not empty");
@@ -79,6 +80,7 @@ class UsersController {
           lastname: lastName,
           email: email,
           avt: avt,
+          phone: phone
         })
         .where("id", userId)
         .andWhere("isdeleted", false);

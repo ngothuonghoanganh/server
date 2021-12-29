@@ -31,7 +31,7 @@ class ProductsController {
         !typeofproduct
       ) {
         return res
-          .send(400)
+          .status(400)
           .send(
             "Make sure you filled name, retail price, wholesaleprice, quantity, quantity for wholesale and description"
           );
