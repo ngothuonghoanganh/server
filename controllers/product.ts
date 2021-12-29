@@ -15,6 +15,7 @@ class ProductsController {
                 quantityForWholesale,
                 description = "",
                 image = "",
+                typeofproduct = "",
                 // categoriesid='',
                 // createdat,
                 // updatedat
@@ -26,7 +27,8 @@ class ProductsController {
                 !wholesalePrice ||
                 !quantity ||
                 !quantityForWholesale ||
-                !description
+                !description ||
+                !typeofproduct
             ) {
                 return res
                     .send(400)
@@ -58,6 +60,7 @@ class ProductsController {
                 description: description,
                 image: JSON.stringify(image),
                 categoryid: categoryId,
+                typeofproduct: typeofproduct,
             });
             return res.status(200).send({
                 status: 200,
@@ -82,6 +85,7 @@ class ProductsController {
                 description = "",
                 image = "",
                 isDeleted = false,
+                typeofproduct = ""
             } = req.body;
 
             if (!retailPrice || !Number.isInteger(retailPrice)) {
@@ -113,6 +117,7 @@ class ProductsController {
                     description: description,
                     image: image,
                     isdeleted: isDeleted,
+                    typeofproduct: typeofproduct
                 })
                 .where("userid", id)
                 .andWhere("id", productId)

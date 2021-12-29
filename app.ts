@@ -16,6 +16,8 @@ import userRoute from "./routes/users";
 import fileRoute from "./routes/files";
 import categoryRoute from './routes/category';
 import productRouter from'./routes/product';
+import cartRouter from'./routes/cart';
+
 
 import Logger from "./lib/logger";
 import { CateController } from "./controllers/category";
@@ -64,6 +66,8 @@ app.use("/api/users", userRoute);
 app.use("/api/files", fileRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/products', productRouter);
+app.use('/api/cart', cartRouter);
+
 
 
 try {
