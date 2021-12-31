@@ -1,17 +1,23 @@
 import * as express from "express";
-import { AuthenticationController } from "../controllers/authentication";
-import { Role } from "../models/role";
+import {
+  createValidator,
+} from 'express-joi-validation'
+
+
+// khởi tạo validator
+const validator = createValidator()
+//lấy schema từ validation trong services
+import { querySchema } from "../services/validation/index";
 
 const router = express.Router();
 
 router.get(
   "/",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Customer","Supplier"]),
+  //thêm validator được xác thực bơi schema vào middleware
+  validator.query(querySchema),
   async (req: any, res: any, next) => {
     try {
-      const role = await Role.query().select();
-      return res.status(200).send(role);
+      return res.status(200).send(`Hello ${req.query.name}`);
     } catch (error) {
       console.log(error);
     }

@@ -39,15 +39,15 @@ class Authentication {
     try {
       let { username, password } = req.body;
 
-      if (!username || !password) {
-        return res.status(400).send("Cannot find username or password !");
-      }
+      // if (!username || !password) {
+      //   return res.status(400).send("Cannot find username or password !");
+      // }
 
       const user: any = await Users.query()
         .select("users.*", "role.rolename")
         .join("role", "role.id", "users.roleid")
         .where("users.username", username)
-        .orWhere('users.phone', username)
+        .orWhere("users.phone", username)
         .andWhere("users.isdeleted", false)
         .first();
       if (user) {
@@ -126,7 +126,6 @@ class Authentication {
         status: "success",
         data: null,
       });
-
     } catch (error) {
       console.error(error);
     }
@@ -140,13 +139,13 @@ class Authentication {
         lastName = "",
         email = "",
         phone = "",
-        roleName = "Customer"
+        roleName = "Customer",
       } = req.body;
 
-      if(!googleId){
+      if (!googleId) {
         return res.status(400).send({
-          message: 'login failed',
-          data: null
+          message: "login failed",
+          data: null,
         });
       }
       let user: any = await Users.query()
@@ -188,7 +187,7 @@ class Authentication {
         email = "",
         phone,
         avt = "",
-        roleName = "Customer"
+        roleName = "Customer",
       } = req.body;
 
       if (!username || !password || !phone) {
@@ -198,18 +197,20 @@ class Authentication {
       }
 
       let user = await await Users.query()
-        .select('users.username')
-        .where('username', username)
+        .select("users.username")
+        .where("username", username)
         .first();
       if (user) {
-        return res.status(400).send('username is exist in system, please use another one.');
+        return res
+          .status(400)
+          .send("username is exist in system, please use another one.");
       }
       if (!firstName || !lastName) {
         return res.status(400).send("first name, last name are required");
       }
 
       if (!email) {
-        return res.status(400).send('email is mandatory');
+        return res.status(400).send("email is mandatory");
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -242,15 +243,16 @@ class Authentication {
 
       return res.send("register success");
     } catch (error: any) {
-      if (error.message.includes("duplicate key value violates unique constraint")) {
+      if (
+        error.message.includes("duplicate key value violates unique constraint")
+      ) {
         return res.status(400).send({
           message: "username or phone is already in use",
-          data: null
-        })
+          data: null,
+        });
       }
     }
-  }
-
+  };
 
   //do not use
   public getAllUsers = async (req: any, res: any, next: any) => {
@@ -328,9 +330,9 @@ class Authentication {
       const user = req.user;
       // console.log(user);
       if (!roles.includes(user.rolename)) {
-        return res.status(403).send("this user don't have permission")
+        return res.status(403).send("this user don't have permission");
       }
-      return next()
+      return next();
     };
   };
 }

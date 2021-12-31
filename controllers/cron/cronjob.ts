@@ -3,7 +3,7 @@ import hello from "./job/helloword";
 class cronJob {
   cronjob = new cron.CronJob("* * * * * *", () => {
     try {
-      hello.Hello();
+      // hello.Hello();
     } catch (e) {
       console.error(e);
     }
