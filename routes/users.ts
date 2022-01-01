@@ -5,20 +5,19 @@ import { createValidator } from "express-joi-validation";
 const validator = createValidator();
 
 import Authentication from "../controllers/authentication";
-import { bodyRegisterSchema } from "../services/validation/authentication";
+import {
+  bodyLoginSchema,
+  bodyRegisterSchema,
+} from "../services/validation/authentication";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
 const router = express.Router();
 
-// // authentication
-// router.post(
-//   "/login",
-//   validator.body(bodyLoginSchema),
-//   AuthenticationController.login
-// );
+// authentication
+router.post("/login", validator.body(bodyLoginSchema), Authentication.login);
 
-// router.post("/google", AuthenticationController.loginWithGoogle);
+router.post("/login/google", Authentication.loginWithGoogle);
 
 router.post(
   "/register",
@@ -26,11 +25,7 @@ router.post(
   Authentication.createUser
 );
 
-// router.post(
-//   "/logout",
-//   AuthenticationController.protected,
-//   AuthenticationController.logout
-// );
+router.post("/logout", Authentication.protected, Authentication.logout);
 
 // // user infomation
 
