@@ -4,51 +4,56 @@ import { createValidator } from "express-joi-validation";
 // khởi tạo validator
 const validator = createValidator();
 
-import { AuthenticationController } from "../controllers/authentication";
-import { UserController } from "../controllers/user";
-import { bodySchema } from "../services/validation/authentication";
+import Authentication from "../controllers/authentication";
+import { bodyRegisterSchema } from "../services/validation/authentication";
+// import { UserController } from "../controllers/user";
+// import { bodyLoginSchema } from "../services/validation/authentication";
 
 const router = express.Router();
 
-// authentication
-router.post(
-  "/login",
-  validator.body(bodySchema),
-  AuthenticationController.login
-);
+// // authentication
+// router.post(
+//   "/login",
+//   validator.body(bodyLoginSchema),
+//   AuthenticationController.login
+// );
 
-router.post("/loginWithGoogle", AuthenticationController.loginWithGoogle);
-
-router.post("/register", AuthenticationController.createUser);
+// router.post("/google", AuthenticationController.loginWithGoogle);
 
 router.post(
-  "/logout",
-  AuthenticationController.protected,
-  AuthenticationController.logout
+  "/register",
+  validator.body(bodyRegisterSchema),
+  Authentication.createUser
 );
 
-// user infomation
+// router.post(
+//   "/logout",
+//   AuthenticationController.protected,
+//   AuthenticationController.logout
+// );
 
-router.get(
-  "/profile/me",
-  AuthenticationController.protected,
-  AuthenticationController.getMe
-);
+// // user infomation
 
-router.get("/", AuthenticationController.protected, UserController.listUser);
+// router.get(
+//   "/profile/me",
+//   AuthenticationController.protected,
+//   AuthenticationController.getMe
+// );
 
-router.put(
-  "/:userId",
-  AuthenticationController.protected,
-  UserController.updateUser
-);
+// router.get("/", AuthenticationController.protected, UserController.listUser);
 
-router.delete(
-  "/:userId",
-  AuthenticationController.protected,
-  UserController.deleteUser
-);
+// router.put(
+//   "/:userId",
+//   AuthenticationController.protected,
+//   UserController.updateUser
+// );
 
-router.get("/:phone", UserController.getUserByPhone);
+// router.delete(
+//   "/:userId",
+//   AuthenticationController.protected,
+//   UserController.deleteUser
+// );
+
+// router.get("/:phone", UserController.getUserByPhone);
 
 export default router;
