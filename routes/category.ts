@@ -1,32 +1,32 @@
 import * as express from "express";
-import { AuthenticationController } from "../controllers/authentication";
-import { CateController } from "../controllers/category";
+// import { AuthenticationController } from "../controllers/authentication";
+// import { CateController } from "../controllers/category";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  CateController.createNewCate
-);
+// router.post(
+//   "/",
+//   AuthenticationController.protected,
+//   AuthenticationController.checkRole(["Supplier"]),
+//   CateController.createNewCate
+// );
 
-router.get(
-  "/",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  CateController.getAllCate
-);
+// router.get(
+//   "/",
+//   AuthenticationController.protected,
+//   AuthenticationController.checkRole(["Supplier"]),
+//   CateController.getAllCate
+// );
 
-router.put(
-  "/:categoryId",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  CateController.updateCate
-);
+// router.put(
+//   "/:categoryId",
+//   AuthenticationController.protected,
+//   AuthenticationController.checkRole(["Supplier"]),
+//   CateController.updateCate
+// );
 
-// Categories mobile
-router.get("/:userId", CateController.getAllCateMobi);
-router.get("/:categoryId", CateController.getOne);
+// // Categories mobile
+// router.get("/:userId", CateController.getAllCateMobi);
+// router.get("/:categoryId", CateController.getOne);
 
 export default router;
