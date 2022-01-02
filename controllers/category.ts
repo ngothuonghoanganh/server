@@ -4,21 +4,17 @@ import { Categories } from "../models/category";
 class CategoriesController {
   public createNewCate = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user;
+      const supplierid = req.user.id;
 
-      let { categoryname } = req.body;
-
-      if (!categoryname) {
-        return res.status(400).send("category name is required");
-      }
+      let { categoryName } = req.body;
 
       const newCate: any = await Categories.query().insert({
-        categoryname: categoryname,
-        userid: id,
+        categoryname: categoryName,
+        supplierid: supplierid,
       });
 
       return res.status(200).send({
-        message: "Created new Cate with name: " + categoryname,
+        message: "create success",
         data: newCate,
       });
     } catch (error) {
@@ -45,19 +41,18 @@ class CategoriesController {
   public updateCate = async (req: any, res: any, next: any) => {
     try {
       const { categoryId } = req.params;
-      let { categoryName, isDeleted = false } = req.body;
+      let { categoryName} = req.body;
 
       await Categories.query()
         .update({
           categoryname: categoryName,
-          isdeleted: isDeleted,
         })
         .where("id", categoryId)
         .andWhere("isdeleted", false);
       const cateUpdated: any = await Categories.query().where("id", categoryId);
       return res.status(200).send({
         data: cateUpdated,
-        message: "updated category name " + categoryName,
+        message: "update successfully",
       });
     } catch (error) {
       console.log(error);
@@ -97,4 +92,4 @@ class CategoriesController {
     }
   };
 }
-export const CateController = new CategoriesController();
+export default new CategoriesController();
