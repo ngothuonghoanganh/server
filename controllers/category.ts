@@ -28,20 +28,40 @@ class CategoriesController {
       const List = await Categories.query()
         .select("categories.*")
         .where("isdeleted", false)
-        .andWhere("userid", id);
+        .andWhere("supplierid", id);
       return res.status(200).send({
         data: List,
-        message: "got the list categories",
+        message: "successful",
       });
     } catch (error) {
       console.log(error);
     }
   };
 
+  public deleteCate = async (req: any, res: any, next: any) => {
+    try {
+      const { categoryId } = req.params;
+      
+      console.log(categoryId)
+      await Categories.query()
+        .update({
+          isdeleted: true
+        })
+        .where('id', categoryId)
+
+      res.status(200).send({
+        message: 'deactivated a cate',
+
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   public updateCate = async (req: any, res: any, next: any) => {
     try {
       const { categoryId } = req.params;
-      let { categoryName} = req.body;
+      let { categoryName } = req.body;
 
       await Categories.query()
         .update({

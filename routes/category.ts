@@ -5,7 +5,7 @@ import { createValidator } from "express-joi-validation";
 import authentication from "../controllers/authentication";
 import category from "../controllers/category";
 
-import { createBodySchema } from "../services/validation/category";
+import { createBodySchema, updateParamSchema } from "../services/validation/category";
 // import { AuthenticationController } from "../controllers/authentication";
 // import { CateController } from "../controllers/category";
 const validator = createValidator();
@@ -31,9 +31,18 @@ router.put(
   "/:categoryId",
   authentication.protected,
   authentication.checkRole(["Supplier"]),
+  validator.params(updateParamSchema),
   validator.body(createBodySchema),
   category.updateCate
 );
+
+router.delete(
+  '/:categoryId',
+  authentication.protected,
+  authentication.checkRole(['Supplier']),
+  validator.params(updateParamSchema),
+  category.deleteCate
+)
 
 // // Categories mobile
 // router.get("/:userId", CateController.getAllCateMobi);

@@ -1,5 +1,5 @@
 import cron from "cron";
-import hello from "./job/helloword";
+// import hello from "./job/helloword";
 class cronJob {
   cronjob = new cron.CronJob("* * * * * *", () => {
     try {
