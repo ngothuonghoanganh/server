@@ -213,11 +213,12 @@ class Authentication {
 
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-
+      console.log(roleName);
       let role: Role = await Role.query()
         .select()
         .where("rolename", roleName)
         .first();
+        console.log(roleName);
 
       const newAccount = await Accounts.query().insert({
         username: username,
