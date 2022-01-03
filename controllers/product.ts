@@ -1,73 +1,65 @@
-// import { Products } from "../models/product";
-// import console from "console";
-// import knex from "knex";
+import {Products} from "../models/"
+import console from "console";
 
-// class ProductsController {
-//   public createNewProduct = async (req: any, res: any, next: any) => {
-//     try {
-//       const { id } = req.user;
-//       const { categoryId = null } = req.body;
-//       let {
-//         name,
-//         retailPrice,
-//         wholesalePrice,
-//         quantity,
-//         quantityForWholesale,
-//         description = "",
-//         image = "",
-//         // categoriesid='',
-//         // createdat,
-//         // updatedat
-//       } = req.body;
-//       console.log(categoryId);
-//       if (
-//         !name ||
-//         !retailPrice ||
-//         !wholesalePrice ||
-//         !quantity ||
-//         !quantityForWholesale ||
-//         !description
-//       ) {
-//         return res
-//           .send(400)
-//           .send(
-//             "Make sure you filled name, retail price, wholesaleprice, quantity, quantity for wholesale and description"
-//           );
-//       }
-//       console.log("-------------");
 
-//       if (retailPrice < wholesalePrice) {
-//         return res.send(400).send("Make sure retai lprice < whole sale price");
-//       }
+class ProductsController {
+  public createNewProduct = async (req: any, res: any, next: any) => {
+    try {
+      const { id } = req.user;
+      const { categoryId = null } = req.body;
+      let {
+        name,
+        retailPrice,
+        quantity,
+        quantityForWholesale,
+        description = "",
+        image = "",
+        // categoriesid='',
+        // createdat,
+        // updatedat
+      } = req.body;
+      console.log(categoryId);
+      if (
+        !name ||
+        !retailPrice ||
+        !quantity ||
+        !quantityForWholesale ||
+        !description
+      ) {
+        return res
+          .send(400)
+          .send(
+            "Make sure you filled name, retail price, wholesaleprice, quantity, quantity for wholesale and description"
+          );
+      }
 
-//       if (quantity < quantityForWholesale) {
-//         return res
-//           .status(400)
-//           .send(
-//             "quantity is amount of available products for sale. Are you sure quantity < quantity for wholesale? "
-//           );
-//       }
+      if (quantity < quantityForWholesale) {
+        return res
+          .status(400)
+          .send(
+            "quantity is amount of available products for sale. Are you sure quantity < quantity for wholesale? "
+          );
+      }
 
-//       const prod: any = await Products.query().insert({
-//         userid: id,
-//         name: name,
-//         retailprice: retailPrice,
-//         wholesaleprice: wholesalePrice,
-//         quantity: quantity,
-//         quantityforwholesale: quantityForWholesale,
-//         description: description,
-//         image: JSON.stringify(image),
-//         categoryid: categoryId,
-//       });
-//       return res.status(200).send({
-//         status: 200,
-//         message: "inserted product: " + name,
-//         data: prod,
-//       });
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
+      const prod: any = await Products.query().insert({
+        userid: id,
+        name: name,
+        retailprice: retailPrice,
+        quantity: quantity,
+        quantityforwholesale: quantityForWholesale,
+        description: description,
+        image: JSON.stringify(image),
+        categoryid: categoryId,
+      });
+      return res.status(200).send({
+        status: 200,
+        message: "inserted product: " + name,
+        data: prod,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 //   public updateProduct = async (req: any, res: any, next: any) => {
 //     try {
@@ -217,6 +209,8 @@
 //       console.log(error);
 //     }
 //   };
-// }
+}
 
 // export const ProductController = new ProductsController();
+export default new ProductsController();
+

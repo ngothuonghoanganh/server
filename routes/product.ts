@@ -1,7 +1,8 @@
 import * as express from "express";
-// import { ProductController } from "../controllers/product";
-// import { AuthenticationController } from "../controllers/authentication";
-// import { Products } from "../models/product";
+import { createValidator } from "express-joi-validation";
+
+import  authentication  from "../controllers/authentication";
+import  product from "../controllers/product";
 
 const router = express.Router();
 
@@ -19,12 +20,12 @@ const router = express.Router();
 //   ProductController.updateProduct
 // );
 
-// router.post(
-//   "/",
-//   AuthenticationController.protected,
-//   AuthenticationController.checkRole(["Supplier"]),
-//   ProductController.createNewProduct
-// );
+router.post(
+  "/",
+  authentication.protected,
+  authentication.checkRole(["Supplier"]),
+  product.createNewProduct
+);
 
 // router.get(
 //   "/All",
