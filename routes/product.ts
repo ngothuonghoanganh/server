@@ -1,7 +1,8 @@
 import * as express from "express";
-import { ProductController } from "../controllers/product";
-import { AuthenticationController } from "../controllers/authentication";
-import { Products } from "../models/product";
+import { createValidator } from "express-joi-validation";
+
+import Authentication from "../controllers/authentication";
+import Product from "../controllers/product";
 
 const router = express.Router();
 
@@ -10,41 +11,41 @@ const router = express.Router();
 // vì không cần cái đó nên là userId phải được truyền vào từ query chứ không phải lấy từ request như các thằng khác
 router.get(
   "/",
-  // AuthenticationController.protected,
-  // AuthenticationController.checkRole(["Supplier"]),
-  ProductController.getAllProduct
+  // Authentication.protected,
+  // Authentication.checkRole(["Supplier"]),
+  Product.getAllProduct
 );
 
-router.put(
-  "/:productId",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  ProductController.updateProduct
-);
+// router.put(
+//   "/:productId",
+//   Authentication.protected,
+//   Authentication.checkRole(["Supplier"]),
+//   Product.updateProduct
+// );
 
 router.post(
   "/",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  ProductController.createNewProduct
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  Product.createNewProduct
 );
 
 // ở đây cũng lấy toàn bộ product ra nhưng để cho supplier quản lý nên là cần authentication
 // và check cả role của nó nên là userId lấy từ request
 router.get(
   "/All",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  ProductController.getAllProductsAndCates
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  Product.getAllProductsAndCates
 );
 
-router.get("/:productId", ProductController.getProductById);
+router.get("/:productId", Product.getProductById);
 
 router.delete(
   "/:productId",
-  AuthenticationController.protected,
-  AuthenticationController.checkRole(["Supplier"]),
-  ProductController.deleteProduct
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  Product.deleteProduct
 );
 
 export default router;

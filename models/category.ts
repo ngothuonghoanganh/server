@@ -10,7 +10,7 @@ export class Categories extends Model {
 
     id?: string;
     categoryname?: string;
-    userid?: string;
+    supplierid?: string;
     createdat?: Date;
     updatedat?: Date;
     isdeleted?: boolean;

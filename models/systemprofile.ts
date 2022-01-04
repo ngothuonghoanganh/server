@@ -3,20 +3,16 @@ import * as connection from "./db/connection";
 
 Model.knex(connection.knex);
 
-export class Users extends Model {
+export class SystemProfile extends Model {
   static get tableName() {
-    return "users";
+    return "systemprofile";
   }
+
   id?: string;
-  username?: string;
-  password?: string;
-  googleid?: string;
-  firstname?: string;
-  lastname?: string;
-  email?: string;
-  phone?: string;
-  roleid?: number;
+  accountid?: string;
+  name?: string;
   avt?: string;
   isdeleted?: boolean;
   createdat?: Date;
+  updatedat?: Date;
 }

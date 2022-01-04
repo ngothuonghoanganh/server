@@ -1,13 +1,20 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-import { Users } from "../models/user";
+// import { Users } from "../models/user";
 import { Role } from "../models/role";
+import { Accounts } from "../models/accounts";
+import { Customers } from "../models/customers";
+import { Suppliers } from "../models/suppliers";
+import { SystemProfile } from "../models/systemprofile";
 
 class Authentication {
-  private sendJWTToken = async (user: Users, statusCode: number, res: any) => {
+  private sendJWTToken = async (user: any, statusCode: number, res: any) => {
     try {
-      const token = this.signToken(user.id as any);
+      const token = this.signToken({
+        userid: user.id,
+        rolename: user.rolename,
+      } as any);
 
       const cookieOptions = {
         expiresIn: "24h",
@@ -27,9 +34,9 @@ class Authentication {
     }
   };
 
-  private signToken = (id: number) => {
+  private signToken = (id: any) => {
     try {
-      return jwt.sign({ id: id }, process.env.JWT_SECRET as string);
+      return jwt.sign({ ...id }, process.env.JWT_SECRET as string);
     } catch (error) {
       console.error(error);
     }
@@ -39,16 +46,16 @@ class Authentication {
     try {
       let { username, password } = req.body;
 
-      if (!username || !password) {
-        return res.status(400).send("Cannot find username or password !");
-      }
+      // if (!username || !password) {
+      //   return res.status(400).send("Cannot find username or password !");
+      // }
 
-      const user: any = await Users.query()
-        .select("users.*", "role.rolename")
-        .join("role", "role.id", "users.roleid")
-        .where("users.username", username)
-        .orWhere('users.phone', username)
-        .andWhere("users.isdeleted", false)
+      const user: any = await Accounts.query()
+        .select("accounts.*", "roles.rolename")
+        .join("roles", "roles.id", "accounts.roleid")
+        .where("accounts.username", username)
+        .orWhere("accounts.phone", username)
+        .andWhere("accounts.isdeleted", false)
         .first();
       if (user) {
         const validPassword = await bcrypt.compare(password, user.password);
@@ -73,45 +80,38 @@ class Authentication {
   public protected = async (req: any, res: any, next: any) => {
     try {
       const token = req.cookies.jwt || req.headers.cookie;
-      const userId = req.headers.userid;
-      const listEntity = [
-        "users.id",
-        "users.username",
-        "users.firstname",
-        "users.lastname",
-        "users.email",
-        "users.phone",
-        "users.roleid",
-        "users.createdat",
-        "role.rolename",
-      ];
-      if (!token && !userId) {
+      if (!token) {
         return res
           .status(401)
           .send("You have not login yet !! Please login to use this funciton.");
       }
       let currentUser;
-      if (userId) {
-        currentUser = await Users.query()
-          .select(...listEntity)
-          .join("role", "role.id", "users.roleid")
-          .where("users.id", userId)
-          .andWhere("users.isdeleted", false)
+      const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
+
+      if (verify.rolename === "Supplier") {
+        currentUser = await Suppliers.query()
+          .select()
+          .where("accountid", verify.userid)
+          .andWhere("isdeleted", false)
+          .first();
+      } else if (verify.rolename === "Customer") {
+        currentUser = await Customers.query()
+          .select()
+          .where("accountid", verify.userid)
+          .andWhere("isdeleted", false)
           .first();
       } else {
-        const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
-        currentUser = await Users.query()
-          .select(...listEntity)
-          .join("role", "role.id", "users.roleid")
-          .where("users.id", verify.id)
-          .andWhere("users.isdeleted", false)
+        currentUser = await SystemProfile.query()
+          .select()
+          .where("accountid", verify.userid)
+          .andWhere("isdeleted", false)
           .first();
       }
 
       if (!currentUser) {
         return res.status(401).send("User attach with token are not exist");
       }
-      req.user = currentUser;
+      req.user = { ...currentUser, rolename: verify.rolename };
       next();
     } catch (error) {
       console.error(error);
@@ -126,7 +126,6 @@ class Authentication {
         status: "success",
         data: null,
       });
-
     } catch (error) {
       console.error(error);
     }
@@ -136,20 +135,21 @@ class Authentication {
     try {
       const {
         googleId,
-        fitstName = "",
+        firstName = "",
         lastName = "",
         email = "",
         phone = "",
-        roleName = "Customer"
+        roleName = "Customer",
+        address = "",
       } = req.body;
 
-      if(!googleId){
+      if (!googleId) {
         return res.status(400).send({
-          message: 'login failed',
-          data: null
+          message: "login failed",
+          data: null,
         });
       }
-      let user: any = await Users.query()
+      let user: any = await Accounts.query()
         .select()
         .where("googleid", googleId)
         .first();
@@ -157,20 +157,40 @@ class Authentication {
         .select()
         .where("rolename", roleName)
         .first();
+
       if (!user) {
-        await Users.query().insert({
+        const newAccount = await Accounts.query().insert({
           googleid: googleId,
-          firstname: fitstName,
-          lastname: lastName,
-          email: email,
-          phone: phone,
           roleid: role.id,
+          phone: phone,
         });
+        let newUser;
+        if (roleName === "Customer") {
+          newUser = await Customers.query().insert({
+            accountid: newAccount.id,
+            firstname: firstName,
+            lastname: lastName,
+            email: email,
+          });
+
+          delete newAccount.password;
+        }
+        if (roleName === "Supplier") {
+          newUser = await Suppliers.query().insert({
+            accountid: newAccount.id,
+            name: firstName + " " + lastName,
+            email: email,
+            address: address,
+          });
+
+          delete newAccount.password;
+        }
       }
-      user = await Users.query()
-        .select("users.*", "role.rolename")
-        .join("role", "role.id", "users.roleid")
-        .where("users.googleid", googleId)
+
+      user = await Accounts.query()
+        .select("accounts.*", "roles.rolename")
+        .join("roles", "roles.id", "accounts.roleid")
+        .where("accounts.googleid", googleId)
         .first();
       return this.sendJWTToken(user, 200, res);
     } catch (error) {
@@ -187,140 +207,135 @@ class Authentication {
         lastName = "",
         email = "",
         phone,
-        avt = "",
-        roleName = "Customer"
+        address = "",
+        roleName = "Customer",
       } = req.body;
-
-      if (!username || !password || !phone) {
-        return res
-          .status(400)
-          .send("username or phone or password does not exist!");
-      }
-
-      let user = await await Users.query()
-        .select('users.username')
-        .where('username', username)
-        .first();
-      if (user) {
-        return res.status(400).send('username is exist in system, please use another one.');
-      }
-      if (!firstName || !lastName) {
-        return res.status(400).send("first name, last name are required");
-      }
-
-      if (!email) {
-        return res.status(400).send('email is mandatory');
-      }
 
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-
       let role: Role = await Role.query()
         .select()
         .where("rolename", roleName)
         .first();
 
-      await Users.query().insert({
+      const newAccount = await Accounts.query().insert({
         username: username,
         password: password,
-        firstname: firstName,
-        lastname: lastName,
-        email: email,
-        phone: phone,
         roleid: role.id,
-        avt: avt,
+        phone: phone,
       });
-      // await Users.query().insert({
-      //   username: username,
-      //   password: password,
-      //   firstname: firstName,
-      //   lastname: lastName,
-      //   email: email,
-      //   phone: phone,
-      //   roleid:
-      // })
+      let newUser;
+      if (roleName === "Customer") {
+        newUser = await Customers.query().insert({
+          accountid: newAccount.id,
+          firstname: firstName,
+          lastname: lastName,
+          email: email,
+        });
 
-      return res.send("register success");
+        delete newAccount.password;
+      }
+      if (roleName === "Supplier") {
+        newUser = await Suppliers.query().insert({
+          accountid: newAccount.id,
+          name: firstName + " " + lastName,
+          email: email,
+          address: address,
+        });
+
+        delete newAccount.password;
+      }
+
+      return res.status(200).send({
+        data: {
+          ...newAccount,
+          ...newUser,
+        },
+        message: "register success",
+      });
     } catch (error: any) {
-      if (error.message.includes("duplicate key value violates unique constraint")) {
+      console.log(error);
+      if (
+        error.message.includes("duplicate key value violates unique constraint")
+      ) {
         return res.status(400).send({
-          message: "username or phone is already in use",
-          data: null
-        })
+          message:
+            "username or phone is exist in system, please use another one.",
+          data: null,
+        });
       }
     }
-  }
-
-
-  //do not use
-  public getAllUsers = async (req: any, res: any, next: any) => {
-    try {
-      // const { userId = "" } = req.params;
-
-      const listEntity = [
-        "users.id",
-        "users.username",
-        "users.firstname",
-        "users.lastname",
-        "users.email",
-        "users.phone",
-        "users.roleid",
-        "users.createat",
-        "users.avt",
-        "role.rolename",
-      ];
-
-      let currentUser;
-      // if (userId === null || userId === undefined || userId === "" || userId) {
-      currentUser = await Users.query()
-        .select(...listEntity)
-        .join("role", "role.id", "users.roleid")
-        .where("users.isdeleted", false)
-        .andWhereNot("users.id", req.user.Id);
-      // }
-      //  else {
-      //   currentUser = await User.query()
-      //     .select(...listEntity)
-      //     .join("role", "role.Id", "user.RoleId")
-      //     .where("user.IsDeleted", false)
-      //     .andWhereNot("user.Id", req.user.Id)
-      //     .andWhere("user.Id", userId)
-      //     .first();
-      // }
-
-      return res.send(currentUser);
-    } catch (error) {
-      console.error(error);
-    }
   };
 
-  public getMe = async (req: any, res: any, next: any) => {
-    try {
-      const listEntity = [
-        "users.id",
-        "users.username",
-        "users.firstname",
-        "users.lastname",
-        "users.email",
-        "users.phone",
-        "users.roleid",
-        "users.createdat",
-        "users.avt",
-        "role.rolename",
-      ];
+  //   //do not use
+  //   public getAllUsers = async (req: any, res: any, next: any) => {
+  //     try {
+  //       // const { userId = "" } = req.params;
 
-      return res.send(
-        await Users.query()
-          .select(...listEntity)
-          .join("role", "role.id", "users.roleid")
-          .where("users.isdeleted", false)
-          .andWhere("users.id", req.user.id)
-          .first()
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  //       const listEntity = [
+  //         "users.id",
+  //         "users.username",
+  //         "users.firstname",
+  //         "users.lastname",
+  //         "users.email",
+  //         "users.phone",
+  //         "users.roleid",
+  //         "users.createat",
+  //         "users.avt",
+  //         "role.rolename",
+  //       ];
+
+  //       let currentUser;
+  //       // if (userId === null || userId === undefined || userId === "" || userId) {
+  //       currentUser = await Users.query()
+  //         .select(...listEntity)
+  //         .join("role", "role.id", "users.roleid")
+  //         .where("users.isdeleted", false)
+  //         .andWhereNot("users.id", req.user.Id);
+  //       // }
+  //       //  else {
+  //       //   currentUser = await User.query()
+  //       //     .select(...listEntity)
+  //       //     .join("role", "role.Id", "user.RoleId")
+  //       //     .where("user.IsDeleted", false)
+  //       //     .andWhereNot("user.Id", req.user.Id)
+  //       //     .andWhere("user.Id", userId)
+  //       //     .first();
+  //       // }
+
+  //       return res.send(currentUser);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   public getMe = async (req: any, res: any, next: any) => {
+  //     try {
+  //       const listEntity = [
+  //         "users.id",
+  //         "users.username",
+  //         "users.firstname",
+  //         "users.lastname",
+  //         "users.email",
+  //         "users.phone",
+  //         "users.roleid",
+  //         "users.createdat",
+  //         "users.avt",
+  //         "role.rolename",
+  //       ];
+
+  //       return res.send(
+  //         await Users.query()
+  //           .select(...listEntity)
+  //           .join("role", "role.id", "users.roleid")
+  //           .where("users.isdeleted", false)
+  //           .andWhere("users.id", req.user.id)
+  //           .first()
+  //       );
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
   public checkRole = (roles: Array<string>) => {
     // console.log(role)
@@ -328,11 +343,11 @@ class Authentication {
       const user = req.user;
       // console.log(user);
       if (!roles.includes(user.rolename)) {
-        return res.status(403).send("this user don't have permission")
+        return res.status(403).send("this user don't have permission");
       }
-      return next()
+      return next();
     };
   };
 }
 
-export const AuthenticationController = new Authentication();
+export default new Authentication();

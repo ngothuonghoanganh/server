@@ -4,21 +4,17 @@ import { Categories } from "../models/category";
 class CategoriesController {
   public createNewCate = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user;
+      const supplierid = req.user.id;
 
-      let { categoryname } = req.body;
-
-      if (!categoryname) {
-        return res.status(400).send("category name is required");
-      }
+      let { categoryName } = req.body;
 
       const newCate: any = await Categories.query().insert({
-        categoryname: categoryname,
-        userid: id,
+        categoryname: categoryName,
+        supplierid: supplierid,
       });
 
       return res.status(200).send({
-        message: "Created new Cate with name: " + categoryname,
+        message: "create success",
         data: newCate,
       });
     } catch (error) {
@@ -27,43 +23,82 @@ class CategoriesController {
   };
 
   public getAllCate = async (req: any, res: any, next: any) => {
-    const { id } = req.user;
     try {
+      console.log(req.user)
+      const  {id}  = req.user;
       const List = await Categories.query()
         .select("categories.*")
         .where("isdeleted", false)
-        .andWhere("userid", id);
+        .andWhere("supplierid", id);
       return res.status(200).send({
         data: List,
-        message: "got the list categories",
+        message: "successful",
       });
     } catch (error) {
       console.log(error);
     }
   };
 
+  public getAllCateByQuery = async (req: any, res: any, next: any) => {
+    try {
+      const { userId } = req.query;
+      // console.log(userId)
+      const List = await Categories.query()
+        .select('categories.*')
+        .where('isdeleted', false)
+        .andWhere('supplierid', userId)
+
+      // console.log(List)
+
+      return res.status(200).send({
+        message: 'successful',
+        data: List
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  public deleteCate = async (req: any, res: any, next: any) => {
+    try {
+      const { categoryId } = req.params;
+      await Categories.query()
+        .update({
+          isdeleted: true
+        })
+        .where('id', categoryId)
+
+      res.status(200).send({
+        message: 'deactivated a cate',
+
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   public updateCate = async (req: any, res: any, next: any) => {
     try {
       const { categoryId } = req.params;
-      let { categoryName, isDeleted = false } = req.body;
+      let { categoryName } = req.body;
 
       await Categories.query()
         .update({
           categoryname: categoryName,
-          isdeleted: isDeleted,
         })
         .where("id", categoryId)
         .andWhere("isdeleted", false);
       const cateUpdated: any = await Categories.query().where("id", categoryId);
       return res.status(200).send({
         data: cateUpdated,
-        message: "updated category name " + categoryName,
+        message: "update successfully",
       });
     } catch (error) {
       console.log(error);
     }
   };
 
+  //do not use
   public getAllCateMobi = async (req: any, res: any, next: any) => {
     try {
       const userId = req.params.userId;
@@ -97,4 +132,4 @@ class CategoriesController {
     }
   };
 }
-export const CateController = new CategoriesController();
+export default new CategoriesController();

@@ -4,7 +4,7 @@ import * as connection from "./db/connection";
 Model.knex(connection.knex);
 export class Role extends Model {
   static get tableName() {
-    return "role";
+    return "roles";
   }
   id?: string;
   rolename!: string;

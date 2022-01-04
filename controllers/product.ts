@@ -1,6 +1,5 @@
 import { Products } from "../models/product";
 import console from "console";
-import knex from "knex";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -42,7 +41,6 @@ class ProductsController {
         description: description,
         image: JSON.stringify(image),
         categoryid: categoryId,
-        typeofproduct: typeofproduct,
       });
       return res.status(200).send({
         status: 200,
@@ -68,11 +66,11 @@ class ProductsController {
         typeofproduct = "",
       } = req.body;
 
-      if (!retailPrice || !Number.isInteger(retailPrice)) {
-        return res
-          .status(400)
-          .send("Make sure you enter a number for retail price!");
-      }
+      //       if (!retailPrice || !Number.isInteger(retailPrice)) {
+      //         return res
+      //           .status(400)
+      //           .send("Make sure you enter a number for retail price!");
+      //       }
 
       await Products.query()
         .update({
@@ -130,7 +128,7 @@ class ProductsController {
         .where("products.isdeleted", false)
         .andWhere("products.supplierid", req.user.id);
 
-      prods = prods.map((prod) => {
+      prods = prods.map((prod: any) => {
         if (prod.image) {
           console.log(prod.image);
           // prod.image = JSON.parse(prod.image);
@@ -187,4 +185,5 @@ class ProductsController {
   };
 }
 
-export const ProductController = new ProductsController();
+// export const ProductController = new ProductsController();
+export default new ProductsController();
