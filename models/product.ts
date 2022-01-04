@@ -12,9 +12,7 @@ export class Products extends Model{
     userid?: string;
     name?: string;
     retailprice?: number;
-    wholesaleprice?: number;
     quantity?: number;
-    quantityforwholesale?: number;
     description?: string;
     image?: string;
     categoryid?: string;

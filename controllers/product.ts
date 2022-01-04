@@ -10,9 +10,7 @@ class ProductsController {
       let {
         name,
         retailPrice,
-        wholesalePrice,
         quantity,
-        quantityForWholesale,
         description = "",
         image = "",
         typeofproduct = "",
@@ -24,9 +22,7 @@ class ProductsController {
       if (
         !name ||
         !retailPrice ||
-        !wholesalePrice ||
         !quantity ||
-        !quantityForWholesale ||
         !description ||
         !typeofproduct
       ) {
@@ -38,25 +34,11 @@ class ProductsController {
       }
       console.log("-------------");
 
-      if (retailPrice < wholesalePrice) {
-        return res.send(400).send("Make sure retai lprice < whole sale price");
-      }
-
-      if (quantity < quantityForWholesale) {
-        return res
-          .status(400)
-          .send(
-            "quantity is amount of available products for sale. Are you sure quantity < quantity for wholesale? "
-          );
-      }
-
       const prod: any = await Products.query().insert({
         userid: id,
         name: name,
         retailprice: retailPrice,
-        wholesaleprice: wholesalePrice,
         quantity: quantity,
-        quantityforwholesale: quantityForWholesale,
         description: description,
         image: JSON.stringify(image),
         categoryid: categoryId,
@@ -79,9 +61,7 @@ class ProductsController {
       let {
         name,
         retailPrice,
-        wholesalePrice,
         quantity,
-        quantityforwholesale,
         description = "",
         image = "",
         isDeleted = false,
@@ -94,26 +74,11 @@ class ProductsController {
           .send("Make sure you enter a number for retail price!");
       }
 
-      if (
-        !wholesalePrice ||
-        retailPrice <= wholesalePrice ||
-        !Number.isInteger(retailPrice) ||
-        !Number.isInteger(wholesalePrice)
-      ) {
-        return res
-          .status(400)
-          .send(
-            "Make sure retail price and whole sale Price is a integer number and whole sale price <= retail price"
-          );
-      }
-
       await Products.query()
         .update({
           name: name,
           retailprice: retailPrice,
-          wholesaleprice: wholesalePrice,
           quantity: quantity,
-          quantityforwholesale: quantityforwholesale,
           description: description,
           image: image,
           isdeleted: isDeleted,
@@ -137,10 +102,10 @@ class ProductsController {
 
   public getAllProduct = async (req: any, res: any, next: any) => {
     try {
-      // const { id } = req.user;
+      const supplierId = req.query.supplierId;
       const List = await Products.query()
         .select("products.*")
-        // .where('userid', id)
+        .where("supplierid", supplierId)
         .andWhere("isdeleted", false);
 
       return res.status(200).send({
@@ -163,12 +128,12 @@ class ProductsController {
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
         .where("products.isdeleted", false)
-        .andWhere("products.userid", req.user.id);
+        .andWhere("products.supplierid", req.user.id);
 
       prods = prods.map((prod) => {
         if (prod.image) {
           console.log(prod.image);
-          //   prod.image = JSON.parse(prod.image);
+          // prod.image = JSON.parse(prod.image);
         }
         return prod;
       });
@@ -200,7 +165,7 @@ class ProductsController {
 
   public deleteProduct = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user;
+      const supplierId = req.user.id;
       const { productId } = req.params;
       let { isDeleted = true } = req.body;
 
@@ -208,7 +173,7 @@ class ProductsController {
         .update({
           isdeleted: isDeleted,
         })
-        .where("userid", id)
+        .where("supplierid", supplierId)
         .andWhere("id", productId)
         .andWhere("isdeleted", false);
 
