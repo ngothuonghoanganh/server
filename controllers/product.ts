@@ -66,9 +66,9 @@ class ProductsController {
           image: image,
           typeofproduct: typeofproduct,
         })
-        .where("userid", id)
+        .where("supplierid", id)
         .andWhere("id", productId)
-        .andWhere("isdeleted", false);
+        .andWhere("status", "active");
 
       const productUpdated: any = await Products.query()
         .select()
@@ -85,10 +85,12 @@ class ProductsController {
   public getAllProduct = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.query.supplierId;
-      const List = await Products.query()
-        .select("products.*")
-        .where("supplierid", supplierId)
-        .andWhere("isdeleted", false);
+      const List = supplierId
+        ? await Products.query()
+            .select("products.*")
+            .where("supplierid", supplierId)
+            .andWhere("status", "active")
+        : await Products.query().select("products.*").where("status", "active");
 
       return res.status(200).send({
         message: "loaded product with name ",
@@ -109,7 +111,7 @@ class ProductsController {
       let prods = await Products.query()
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
-        .where("products.isdeleted", false)
+        .where("products.status", "active")
         .andWhere("products.supplierid", req.user.id);
 
       prods = prods.map((prod: any) => {
@@ -134,6 +136,7 @@ class ProductsController {
       const prod: any = await Products.query()
         .select()
         .where("id", productId)
+        .andWhere("status", "active")
         .first();
 
       return res.status(200).send({
@@ -149,14 +152,13 @@ class ProductsController {
   public deleteProduct = async (req: any, res: any, next: any) => {
     try {
       const { productId } = req.params;
-      let { status = "deactivated" } = req.body;
-      let oldStatus = 'active'
       await Products.query()
         .update({
-          status: status,
+          status: "deactivated",
         })
         .where("id", productId)
-        .andWhere('status', oldStatus)
+        .andWhere("status", "active");
+
       return res.status(200).send({
         message: "Delete Success",
         data: null,

@@ -21,6 +21,7 @@ router.get(
   Product.getAllProduct
 );
 
+<<<<<<< HEAD
 // router.put(
 //   "/:productId",
 //   Authentication.protected,
@@ -30,6 +31,14 @@ router.get(
   //   validator.body(updateBodyProductSchema),
   // Product.updateProduct
 // );
+=======
+router.put(
+  "/:productId",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  Product.updateProduct
+);
+>>>>>>> 8e86b5c454a3dfc6e82953e66eb2a50fd108893f
 
 router.post(
   "/",

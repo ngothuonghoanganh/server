@@ -124,6 +124,7 @@ class Authentication {
           .andWhere("isdeleted", false)
           .first();
       }
+      console.log(verify)
 
       if (!currentUser) {
         return res.status(401).send("User attach with token are not exist");
@@ -234,7 +235,6 @@ class Authentication {
         .select()
         .where("rolename", roleName)
         .first();
-      console.log(roleName);
 
       const newAccount = await Accounts.query().insert({
         username: username,
