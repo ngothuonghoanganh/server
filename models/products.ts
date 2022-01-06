@@ -15,8 +15,8 @@ export class Products extends Model {
     quantity?: Number;
     description?: string;
     image?: string;
-    categoriesid?: string;
-    statusid?: string;
+    categoryid?: string;
+    status?: string;
     typeofproduct?: string;
     createdat?: Date;
     updatedat?: Date;

@@ -1,10 +1,10 @@
-import { Products } from "../models/product";
+import { Products } from "../models/products";
 import console from "console";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user;
+      // const { id } = req.user;
       const { categoryId = null } = req.body;
       let {
         name,
@@ -34,13 +34,13 @@ class ProductsController {
       console.log("-------------");
 
       const prod: any = await Products.query().insert({
-        userid: id,
+        supplierid: req.user.id,
         name: name,
         retailprice: retailPrice,
         quantity: quantity,
         description: description,
         image: JSON.stringify(image),
-        categoryid: categoryId,
+        categoryid: categoryId
       });
       return res.status(200).send({
         status: 200,
@@ -79,12 +79,11 @@ class ProductsController {
           quantity: quantity,
           description: description,
           image: image,
-          isdeleted: isDeleted,
           typeofproduct: typeofproduct,
         })
         .where("userid", id)
         .andWhere("id", productId)
-        .andWhere("isdeleted", false);
+        .andWhere("status", 'active');
 
       const productUpdated: any = await Products.query()
         .select()
@@ -104,7 +103,7 @@ class ProductsController {
       const List = await Products.query()
         .select("products.*")
         .where("supplierid", supplierId)
-        .andWhere("isdeleted", false);
+        .andWhere("status", "active");
 
       return res.status(200).send({
         message: "loaded product with name ",
@@ -125,7 +124,7 @@ class ProductsController {
       let prods = await Products.query()
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
-        .where("products.isdeleted", false)
+        .where("products.status", "active")
         .andWhere("products.supplierid", req.user.id);
 
       prods = prods.map((prod: any) => {
@@ -150,6 +149,7 @@ class ProductsController {
       const prod: any = await Products.query()
         .select()
         .where("id", productId)
+        .andWhere("status", "active")
         .first();
 
       return res.status(200).send({
@@ -169,11 +169,11 @@ class ProductsController {
 
       await Products.query()
         .update({
-          isdeleted: isDeleted,
+          status: "deactivated",
         })
         .where("supplierid", supplierId)
         .andWhere("id", productId)
-        .andWhere("isdeleted", false);
+        .andWhere("status", "active");
 
       return res.status(200).send({
         message: "Delete Success",
