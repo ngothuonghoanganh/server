@@ -19,13 +19,30 @@ class Authentication {
       const cookieOptions = {
         expiresIn: "24h",
       };
+      let info = {};
 
+      if (user.rolename === "Customer") {
+        info = await Customers.query()
+          .select()
+          .where("accountid", user.id)
+          .first();
+      } else if (user.rolename === "Supplier") {
+        info = await Suppliers.query()
+          .select()
+          .where("accountid", user.id)
+          .first();
+      } else {
+        info = await SystemProfile.query()
+          .select()
+          .where("accountid", user.id)
+          .first();
+      }
       res.cookie("jwt", token, cookieOptions);
 
       res.status(statusCode).json({
         status: "success",
         data: {
-          user: user,
+          user: { ...user, ...info },
           token: token,
         },
       });
