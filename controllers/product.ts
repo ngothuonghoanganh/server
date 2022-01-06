@@ -18,17 +18,11 @@ class ProductsController {
         // updatedat
       } = req.body;
       console.log(categoryId);
-      if (
-        !name ||
-        !retailPrice ||
-        !quantity ||
-        !description ||
-        !typeofproduct
-      ) {
+      if (!name || !retailPrice || !quantity || !description) {
         return res
-          .send(400)
+          .status(400)
           .send(
-            "Make sure you filled name, retail price, wholesaleprice, quantity, quantity for wholesale and description"
+            "Make sure you filled name, retail price, quantity, quantity for wholesale and description"
           );
       }
       console.log("-------------");
@@ -40,7 +34,7 @@ class ProductsController {
         quantity: quantity,
         description: description,
         image: JSON.stringify(image),
-        categoryid: categoryId
+        categoryid: categoryId,
       });
       return res.status(200).send({
         status: 200,
@@ -81,9 +75,9 @@ class ProductsController {
           image: image,
           typeofproduct: typeofproduct,
         })
-        .where("userid", id)
+        .where("supplierid", id)
         .andWhere("id", productId)
-        .andWhere("status", 'active');
+        .andWhere("status", "active");
 
       const productUpdated: any = await Products.query()
         .select()
@@ -100,10 +94,12 @@ class ProductsController {
   public getAllProduct = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.query.supplierId;
-      const List = await Products.query()
-        .select("products.*")
-        .where("supplierid", supplierId)
-        .andWhere("status", "active");
+      const List = supplierId
+        ? await Products.query()
+            .select("products.*")
+            .where("supplierid", supplierId)
+            .andWhere("status", "active")
+        : await Products.query().select("products.*").where("status", "active");
 
       return res.status(200).send({
         message: "loaded product with name ",

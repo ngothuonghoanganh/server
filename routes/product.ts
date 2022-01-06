@@ -16,12 +16,12 @@ router.get(
   Product.getAllProduct
 );
 
-// router.put(
-//   "/:productId",
-//   Authentication.protected,
-//   Authentication.checkRole(["Supplier"]),
-//   Product.updateProduct
-// );
+router.put(
+  "/:productId",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  Product.updateProduct
+);
 
 router.post(
   "/",
