@@ -1,11 +1,16 @@
 import * as express from "express";
 import { createValidator } from "express-joi-validation";
+import { val, Validator } from "objection";
 
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
+import { updateParamSchema } from "../services/validation/category";
+import { createBodyProductSchema, paramProductIdSchema, supplierIdSchema, updateBodyProductSchema } from "../services/validation/product";
+
 
 const router = express.Router();
 
+const validator = createValidator();
 // api này dành cho inspector, customer, guest gọi để lấy toàn bộ sản phẩm ra
 // nên không cần phải có role và authentiation
 // vì không cần cái đó nên là userId phải được truyền vào từ query chứ không phải lấy từ request như các thằng khác
@@ -20,13 +25,18 @@ router.get(
 //   "/:productId",
 //   Authentication.protected,
 //   Authentication.checkRole(["Supplier"]),
-//   Product.updateProduct
+  //   validator.params(paramProductIdSchema),
+  //   validator.headers(supplierIdSchema),
+  //   validator.body(updateBodyProductSchema),
+  // Product.updateProduct
 // );
 
 router.post(
   "/",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
+  validator.body(createBodyProductSchema),
+  validator.headers(supplierIdSchema),
   Product.createNewProduct
 );
 
@@ -39,12 +49,17 @@ router.get(
   Product.getAllProductsAndCates
 );
 
-router.get("/:productId", Product.getProductById);
+router.get(
+  "/:productId",
+  validator.params(paramProductIdSchema),
+  Product.getProductById
+  );
 
 router.delete(
   "/:productId",
   Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
+  Authentication.checkRole(["Supplier", "Inspector"]),
+  validator.params(paramProductIdSchema),
   Product.deleteProduct
 );
 

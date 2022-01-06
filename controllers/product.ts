@@ -1,50 +1,35 @@
-import { Products } from "../models/product";
+import { Products } from "../models/products";
 import console from "console";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user;
-      const { categoryId = null } = req.body;
+      const supplierId = req.user.id; //supplierid
+      // console.log(supplierId)
       let {
         name,
         retailPrice,
         quantity,
         description = "",
         image = "",
-        typeofproduct = "",
-        // categoriesid='',
-        // createdat,
-        // updatedat
+        categoryId = null,
+        status = "active",
+        typeofproduct = ""
       } = req.body;
-      console.log(categoryId);
-      if (
-        !name ||
-        !retailPrice ||
-        !quantity ||
-        !description ||
-        !typeofproduct
-      ) {
-        return res
-          .send(400)
-          .send(
-            "Make sure you filled name, retail price, wholesaleprice, quantity, quantity for wholesale and description"
-          );
-      }
-      console.log("-------------");
 
       const prod: any = await Products.query().insert({
-        userid: id,
         name: name,
+        supplierid: supplierId,
         retailprice: retailPrice,
         quantity: quantity,
         description: description,
         image: JSON.stringify(image),
         categoryid: categoryId,
+        status: status,
+        typeofproduct: typeofproduct
       });
       return res.status(200).send({
-        status: 200,
-        message: "inserted product: " + name,
+        message: "successful",
         data: prod,
       });
     } catch (error) {
@@ -54,15 +39,15 @@ class ProductsController {
 
   public updateProduct = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user;
+      const { id } = req.user; //supplier id
       const { productId } = req.params;
       let {
         name,
         retailPrice,
         quantity,
-        description = "",
-        image = "",
-        isDeleted = false,
+        description,
+        image,
+        status = false,
         typeofproduct = "",
       } = req.body;
 
@@ -79,7 +64,6 @@ class ProductsController {
           quantity: quantity,
           description: description,
           image: image,
-          isdeleted: isDeleted,
           typeofproduct: typeofproduct,
         })
         .where("userid", id)
@@ -161,20 +145,18 @@ class ProductsController {
     }
   };
 
+  //supplier  or inspector can do it
   public deleteProduct = async (req: any, res: any, next: any) => {
     try {
-      const supplierId = req.user.id;
       const { productId } = req.params;
-      let { isDeleted = true } = req.body;
-
+      let { status = "deactivated" } = req.body;
+      let oldStatus = 'active'
       await Products.query()
         .update({
-          isdeleted: isDeleted,
+          status: status,
         })
-        .where("supplierid", supplierId)
-        .andWhere("id", productId)
-        .andWhere("isdeleted", false);
-
+        .where("id", productId)
+        .andWhere('status', oldStatus)
       return res.status(200).send({
         message: "Delete Success",
         data: null,
