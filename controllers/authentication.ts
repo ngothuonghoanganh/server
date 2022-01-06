@@ -19,13 +19,30 @@ class Authentication {
       const cookieOptions = {
         expiresIn: "24h",
       };
+      let info = {};
 
+      if (user.rolename === "Customer") {
+        info = await Customers.query()
+          .select()
+          .where("accountid", user.id)
+          .first();
+      } else if (user.rolename === "Supplier") {
+        info = await Suppliers.query()
+          .select()
+          .where("accountid", user.id)
+          .first();
+      } else {
+        info = await SystemProfile.query()
+          .select()
+          .where("accountid", user.id)
+          .first();
+      }
       res.cookie("jwt", token, cookieOptions);
 
       res.status(statusCode).json({
         status: "success",
         data: {
-          user: user,
+          user: { ...user, ...info },
           token: token,
         },
       });
@@ -217,6 +234,10 @@ class Authentication {
         .select()
         .where("rolename", roleName)
         .first();
+<<<<<<< HEAD
+=======
+      console.log(roleName);
+>>>>>>> 541ea0fcb03b361268fbbeb335ee6f3b77faacdc
 
       const newAccount = await Accounts.query().insert({
         username: username,
