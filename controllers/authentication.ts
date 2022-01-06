@@ -234,10 +234,7 @@ class Authentication {
         .select()
         .where("rolename", roleName)
         .first();
-<<<<<<< HEAD
-=======
       console.log(roleName);
->>>>>>> 541ea0fcb03b361268fbbeb335ee6f3b77faacdc
 
       const newAccount = await Accounts.query().insert({
         username: username,
