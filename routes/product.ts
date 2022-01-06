@@ -5,8 +5,12 @@ import { val, Validator } from "objection";
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
 import { updateParamSchema } from "../services/validation/category";
-import { createBodyProductSchema, paramProductIdSchema, supplierIdSchema, updateBodyProductSchema } from "../services/validation/product";
-
+import {
+  createBodyProductSchema,
+  paramProductIdSchema,
+  supplierIdSchema,
+  updateBodyProductSchema,
+} from "../services/validation/product";
 
 const router = express.Router();
 
@@ -17,35 +21,25 @@ const validator = createValidator();
 router.get(
   "/",
   // Authentication.protected,
-  // Authentication.checkRole(["Supplier"]),
+  // Authentication.checkRole(["Supplier"0]),
   Product.getAllProduct
 );
 
-<<<<<<< HEAD
-// router.put(
-//   "/:productId",
-//   Authentication.protected,
-//   Authentication.checkRole(["Supplier"]),
-  //   validator.params(paramProductIdSchema),
-  //   validator.headers(supplierIdSchema),
-  //   validator.body(updateBodyProductSchema),
-  // Product.updateProduct
-// );
-=======
 router.put(
   "/:productId",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
+  validator.params(paramProductIdSchema),
+  validator.headers(supplierIdSchema),
+  validator.body(updateBodyProductSchema),
   Product.updateProduct
 );
->>>>>>> 8e86b5c454a3dfc6e82953e66eb2a50fd108893f
 
 router.post(
   "/",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
   validator.body(createBodyProductSchema),
-  validator.headers(supplierIdSchema),
   Product.createNewProduct
 );
 
@@ -62,7 +56,7 @@ router.get(
   "/:productId",
   validator.params(paramProductIdSchema),
   Product.getProductById
-  );
+);
 
 router.delete(
   "/:productId",

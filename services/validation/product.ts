@@ -2,10 +2,10 @@ import * as Joi from "joi";
 
 export const createBodyProductSchema = Joi.object({
   name: Joi.string().required(),
-  retailPrice: Joi.number().integer(),
-  quantity: Joi.number().integer(),
+  retailPrice: Joi.number().min(0),
+  quantity: Joi.number().integer().min(0),
   description: Joi.string().required(),
-  image: Joi.array().items(Joi.string()),
+  image: Joi.array(),
   categoryId: Joi.string().allow(null).allow(""),
   status: Joi.string().allow(null).allow(""),
   typeofproduct: Joi.string().allow(null).allow(""),
@@ -21,10 +21,10 @@ export const supplierIdSchema = Joi.object({
 
 export const updateBodyProductSchema = Joi.object({
   name: Joi.string().required(),
-  retailPrice: Joi.number().integer(),
-  quantity: Joi.number().integer(),
+  retailPrice: Joi.number().min(0),
+  quantity: Joi.number().integer().min(0),
   description: Joi.string().required(),
-  image: Joi.array().items(Joi.string()),
+  image: Joi.array(),
   categoryId: Joi.string().allow(null).allow(""),
   status: Joi.string().required(),
   typeofproduct: Joi.string().allow(null).allow(""),
