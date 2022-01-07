@@ -24,7 +24,6 @@ class CategoriesController {
 
   public getAllCate = async (req: any, res: any, next: any) => {
     try {
-      console.log(req.user)
       const  {id}  = req.user;
       const List = await Categories.query()
         .select("categories.*")
