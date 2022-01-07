@@ -26,6 +26,6 @@ export const updateBodyProductSchema = Joi.object({
   description: Joi.string().required(),
   image: Joi.array().items(Joi.string()),
   categoryId: Joi.string().allow(null).allow(""),
-  status: Joi.string().required(),
+  status: Joi.string().allow(null).allow(""),
   typeofproduct: Joi.string().allow(null).allow(""),
 });

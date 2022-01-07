@@ -21,31 +21,19 @@ router.get(
   Product.getAllProduct
 );
 
-<<<<<<< HEAD
-// router.put(
-//   "/:productId",
-//   Authentication.protected,
-//   Authentication.checkRole(["Supplier"]),
-  //   validator.params(paramProductIdSchema),
-  //   validator.headers(supplierIdSchema),
-  //   validator.body(updateBodyProductSchema),
-  // Product.updateProduct
-// );
-=======
 router.put(
   "/:productId",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
+  validator.body(updateBodyProductSchema),
   Product.updateProduct
 );
->>>>>>> 8e86b5c454a3dfc6e82953e66eb2a50fd108893f
 
 router.post(
   "/",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
   validator.body(createBodyProductSchema),
-  validator.headers(supplierIdSchema),
   Product.createNewProduct
 );
 
