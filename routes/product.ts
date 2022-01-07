@@ -5,8 +5,12 @@ import { val, Validator } from "objection";
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
 import { updateParamSchema } from "../services/validation/category";
-import { createBodyProductSchema, paramProductIdSchema, supplierIdSchema, updateBodyProductSchema } from "../services/validation/product";
-
+import {
+  createBodyProductSchema,
+  paramProductIdSchema,
+  supplierIdSchema,
+  updateBodyProductSchema,
+} from "../services/validation/product";
 
 const router = express.Router();
 
@@ -17,7 +21,7 @@ const validator = createValidator();
 router.get(
   "/",
   // Authentication.protected,
-  // Authentication.checkRole(["Supplier"]),
+  // Authentication.checkRole(["Supplier"0]),
   Product.getAllProduct
 );
 
@@ -25,6 +29,7 @@ router.put(
   "/:productId",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
+  validator.params(paramProductIdSchema),
   validator.body(updateBodyProductSchema),
   Product.updateProduct
 );
@@ -50,7 +55,7 @@ router.get(
   "/:productId",
   validator.params(paramProductIdSchema),
   Product.getProductById
-  );
+);
 
 router.delete(
   "/:productId",
