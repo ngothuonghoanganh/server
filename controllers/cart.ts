@@ -1,4 +1,3 @@
-import console from 'console'
 import { Cart } from '../models/cart'
 
 class CartController {
@@ -64,7 +63,6 @@ class CartController {
     public deleteCart = async (req: any, res: any, next: any) => {
         try {
             const { cartId } = req.params;
-            console.log("deleted")
             // console.log(cartId)
             await Cart.query().where('id', cartId).del();
             return res.status(200).send({
