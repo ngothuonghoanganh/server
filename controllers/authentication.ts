@@ -124,7 +124,6 @@ class Authentication {
           .andWhere("isdeleted", false)
           .first();
       }
-      console.log(verify)
 
       if (!currentUser) {
         return res.status(401).send("User attach with token are not exist");

@@ -17,12 +17,11 @@ import fileRoute from "./routes/files";
 import categoryRoute from './routes/category';
 import productRouter from'./routes/product';
 import cartRouter from'./routes/cart';
-import discountCodeRouter from'./routes/discountcode';
-
-
+import campaignRouter from'./routes/campaign';
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob"
+import cart from "./routes/cart";
 
 const upload = multer();
 dotenv.config();
@@ -72,10 +71,7 @@ app.use("/api/files", fileRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
-app.use('/api/discountcode', discountCodeRouter);
-
-
-
+app.use('/api/campaigns', campaignRouter); 
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {

@@ -41,7 +41,6 @@ class ProductsController {
     try {
       const { id } = req.user; //supplier id
       const { productId } = req.params;
-      console.log(id)
       let {
         name,
         retailPrice,
