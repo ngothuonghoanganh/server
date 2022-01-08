@@ -17,6 +17,8 @@ import fileRoute from "./routes/files";
 import categoryRoute from './routes/category';
 import productRouter from'./routes/product';
 import cartRouter from'./routes/cart';
+import discountCodeRouter from'./routes/discountcode';
+
 
 
 import Logger from "./lib/logger";
@@ -70,6 +72,8 @@ app.use("/api/files", fileRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/discountcode', discountCodeRouter);
+
 
 
 
