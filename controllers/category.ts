@@ -117,14 +117,14 @@ class CategoriesController {
   public getOne = async (req: any, res: any, next: any) => {
     try {
       const categoryId = req.params.categoryId;
-      const cate = await Categories.query()
+      const cate: any = await Categories.query()
         .select("categories.*")
         .where("isdeleted", false)
         .andWhere("id", categoryId)
         .first();
       return res.status(200).send({
         data: cate,
-        message: "got the list categories",
+        message: "successful",
       });
     } catch (error) {
       console.log(error);

@@ -49,8 +49,8 @@ router.get(
   category.getAllCateByQuery
 )
 
-// // Categories mobile
+// Categories mobile
 // router.get("/:userId", CateController.getAllCateMobi);
-// router.get("/:categoryId", CateController.getOne);
+router.get("/:categoryId", category.getOne);
 
 export default router;
