@@ -3,34 +3,27 @@ import { Cart } from '../models/cart'
 class CartController {
     public addToCart = async (req: any, res: any, next: any) => {
         try {
-            const { id } = req.user;
-            // console.log(id)
-            const { productid } = req.params;
-            // console.log(productid)
+            const customerId = req.user.id; //customer id
 
             let {
+                productId,
                 quantity,
-                createdat,
-                updatedat,
+                wholesale,
                 typeofproduct
             } = req.body
 
-            if (!Number.isInteger(quantity)) {
-                console.log('quantity must be a integer number');
-            }
-
-            const newCart = await Cart.query()
+            const newCart: any = await Cart.query()
                 .insert({
-                    productid: productid,
+                    customerid: customerId,
+                    productid: productId,
                     quantity: quantity,
-                    userid: id,
-                    createdat: createdat,
-                    updatedat: updatedat,
-                    typeofproduct: typeofproduct
+                    wholesale: wholesale,
+                    typeofproduct: typeofproduct,
+
                 });
 
             return res.status(200).send({
-                message: 'success',
+                message: 'successful',
                 data: newCart
             })
         } catch (error) {
@@ -42,12 +35,17 @@ class CartController {
         try {
             const { cartId } = req.params;
             let {
+
+                productId,
                 quantity,
-                typeofproduct
+                wholesale,
+                typeofproduct,
             } = req.body
             const updateCart = await Cart.query()
                 .update({
+                    productid: productId,
                     quantity: quantity,
+                    wholesale: wholesale,
                     typeofproduct: typeofproduct
                 })
                 .where('id', cartId);
@@ -64,9 +62,10 @@ class CartController {
         try {
             const { cartId } = req.params;
             // console.log(cartId)
-            await Cart.query().where('id', cartId).del();
+            const deleteCart: any = await Cart.query().where('id', cartId).del();
             return res.status(200).send({
                 message: 'cart deleted',
+                data: deleteCart
             });
         } catch (error) {
             console.log(error)
@@ -79,7 +78,7 @@ class CartController {
             // console.log(id)
             const List = await Cart.query()
                 .select()
-                .where('userid', id)
+                .where('customerid', id)
 
             res.status(200).send({
                 message: 'success',
@@ -91,4 +90,5 @@ class CartController {
     }
 }
 
-export const ShoppingCartController = new CartController();
+export default new CartController();
+

@@ -9,11 +9,12 @@ export class Cart extends Model{
     }
 
     id?: string;
+    customerid?:string;
     productid?: string;
-    userid?: string;
     quantity?: string;
+    wholesale?: Number;
+    typeofproduct?: string;
     createdat?: Date;
     updatedat?: Date;
-    typeofproduct?: string;
 
 }
