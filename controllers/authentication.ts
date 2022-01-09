@@ -326,34 +326,6 @@ class Authentication {
   //     }
   //   };
 
-  //   public getMe = async (req: any, res: any, next: any) => {
-  //     try {
-  //       const listEntity = [
-  //         "users.id",
-  //         "users.username",
-  //         "users.firstname",
-  //         "users.lastname",
-  //         "users.email",
-  //         "users.phone",
-  //         "users.roleid",
-  //         "users.createdat",
-  //         "users.avt",
-  //         "role.rolename",
-  //       ];
-
-  //       return res.send(
-  //         await Users.query()
-  //           .select(...listEntity)
-  //           .join("role", "role.id", "users.roleid")
-  //           .where("users.isdeleted", false)
-  //           .andWhere("users.id", req.user.id)
-  //           .first()
-  //       );
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
   public checkRole = (roles: Array<string>) => {
     // console.log(role)
     return (req: any, res: any, next: any) => {

@@ -5,10 +5,13 @@ import { createValidator } from "express-joi-validation";
 const validator = createValidator();
 
 import Authentication from "../controllers/authentication";
+import User from "../controllers/user";
 import {
   bodyLoginSchema,
   bodyRegisterSchema,
 } from "../services/validation/authentication";
+
+import { getSupplierParamsSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -29,13 +32,22 @@ router.post("/logout", Authentication.protected, Authentication.logout);
 
 // // user infomation
 
-// router.get(
-//   "/profile/me",
-//   AuthenticationController.protected,
-//   AuthenticationController.getMe
-// );
+router.get("/profile/me", Authentication.protected, User.getMe);
 
-// router.get("/", AuthenticationController.protected, UserController.listUser);
+router.get(
+  "/supplier",
+  Authentication.protected,
+  Authentication.checkRole(["Customer", "Inspector"]),
+  User.listSupplier
+);
+
+router.get(
+  "/supplier/:supplierId",
+  Authentication.protected,
+  Authentication.checkRole(["Customer", "Inspector"]),
+  validator.params(getSupplierParamsSchema),
+  User.getOneSupplier
+);
 
 // router.put(
 //   "/:userId",
