@@ -3,6 +3,54 @@
 // import console from "console";
 // import { rmSync } from "fs";
 
+import { Accounts } from "../models/accounts";
+import { Customers } from "../models/customers";
+import { Suppliers } from "../models/suppliers";
+
+class User {
+  public async listSupplier(req: any, res: any, next: any) {
+    try {
+      const supplier = await Suppliers.query()
+        .select()
+        .where("isdeleted", false);
+      return res.status(200).send({
+        data: supplier,
+        message: "get successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  public async getOneSupplier(req: any, res: any, next: any) {
+    try {
+      const supplierId = req.params.supplierId;
+      const supplier = await Suppliers.query()
+        .select()
+        .where("isdeleted", false)
+        .andWhere("id", supplierId)
+        .first();
+      return res.status(200).send({
+        data: supplier,
+        message: "get successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  public getMe = async (req: any, res: any, next: any) => {
+    try {
+      return res
+        .status(200)
+        .send({ data: req.user, message: "get successfully" });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+}
+export default new User();
+
 // class UsersController {
 //   //do not use
 //   public getUser = async (req: any, res: any, next: any) => {
