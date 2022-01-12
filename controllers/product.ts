@@ -83,27 +83,47 @@ class ProductsController {
     }
   };
 
-  public getAllProduct = async (req: any, res: any, next: any) => {
+  public getAllProductAndSupplierInformation = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.query.supplierId;
+      let ListSupplierEntity = [
+        'suppliers.id as supplierId',
+        'suppliers.accountid as accountId',
+        'suppliers.name as supplierName',
+        'suppliers.email as supplierEmai',
+        'suppliers.avt as supplierAvt',
+        'suppliers.isdeleted as supplierIsDeleted',
+        'suppliers.address as supplierAddress',
+        'suppliers.createdat as supplierCreatedAt',
+        'suppliers.updatedat as supplierUpdatedAt'
+      ]
+
+      // let ListProductEntity=[
+      //   'product.id as productId',
+      //   'product.name as productName',
+      //   'product.supplierid as supplierId',
+      //   'product.retailprice as productRetailPrice',
+      //   'product.quantity as productQuantity',
+      //   'product.description as productDescription',
+      //   'product.image as productImage',
+      //   'product.categoryid as productCategoryId',
+      //   'product.status as productStatus',
+      //   'product.typeofproduct as typeOfProduct',
+      //   'product.createdat as productCreatedAt',
+      //   'product.updatedat as productUpdatedAt',
+
+      // ]
       const List = supplierId
         ? await Products.query()
-            .select("products.*", 'suppliers.*')
-            .join('suppliers', 'suppliers.id', 'products.supplierid')
-            .where("supplierid", supplierId)
-            .andWhere("status", "active")
-        : await Products.query().select("suppliers.*", 'products.*')
-        .join('suppliers', 'suppliers.id', 'products.supplierid')
-        .where("status", "active");
-      // let ListProduct =[
-      //   'products.*',
-      //   'suppliers.*'
-      // ];
-      // const List: any = await Products.query()
-      //   .select(...ListProduct)
-      //   .join('suppliers', 'suppliers.id', 'products.supplierid')
-      //   .where('supplierid', supplierId);
+          .select('products.*', ...ListSupplierEntity)
+          // .join('suppliers', 'suppliers.id', 'products.supplierid')
+          .join('suppliers', 'suppliers.id', 'products.supplierid')
 
+          .where("supplierid", supplierId)
+          .andWhere("status", "active")
+        : await Products.query().select(...ListSupplierEntity, 'products.*')
+          .join('suppliers', 'suppliers.id', 'products.supplierid')
+          .where("status", "active");
       return res.status(200).send({
         message: "successful",
         data: List,
