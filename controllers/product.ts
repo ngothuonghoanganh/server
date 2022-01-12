@@ -15,7 +15,7 @@ class ProductsController {
         image = "",
         categoryId = null,
         status = "active",
-        typeofproduct = ""
+        typeofproduct = "",
       } = req.body;
 
       const prod: any = await Products.query().insert({
@@ -27,7 +27,7 @@ class ProductsController {
         image: JSON.stringify(image),
         categoryid: categoryId,
         status: status,
-        typeofproduct: typeofproduct
+        typeofproduct: typeofproduct,
       });
       return res.status(200).send({
         message: "successful",
@@ -83,47 +83,36 @@ class ProductsController {
     }
   };
 
-  public getAllProductAndSupplierInformation = async (req: any, res: any, next: any) => {
+  public getAllProductAndSupplierInformation = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
       const supplierId = req.query.supplierId;
       let ListSupplierEntity = [
-        'suppliers.id as supplierId',
-        'suppliers.accountid as accountId',
-        'suppliers.name as supplierName',
-        'suppliers.email as supplierEmai',
-        'suppliers.avt as supplierAvt',
-        'suppliers.isdeleted as supplierIsDeleted',
-        'suppliers.address as supplierAddress',
-        'suppliers.createdat as supplierCreatedAt',
-        'suppliers.updatedat as supplierUpdatedAt'
-      ]
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
 
-      // let ListProductEntity=[
-      //   'product.id as productId',
-      //   'product.name as productName',
-      //   'product.supplierid as supplierId',
-      //   'product.retailprice as productRetailPrice',
-      //   'product.quantity as productQuantity',
-      //   'product.description as productDescription',
-      //   'product.image as productImage',
-      //   'product.categoryid as productCategoryId',
-      //   'product.status as productStatus',
-      //   'product.typeofproduct as typeOfProduct',
-      //   'product.createdat as productCreatedAt',
-      //   'product.updatedat as productUpdatedAt',
-
-      // ]
       const List = supplierId
         ? await Products.query()
-          .select('products.*', ...ListSupplierEntity)
-          // .join('suppliers', 'suppliers.id', 'products.supplierid')
-          .join('suppliers', 'suppliers.id', 'products.supplierid')
+            .select("products.*", ...ListSupplierEntity)
+            // .join('suppliers', 'suppliers.id', 'products.supplierid')
+            .join("suppliers", "suppliers.id", "products.supplierid")
 
-          .where("supplierid", supplierId)
-          .andWhere("status", "active")
-        : await Products.query().select(...ListSupplierEntity, 'products.*')
-          .join('suppliers', 'suppliers.id', 'products.supplierid')
-          .where("status", "active");
+            .where("supplierid", supplierId)
+            .andWhere("status", "active")
+        : await Products.query()
+            .select(...ListSupplierEntity, "products.*")
+            .join("suppliers", "suppliers.id", "products.supplierid")
+            .where("status", "active");
       return res.status(200).send({
         message: "successful",
         data: List,
