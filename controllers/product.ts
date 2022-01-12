@@ -1,5 +1,6 @@
 import { Products } from "../models/products";
 import console from "console";
+import { Suppliers } from "../models/suppliers";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -87,13 +88,24 @@ class ProductsController {
       const supplierId = req.query.supplierId;
       const List = supplierId
         ? await Products.query()
-            .select("products.*")
+            .select("products.*", 'suppliers.*')
+            .join('suppliers', 'suppliers.id', 'products.supplierid')
             .where("supplierid", supplierId)
             .andWhere("status", "active")
-        : await Products.query().select("products.*").where("status", "active");
+        : await Products.query().select("suppliers.*", 'products.*')
+        .join('suppliers', 'suppliers.id', 'products.supplierid')
+        .where("status", "active");
+      // let ListProduct =[
+      //   'products.*',
+      //   'suppliers.*'
+      // ];
+      // const List: any = await Products.query()
+      //   .select(...ListProduct)
+      //   .join('suppliers', 'suppliers.id', 'products.supplierid')
+      //   .where('supplierid', supplierId);
 
       return res.status(200).send({
-        message: "loaded product with name ",
+        message: "successful",
         data: List,
       });
     } catch (error) {
