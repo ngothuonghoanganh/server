@@ -106,7 +106,6 @@ class ProductsController {
             .select("products.*", ...ListSupplierEntity)
             // .join('suppliers', 'suppliers.id', 'products.supplierid')
             .join("suppliers", "suppliers.id", "products.supplierid")
-
             .where("supplierid", supplierId)
             .andWhere("status", "active")
         : await Products.query()
@@ -154,12 +153,24 @@ class ProductsController {
   public getProductById = async (req: any, res: any, next: any) => {
     try {
       const { productId } = req.params;
+      const listEntity = [
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
       const prod: any = await Products.query()
-        .select()
-        .where("id", productId)
-        .andWhere("status", "active")
+        .select("products.*", ...listEntity)
+        .join("suppliers", "suppliers.id", "products.supplierid")
+        .where("products.id", productId)
+        .andWhere("products.status", "active")
         .first();
 
+      console.log(prod);
       return res.status(200).send({
         message: "success",
         data: prod,
