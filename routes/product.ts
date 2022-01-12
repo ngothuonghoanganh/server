@@ -22,7 +22,7 @@ router.get(
   "/",
   // Authentication.protected,
   // Authentication.checkRole(["Supplier"0]),
-  Product.getAllProduct
+  Product.getAllProductAndSupplierInformation
 );
 
 router.put(
