@@ -64,7 +64,7 @@ class ProductsController {
           retailprice: retailPrice,
           quantity: quantity,
           description: description,
-          image: image,
+          image: JSON.stringify(image),
           typeofproduct: typeofproduct,
         })
         .where("supplierid", id)
