@@ -65,12 +65,14 @@ class CartController {
       const listEntity = [
         "products.id as productid",
         "products.name as productname",
+        "products.price as productprice",
+        "products.quantity as productquantity",
         "products.description as productdescription",
         "products.image as productimage",
         "suppliers.id as supplierid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
-        "suppliers.avt as supplieravt",
+        "suppliers.image as supplierimage",
         "suppliers.isdeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
