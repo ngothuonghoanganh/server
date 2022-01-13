@@ -48,6 +48,7 @@ class ProductsController {
         quantity,
         description,
         image,
+        categoryId = null,
         status = false,
         typeofproduct = "",
       } = req.body;
@@ -62,6 +63,7 @@ class ProductsController {
         .update({
           name: name,
           retailprice: retailPrice,
+          categoryid: categoryId,
           quantity: quantity,
           description: description,
           image: JSON.stringify(image),
