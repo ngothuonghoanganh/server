@@ -1,5 +1,6 @@
 import * as express from "express";
 import { createValidator } from "express-joi-validation";
+import authentication from "../controllers/authentication";
 
 // khởi tạo validator
 const validator = createValidator();
@@ -11,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getSupplierParamsSchema } from "../services/validation/user";
+import { getCustomerParamsSchema, getSupplierParamsSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -49,17 +50,36 @@ router.get(
   User.getOneSupplier
 );
 
-// router.put(
-//   "/:userId",
-//   AuthenticationController.protected,
-//   UserController.updateUser
-// );
+// do not use
+router.put(
+  "/supplier/:supplierId",
+  authentication.protected,
+  User.updateSupplierAccount
+);
 
-// router.delete(
-//   "/:userId",
-//   AuthenticationController.protected,
-//   UserController.deleteUser
-// );
+router.delete(
+  '/supplier/:supplierId',
+  Authentication.protected,
+  Authentication.checkRole(["Inspector"]),
+  validator.params(getSupplierParamsSchema),
+  User.deactivateSupplierAccount
+)
+
+router.get(
+  "/customer",
+  authentication.protected,
+  Authentication.checkRole(["Customer", "Inspector", "Supplier"]),
+  User.getAllCustomer
+);
+
+router.delete(
+  '/:customerId',
+  authentication.protected,
+  Authentication.checkRole(["Supplier", "Customer"]),
+  validator.params(getCustomerParamsSchema),
+  User.deactivateCustomerAccount
+
+)
 
 // router.get("/:phone", UserController.getUserByPhone);
 
