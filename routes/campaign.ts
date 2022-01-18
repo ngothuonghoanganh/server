@@ -57,4 +57,7 @@ router.get(
   validator.query(querySchema),
   CampaignController.getAllCampaigns
 );
+
+router.post("/product", CampaignController.getAllCampaignsAllowProductId);
+
 export default router;
