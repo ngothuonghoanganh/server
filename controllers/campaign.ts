@@ -1,4 +1,5 @@
 import { Campaigns } from "../models/campaigns";
+import knex from "knex";
 
 class Campaign {
   async createCompaign(req: any, res: any, next: any) {
@@ -75,10 +76,32 @@ class Campaign {
   async getAllCampaigns(req: any, res: any, next: any) {
     try {
       const supplierId = req.query.supplierId;
-      const campaigns = await Campaigns.query()
-        .select()
-        .where("supplierid", supplierId)
-        .andWhere("status", "active");
+      // let listEntityies = ["sum(orders.quantity) as quantityOrderWaiting"];
+
+      const campaigns = supplierId
+        ? await Campaigns.query()
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityOrderWaiting`
+              )
+            )
+            .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .where("supplierid", supplierId)
+            .andWhere("campaigns.status", "active")
+            .groupBy("campaigns.id")
+        : await Campaigns.query()
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityOrderWaiting`
+              )
+            )
+            .sum("orders.quantity as quantityOrderWaiting")
+            .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .where("campaigns.status", "active")
+            .groupBy("campaigns.id");
+
       return res.status(200).send({
         data: campaigns,
         message: "get successfully",
@@ -111,7 +134,8 @@ class Campaign {
       const campaign = await Campaigns.query()
         .select()
         .where("id", campaignId)
-        .andWhere("status", "active").first();
+        .andWhere("status", "active")
+        .first();
 
       return res.status(200).send({
         data: campaign,

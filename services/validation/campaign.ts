@@ -13,6 +13,6 @@ export const paramsSchema = Joi.object({
 });
 
 export const querySchema = Joi.object({
-    supplierId: Joi.string().required(),
+    supplierId: Joi.string().allow(null).allow("").default(""),
   });
   
