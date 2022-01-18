@@ -83,7 +83,8 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityOrderWaiting`
+                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityorderwaiting,
+                count(case when orders.status = 'ready' then orders.quantity else 0 end) as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
@@ -94,13 +95,40 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityOrderWaiting`
+                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityorderwaiting,
+                count(case when orders.status = 'ready' then orders.id else 0 end) as numorderwaiting`
               )
             )
-            .sum("orders.quantity as quantityOrderWaiting")
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
             .where("campaigns.status", "active")
             .groupBy("campaigns.id");
+
+      return res.status(200).send({
+        data: campaigns,
+        message: "get successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getAllCampaignsAllowProductId(req: any, res: any, next: any) {
+    try {
+      const productIds = req.body.productIds;
+
+      const campaigns = await Campaigns.query()
+        .select(
+          "campaigns.*",
+          Campaigns.raw(
+            `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityorderwaiting,
+            count(orders.id) filter (where orders.status = 'ready') as numorderwaiting
+            `
+          )
+        )
+        .leftJoin("orders", "campaigns.id", "orders.campaignid")
+        .whereIn("campaigns.productid", productIds)
+        .andWhere("campaigns.status", "active")
+        .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
