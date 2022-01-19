@@ -18,6 +18,7 @@ import categoryRoute from './routes/category';
 import productRouter from'./routes/product';
 import cartRouter from'./routes/cart';
 import campaignRouter from'./routes/campaign';
+import orderRouter from "./routes/order";
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob"
@@ -72,6 +73,8 @@ app.use('/api/categories', categoryRoute);
 app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/campaigns', campaignRouter); 
+app.use('/api/order', orderRouter); 
+
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
