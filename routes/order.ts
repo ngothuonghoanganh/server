@@ -3,7 +3,7 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 
 import order from "../controllers/order";
-import { createProductBodySchema } from "../services/validation/order";
+import { createOrderBodySchema } from "../services/validation/order";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.post(
     '/',
     Authentication.protected,
     Authentication.checkRole(["Customer"]),
-    validator.body(createProductBodySchema),
+    validator.body(createOrderBodySchema),
     order.createOrder
 )
 

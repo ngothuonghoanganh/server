@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 
-export const createProductBodySchema = Joi.object({
+export const createOrderBodySchema = Joi.object({
     customerId: Joi.string().required(),
     productId: Joi.string().required(),
     productName: Joi.string().required(),
