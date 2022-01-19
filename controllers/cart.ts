@@ -58,7 +58,8 @@ class CartController {
       console.log(error);
     }
   };
-
+  //cart.prodictid = products.id
+  //suppliers.id = products.supplierid
   public getCartByUserId = async (req: any, res: any, next: any) => {
     try {
       const { id } = req.user;

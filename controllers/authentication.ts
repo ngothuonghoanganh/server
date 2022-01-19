@@ -38,11 +38,11 @@ class Authentication {
           .first();
       }
       res.cookie("jwt", token, cookieOptions);
-
       res.status(statusCode).json({
         status: "success",
         data: {
-          user: { ...user, ...info },
+          user: { ...user },
+          info:{...info},
           token: token,
         },
       });
