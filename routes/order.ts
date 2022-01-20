@@ -13,7 +13,7 @@ router.post(
     '/',
     Authentication.protected,
     Authentication.checkRole(["Customer"]),
-    validator.body(createOrderBodySchema),
+    // validator.body(createOrderBodySchema),
     order.createOrder
 )
 

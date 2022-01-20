@@ -54,28 +54,23 @@ class User {
   public updateSupplierAccount = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.params.supplierId;
-      let {
-        name,
-        email,
-        avt,
-        address
-      } = req.body;
+      let { name, email, avt, address } = req.body;
 
       const updateSupp = await Suppliers.query()
         .update({
           name: name,
           email: email,
           avt: avt,
-          address: address
+          address: address,
         })
-        .where('accountid', supplierId)
+        .where("accountid", supplierId);
 
       return res.status(200).send({
         data: updateSupp,
-        message: 'successful'
-      })
+        message: "successful",
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -88,16 +83,16 @@ class User {
       const isDeleted = true;
       const isDeactivate: any = await Suppliers.query()
         .update({
-          isdeleted: isDeleted
+          isdeleted: isDeleted,
         })
-        .where('id', supplierId);
+        .where("id", supplierId);
 
       return res.status(200).send({
-        message: 'deactivated user',
-        Data: isDeactivate
-      })
+        message: "deactivated user",
+        Data: isDeactivate,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -105,31 +100,30 @@ class User {
     try {
       const List: any = await Customers.query()
         .select()
-        .where('isdeleted', false);
+        .where("isdeleted", false);
 
       return res.status(200).send({
-        message: 'successful',
-        data: List
-      })
+        message: "successful",
+        data: List,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   public deactivateCustomerAccount = async (req: any, res: any, next: any) => {
     try {
-      const {customerId} = req.params;
+      const { customerId } = req.params;
       await Customers.query()
         .update({
-          isdeleted: true
+          isdeleted: true,
         })
-        .where('id', customerId)
+        .where("id", customerId);
 
-      return res.status(200).send('successful')
+      return res.status(200).send("successful");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   };
 }
 export default new User();

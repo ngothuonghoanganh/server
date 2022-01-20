@@ -83,8 +83,8 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityorderwaiting,
-                count(orders.id) filter (where orders.status = 'ready') as numorderwaiting`
+                `sum(case when orders.status = 'advanced' then orders.quantity else 0 end) as quantityorderwaiting,
+                count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
@@ -95,8 +95,8 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityorderwaiting,
-                count(orders.id) filter (where orders.status = 'ready') as numorderwaiting`
+                `sum(case when orders.status = 'advanced' then orders.quantity else 0 end) as quantityorderwaiting,
+                count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
@@ -120,8 +120,8 @@ class Campaign {
         .select(
           "campaigns.*",
           Campaigns.raw(
-            `sum(case when orders.status = 'ready' then orders.quantity else 0 end) as quantityorderwaiting,
-            count(orders.id) filter (where orders.status = 'ready') as numorderwaiting
+            `sum(case when orders.status = 'advanced' then orders.quantity else 0 end) as quantityorderwaiting,
+            count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting
             `
           )
         )
