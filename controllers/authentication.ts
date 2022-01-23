@@ -7,6 +7,7 @@ import { Accounts } from "../models/accounts";
 import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
 import { SystemProfile } from "../models/systemprofile";
+import console from "console";
 
 class Authentication {
   private sendJWTToken = async (user: any, statusCode: number, res: any) => {
@@ -25,24 +26,28 @@ class Authentication {
         info = await Customers.query()
           .select()
           .where("accountid", user.id)
+          .andWhere("isdeleted", false)
           .first();
       } else if (user.rolename === "Supplier") {
         info = await Suppliers.query()
           .select()
           .where("accountid", user.id)
+          .andWhere("isdeleted", false)
           .first();
       } else {
         info = await SystemProfile.query()
           .select()
           .where("accountid", user.id)
+          .andWhere("isdeleted", false)
           .first();
       }
+      if (!info) return res.status(401).send("User does not exist");
       res.cookie("jwt", token, cookieOptions);
       res.status(statusCode).json({
         status: "success",
         data: {
           user: { ...user },
-          info:{...info},
+          info: { ...info },
           token: token,
         },
       });
@@ -104,7 +109,6 @@ class Authentication {
       }
       let currentUser;
       const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
-
       if (verify.rolename === "Supplier") {
         currentUser = await Suppliers.query()
           .select()
