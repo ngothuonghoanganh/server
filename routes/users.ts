@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerParamsSchema, getSupplierParamsSchema } from "../services/validation/user";
+import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getSupplierParamsSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -81,6 +81,8 @@ router.delete(
 
 )
 
-// router.get("/:phone", UserController.getUserByPhone);
+router.get("/:phone",
+validator.params(getCustomerOrSupplierByPhoneParamsSchema),
+ User.getUserByPhone);
 
 export default router;
