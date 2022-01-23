@@ -19,3 +19,21 @@ export const createOrderBodySchema = Joi.object({
     notes: Joi.string().allow(null).allow(""),
 });
 
+export const changeStatusToCancelledSchema = Joi.object({
+    orderCode: Joi.string().required(),
+  });
+
+  export const validStatusForDeleveredSchema = Joi.object({
+    orderCode: Joi.string().required(),
+    status: Joi.string().required(),
+  });
+
+  export const changeStatusToProcessingSchema = Joi.object({
+    orderCode: Joi.string().required(),
+  });
+
+  export const validStatusForDeliverydSchema = Joi.object({
+    orderCode: Joi.string().required(),
+    status: Joi.string().required(),
+  });
+
