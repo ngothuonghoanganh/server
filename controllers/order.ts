@@ -4,12 +4,6 @@ class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
     try {
       let {
-        // customerId,
-        // productId,
-        // productName,
-        // quantity,
-        // price,
-        // typeofproduct,
         campaignId,
         addressId = null,
         paymentId = null,
@@ -34,6 +28,7 @@ class OrderController {
           addressid: addressId,
           customerdiscontcodeid: product.customerDiscountCodeId,
           paymentid: paymentId,
+          campaignid: product.isWholesale ? campaignId : null,
           totalprice: product.totalPrice,
           notes: product.notes,
           discountprice: discountPrice / products.length,
