@@ -82,8 +82,8 @@ class User {
   public deactivateSupplierAccount = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.params.supplierId;
-      console.log(req.user.id);
-      console.log(supplierId);
+      // console.log(req.user.id);
+      // console.log(supplierId);
 
       const isDeleted = true;
       const isDeactivate: any = await Suppliers.query()
@@ -131,6 +131,25 @@ class User {
     }
 
   };
+
+  public getUserByPhone = async (req: any, res: any, next: any) => {
+    try {
+      const { phone } = req.params;
+      const account: any = await Accounts.query()
+        .select()
+        .where('phone', phone)
+      
+      // const supplier:any=await Suppliers.query().select().where('phone', phone)
+      // account.password.delete
+      return res.status(200).send({
+        message: 'list user by phone',
+        data: account
+      })
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 }
 export default new User();
 
@@ -237,20 +256,6 @@ export default new User();
 //     }
 //   };
 
-//   public getUserByPhone = async (req: any, res: any, next: any) => {
-//     try {
-//       const { phone } = req.params;
-//       const user: any = await Users.query()
-//         .select('users.*')
-//         .where('phone', phone);
-//       return res.status(200).send({
-//         message: 'list user by phone',
-//         data: user
-//       })
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   }
-// }
+  
 
 // export const UserController = new UsersController();
