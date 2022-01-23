@@ -25,6 +25,14 @@ router.put(
     order.updateStatusOfOrderToCancelledForCustomer
 )
 
+
+router.get(
+    '/customer',
+    Authentication.protected,
+    Authentication.checkRole(["Customer"]),
+    order.getOrderForCustomer
+)
+
 router.put(
     '/customer/delivered',
     Authentication.protected,

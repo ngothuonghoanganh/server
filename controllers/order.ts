@@ -47,131 +47,162 @@ class OrderController {
     }
   };
 
-
-  public updateStatusOfOrderToCancelledForCustomer = async (req: any, res: any, next: any) => {
+  public updateStatusOfOrderToCancelledForCustomer = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
-      let {
-        status = 'cancelled',
-        orderCode
-      } = req.body
+      let { status = "cancelled", orderCode } = req.body;
 
       const currentStatus: any = await Order.query()
-        .select('status')
-        .where('ordercode', orderCode)
+        .select("status")
+        .where("ordercode", orderCode);
       // console.log(currentStatus)
-      var picked = currentStatus.find((o: { status: string; }) => o.status === 'created' || o.status === 'advanced');
+      var picked = currentStatus.find(
+        (o: { status: string }) =>
+          o.status === "created" || o.status === "advanced"
+      );
       // console.log(picked.status === 'created')
       if (picked) {
         const updateStatus: any = await Order.query()
           .update({
-            status: status
+            status: status,
           })
-          .where('ordercode', orderCode)
+          .where("ordercode", orderCode);
       }
       res.status(200).send({
-        message: 'successful'
-      })
+        message: "successful",
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   //ham nay chua valid status in body is only completed or returned
-  public updateStatusOfOrderToCompletedOrReturnedForCustomer = async (req: any, res: any, next: any) => {
+  public updateStatusOfOrderToCompletedOrReturnedForCustomer = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
-      let {
-        status,
-        orderCode
-      } = req.body
+      let { status, orderCode } = req.body;
 
       const currentStatus: any = await Order.query()
-        .select('status')
-        .where('ordercode', orderCode)
-      var picked = currentStatus.find((o: { status: string; }) => o.status === 'delivered');
+        .select("status")
+        .where("ordercode", orderCode);
+      var picked = currentStatus.find(
+        (o: { status: string }) => o.status === "delivered"
+      );
       // console.log(picked)
       if (picked) {
         const updateStatus: any = await Order.query()
           .update({
-            status: status
+            status: status,
           })
-          .where('ordercode', orderCode)
+          .where("ordercode", orderCode);
       }
       res.status(200).send({
-        message: 'successful'
-      })
+        message: "successful",
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
-  public updateStatusToCancelledForSupplierAndInspector = async (req: any, res: any, next: any) => {
+  public updateStatusToCancelledForSupplierAndInspector = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
-      let {
-        status = 'cancelled',
-        orderCode
-      } = req.body
+      let { status = "cancelled", orderCode } = req.body;
 
       const update: any = await Order.query()
         .update({
-          status: status
+          status: status,
         })
-        .where('ordercode', orderCode)
+        .where("ordercode", orderCode);
 
       return res.status(200).send({
-        message: 'successful',
-        data: update
-      })
+        message: "successful",
+        data: update,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   };
 
-  public updateStatusToProcessingForSupplier = async (req: any, res: any, next: any) => {
+  public updateStatusToProcessingForSupplier = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
-      let {
-        status = 'processing',
-        orderCode
-      } = req.body
+      let { status = "processing", orderCode } = req.body;
 
       const update: any = await Order.query()
         .update({
-          status: status
+          status: status,
         })
-        .where('ordercode', orderCode)
+        .where("ordercode", orderCode);
 
       return res.status(200).send({
-        message: 'successful',
-        data: update
-      })
+        message: "successful",
+        data: update,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   public updateStatusForDelivery = async (req: any, res: any, next: any) => {
     try {
-      let {
-        status,
-        orderCode
-      } = req.body
+      let { status, orderCode } = req.body;
 
       const update: any = await Order.query()
         .update({
-          status: status
+          status: status,
         })
-        .where('ordercode', orderCode)
+        .where("ordercode", orderCode);
 
       return res.status(200).send({
-        message: 'successful',
-        data: update
-      })
+        message: "successful",
+        data: update,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   };
 
+  public getOrderForCustomer = async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.user.id;
+      const orders = await Order.query().select().where("customerid", userId);
+
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public getOrderForSupplier = async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.user.id;
+
+      const orders = await Order.query().select().where("customerid", userId);
+
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 export default new OrderController();
