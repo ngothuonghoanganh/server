@@ -33,6 +33,13 @@ router.get(
     order.getOrderForCustomer
 )
 
+router.get(
+    '/supplier',
+    Authentication.protected,
+    Authentication.checkRole(["Supplier"]),
+    order.getOrderForSupplier
+)
+
 router.put(
     '/customer/delivered',
     Authentication.protected,
