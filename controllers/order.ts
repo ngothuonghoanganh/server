@@ -10,6 +10,7 @@ class OrderController {
         discountPrice = "",
         shippingFee = "",
         products,
+        supplierId,
         // notes = "",
       } = req.body;
 
@@ -34,6 +35,7 @@ class OrderController {
           discountprice: discountPrice / products.length,
           shippingfee: shippingFee / products.length,
           ordercode: orderCode,
+          supplierid: supplierId,
         });
       }
 
@@ -193,7 +195,7 @@ class OrderController {
     try {
       const userId = req.user.id;
 
-      const orders = await Order.query().select().where("customerid", userId);
+      const orders = await Order.query().select().where("supplierid", userId);
 
       return res.status(200).send({
         message: "successful",

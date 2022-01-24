@@ -29,4 +29,5 @@ export class Order extends Model {
   updatedat?: Date;
   addressid?: string;
   totalprice?: number;
+  supplierid?: string;
 }
