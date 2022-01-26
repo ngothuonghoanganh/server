@@ -96,7 +96,7 @@ class DiscountCodeController {
 
     public getAllDiscountCodeBySupplierId = async (req: any, res: any, next: any) => {
         const supplierId = req.user.id;
-        console.log(supplierId)
+        // console.log(supplierId)
         const List: any = await DiscountCode.query()
             .select()
             .where('supplierid', supplierId);
