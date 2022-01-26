@@ -2,7 +2,7 @@ import * as express from 'express'
 import Authentication from "../controllers/authentication";
 import { createValidator } from "express-joi-validation";
 import address from "../controllers/address";
-import { createNewAddressSchema } from '../services/validation/address';
+import { createNewAddressSchema, deleteAddressParamSchema, updateAddressParamSchema } from '../services/validation/address';
 
 const validator = createValidator();
 const router = express.Router();
@@ -34,6 +34,7 @@ router.post(
     "/:addressId",
     Authentication.protected,
     Authentication.checkRole(["Customer"]),
+    validator.params(updateAddressParamSchema),
     address.updateAdress
   );
 
@@ -41,6 +42,7 @@ router.post(
     "/:addressId",
     Authentication.protected,
     Authentication.checkRole(["Customer"]),
+    validator.params(deleteAddressParamSchema),
     address.deleteAdress
   );
 

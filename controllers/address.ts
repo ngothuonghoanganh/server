@@ -108,6 +108,23 @@ class AddressController {
         }
     };
 
+    public getAdressByCustomerId = async (req: any, res: any, next: any) => {
+        try {
+            const {customerId} = req.params;
+
+            const data: any = await Address.query()
+                .select()
+                .where('customerId', customerId)
+            return res.status(200).send({
+                message: 'successful',
+                data: data
+            })
+        } catch (error) {
+            console.log(error)
+
+        }
+    };
+
 
 }
 
