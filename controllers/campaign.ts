@@ -143,9 +143,10 @@ class Campaign {
     try {
       const supplierId = req.user.id;
       const campaigns = await Campaigns.query()
-        .select()
-        .where("supplierid", supplierId)
-        .andWhere("status", "active");
+        .select("campaigns.*", "products.name as productname")
+        .join("products", "campaigns.productid", "products.id")
+        .where("campaigns.supplierid", supplierId)
+        .andWhere("campaigns.status", "active");
       return res.status(200).send({
         data: campaigns,
         message: "get successfully",
@@ -160,9 +161,10 @@ class Campaign {
       const campaignId = req.params.campaignId;
 
       const campaign = await Campaigns.query()
-        .select()
-        .where("id", campaignId)
-        .andWhere("status", "active")
+        .select("campaigns.*", "products.name as productname")
+        .join("products", "campaigns.productid", "products.id")
+        .where("campaigns.id", campaignId)
+        .andWhere("campaigns.status", "active")
         .first();
 
       return res.status(200).send({
