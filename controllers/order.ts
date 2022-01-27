@@ -207,7 +207,9 @@ class OrderController {
       const orders = await Order.query()
         .select(
           "orders.*",
-          Order.raw(`json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.customerid", userId)
@@ -230,7 +232,9 @@ class OrderController {
       const orders = await Order.query()
         .select(
           "orders.*",
-          Order.raw(`json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+          Order.raw(`(select customers.firstname as customerfirstname from customers where customers.id = orders.customerid),
+           (select customers.lastname as customerlastname from customers where customers.id = orders.customerid),
+            json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.supplierid", userId)
