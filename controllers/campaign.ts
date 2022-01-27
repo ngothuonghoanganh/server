@@ -83,11 +83,12 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status = 'advanced' then orders.quantity else 0 end) as quantityorderwaiting,
-                count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting`
+                `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+                count(orderdetail.id) filter (where orders.status = 'advanced') as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
             .where("supplierid", supplierId)
             .andWhere("campaigns.status", "active")
             .groupBy("campaigns.id")
@@ -95,11 +96,12 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status = 'advanced' then orders.quantity else 0 end) as quantityorderwaiting,
-                count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting`
+                `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+                count(orderdetail.id) filter (where orders.status = 'advanced') as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
             .where("campaigns.status", "active")
             .groupBy("campaigns.id");
 
@@ -120,12 +122,13 @@ class Campaign {
         .select(
           "campaigns.*",
           Campaigns.raw(
-            `sum(case when orders.status = 'advanced' then orders.quantity else 0 end) as quantityorderwaiting,
+            `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
             count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting
             `
           )
         )
         .leftJoin("orders", "campaigns.id", "orders.campaignid")
+        .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
         .whereIn("campaigns.productid", productIds)
         .andWhere("campaigns.status", "active")
         .groupBy("campaigns.id");
