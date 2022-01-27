@@ -13,3 +13,7 @@ export const createBodyDiscountCodeSchema = Joi.object({
 export const paramDiscountCodeIdSchema = Joi.object({
     discountCodeId: Joi.string().required(),
 })
+
+export const bodySupplierIdSchema = Joi.object({
+    supplierId: Joi.string().required(),
+})

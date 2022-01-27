@@ -5,7 +5,7 @@ import { auth } from "firebase-admin";
 // khởi tạo validator
 import authentication from "../controllers/authentication";
 import discountcode from "../controllers/discountcode";
-import { createBodyDiscountCodeSchema, paramDiscountCodeIdSchema } from "../services/validation/discountcode";
+import { bodySupplierIdSchema, createBodyDiscountCodeSchema, paramDiscountCodeIdSchema } from "../services/validation/discountcode";
 
 // import { } from "../services/validation/discountcode";
 
@@ -41,6 +41,7 @@ router.get(
     '/',
     authentication.protected,
     authentication.checkRole(['Supplier']),
+    // validator.body(bodySupplierIdSchema),
     discountcode.getAllDiscountCodeBySupplierId
 )
 
