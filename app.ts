@@ -19,6 +19,8 @@ import productRouter from'./routes/product';
 import cartRouter from'./routes/cart';
 import campaignRouter from'./routes/campaign';
 import orderRouter from "./routes/order";
+import addressRouter from "./routes/address";
+
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob"
@@ -74,6 +76,8 @@ app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/campaigns', campaignRouter); 
 app.use('/api/order', orderRouter); 
+app.use('/api/address', addressRouter); 
+
 
 
 try {
