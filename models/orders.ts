@@ -11,18 +11,12 @@ export class Order extends Model {
 
   id?: string;
   customerid?: string;
-  productid?: string;
-  productname?: string;
-  quantity?: number;
   iswholesale?: boolean;
-  price?: number;
-  typeofproduct?: string;
-  customerdiscountid?: string;
+  customerdiscountcodeid?: string;
   status?: string;
   campaignid?: string;
   paymentid?: string;
   discountprice?: number;
-  notes?: string;
   shippingfee?: number;
   ordercode?: string;
   createdat?: Date;

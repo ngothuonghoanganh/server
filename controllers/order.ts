@@ -1,4 +1,6 @@
 import { Order } from "../models/orders";
+import { OrderDetail } from "../models/orderdetail";
+
 import crypto from "crypto";
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -11,38 +13,59 @@ class OrderController {
         shippingFee = "",
         products,
         supplierId,
+        isWholeSale = false,
+        customerDiscountCodeId = null,
         // notes = "",
       } = req.body;
 
-      let datas = [];
       let orderCode = crypto.randomBytes(5).toString("hex") + `-${Date.now()}`;
+      console.log(
+        products
+          .map((item: any) => item.totalPrice)
+          .reduce((prev: any, next: any) => {
+            return prev + next;
+          })
+      );
+      const newOrder = await Order.query().insert({
+        customerid: req.user.id,
+        iswholesale: isWholeSale,
+        customerdiscountcodeid: customerDiscountCodeId,
+        campaignid: campaignId,
+        addressid: addressId,
+        paymentid: paymentId,
+        supplierid: supplierId,
+        discountprice: discountPrice,
+        shippingfee: shippingFee,
+        status: "created",
+        totalprice: products
+          .map((item: any) => item.totalPrice)
+          .reduce((prev: any, next: any) => {
+            return prev + next;
+          }),
+        ordercode: orderCode,
+      });
+
+      const details = [];
+
       for (const product of products) {
-        datas.push({
-          customerid: req.user.id,
+        details.push({
           productid: product.productId,
           productname: product.productName,
           quantity: product.quantity,
-          iswholesale: product.isWholesale,
           price: product.price,
-          typeofproduct: product.typeOfProduct,
-          status: "created",
-          addressid: addressId,
-          customerdiscontcodeid: product.customerDiscountCodeId,
-          paymentid: paymentId,
-          campaignid: product.isWholesale ? campaignId : null,
           totalprice: product.totalPrice,
           notes: product.notes,
-          discountprice: discountPrice / products.length,
-          shippingfee: shippingFee / products.length,
+          typeofproduct: product.typeOfProduct,
           ordercode: orderCode,
-          supplierid: supplierId,
+          orderid: newOrder.id,
         });
       }
 
-      const newProduct = await Order.query().insert(datas);
+      const newOrderDetails = await OrderDetail.query().insert(details);
+
       return res.status(200).send({
         message: "successful",
-        data: newProduct,
+        data: { ...newOrder, details: newOrderDetails },
       });
     } catch (error) {
       console.log(error);
@@ -180,7 +203,16 @@ class OrderController {
   public getOrderForCustomer = async (req: any, res: any, next: any) => {
     try {
       const userId = req.user.id;
-      const orders = await Order.query().select().where("customerid", userId);
+      const status = req.query.status;
+      const orders = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(`json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.customerid", userId)
+        .andWhere("orders.status", status)
+        .groupBy("orders.id");
 
       return res.status(200).send({
         message: "successful",
@@ -195,7 +227,14 @@ class OrderController {
     try {
       const userId = req.user.id;
 
-      const orders = await Order.query().select().where("supplierid", userId);
+      const orders = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(`json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.supplierid", userId)
+        .groupBy("orders.id");
 
       return res.status(200).send({
         message: "successful",
