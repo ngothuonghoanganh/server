@@ -19,4 +19,5 @@ export class OrderDetail extends Model {
   typeofproduct?: string;
   ordercode?: string;
   orderid?: string;
+  image?: string;
 }
