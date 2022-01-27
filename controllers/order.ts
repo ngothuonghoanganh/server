@@ -57,6 +57,7 @@ class OrderController {
           notes: product.notes,
           typeofproduct: product.typeOfProduct,
           ordercode: orderCode,
+          image: product.image,
           orderid: newOrder.id,
         });
       }
