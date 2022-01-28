@@ -159,23 +159,31 @@ class OrderController {
     }
   };
 
-  public updateStatusToProcessingForSupplier = async (
+  public updateStatusFromCreatedOrAdvancedToProcessingForSupplier = async (
     req: any,
     res: any,
     next: any
   ) => {
     try {
       let { status = "processing", orderCode } = req.body;
-
-      const update: any = await Order.query()
-        .update({
-          status: status,
-        })
-        .where("ordercode", orderCode);
+      const currentStatus: any = await Order.query()
+        .select('status')
+        .where('ordercode', orderCode)
+      var picked = currentStatus.find(
+        (o: { status: string }) => o.status === "created" || o.status === 'advanced'
+      );
+      console.log(currentStatus)
+      if (picked) {
+        const update: any = await Order.query()
+          .update({
+            status: status,
+          })
+          .where("ordercode", orderCode);
+      }
 
       return res.status(200).send({
         message: "successful",
-        data: update,
+        // data: update,
       });
     } catch (error) {
       console.log(error);

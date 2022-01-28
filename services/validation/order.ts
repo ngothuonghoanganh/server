@@ -28,3 +28,8 @@ export const validStatusForDeliverydSchema = Joi.object({
   status: Joi.string().required(),
 });
 
+export const validStatusForCreatedOrAdvancedToProcessingForSupplierSchema = Joi.object({
+  orderCode: Joi.string().required(),
+  status: Joi.string().required(),
+});
+
