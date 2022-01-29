@@ -173,8 +173,9 @@ class OrderController {
         (o: { status: string }) => o.status === "created" || o.status === 'advanced'
       );
       console.log(currentStatus)
+      let update: any = 0;
       if (picked) {
-        const update: any = await Order.query()
+        update = await Order.query()
           .update({
             status: status,
           })
@@ -183,7 +184,7 @@ class OrderController {
 
       return res.status(200).send({
         message: "successful",
-        // data: update,
+        data: update,
       });
     } catch (error) {
       console.log(error);
