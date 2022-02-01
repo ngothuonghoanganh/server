@@ -249,6 +249,36 @@ class OrderController {
       console.log(error);
     }
   };
+
+  public getOrderForSupplierAllowCampaign = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      const campaignId = req.params.campaignId;
+      const userId = req.user.id;
+
+      const orders = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(`(select customers.firstname as customerfirstname from customers where customers.id = orders.customerid),
+           (select customers.lastname as customerlastname from customers where customers.id = orders.customerid),
+            json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.supplierid", userId)
+        .andWhere("orders.campaignid", campaignId)
+        .groupBy("orders.id");
+
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 export default new OrderController();
