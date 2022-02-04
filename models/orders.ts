@@ -24,4 +24,5 @@ export class Order extends Model {
   addressid?: string;
   totalprice?: number;
   supplierid?: string;
+  address?: string;
 }
