@@ -40,6 +40,13 @@ router.get(
     order.getOrderForSupplier
 )
 
+router.get(
+    '/supplier/campaign/:campaignId',
+    Authentication.protected,
+    Authentication.checkRole(["Supplier"]),
+    order.getOrderForSupplierAllowCampaign
+)
+
 router.put(
     '/customer/delivered',
     Authentication.protected,
