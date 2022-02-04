@@ -1,5 +1,6 @@
 import { Order } from "../models/orders";
 import { OrderDetail } from "../models/orderdetail";
+import { Address } from "../models/address";
 
 import crypto from "crypto";
 class OrderController {
@@ -8,7 +9,7 @@ class OrderController {
       let {
         campaignId,
         addressId = null,
-        paymentId = null,
+        paymentId,
         discountPrice = "",
         shippingFee = "",
         products,
@@ -18,14 +19,10 @@ class OrderController {
         // notes = "",
       } = req.body;
 
+      const address: Address = await Address.query().select().where("id", addressId).first();
+
       let orderCode = crypto.randomBytes(5).toString("hex") + `-${Date.now()}`;
-      console.log(
-        products
-          .map((item: any) => item.totalPrice)
-          .reduce((prev: any, next: any) => {
-            return prev + next;
-          })
-      );
+
       const newOrder = await Order.query().insert({
         customerid: req.user.id,
         iswholesale: isWholeSale,
@@ -43,6 +40,7 @@ class OrderController {
             return prev + next;
           }),
         ordercode: orderCode,
+        address: address.street + " " + address.province
       });
 
       const details = [];
