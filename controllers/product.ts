@@ -71,7 +71,7 @@ class ProductsController {
         })
         .where("supplierid", id)
         .andWhere("id", productId)
-        .andWhere("status", "active");
+        .andWhere("status", "<>","incampaign");
 
       const productUpdated: any = await Products.query()
         .select()
