@@ -16,7 +16,7 @@ router.post(
   "/",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.body(bodySchema),
+  // validator.body(bodySchema),
   CampaignController.createCompaign
 );
 

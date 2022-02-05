@@ -1,5 +1,6 @@
 import { Campaigns } from "../models/campaigns";
 import knex from "knex";
+import { Products } from "../models/products";
 
 class Campaign {
   async createCompaign(req: any, res: any, next: any) {
@@ -7,26 +8,44 @@ class Campaign {
       const userId = req.user.id;
       const { productId, fromDate, toDate, quantity, price } = req.body;
 
-      const newCampaign = await Campaigns.query().insert({
-        supplierid: userId,
-        productid: productId,
-        quantity: quantity,
-        price: price,
-        fromdate: fromDate,
-        todate: toDate,
-      });
+      let newCampaign, isExistCampaign = null;
+      isExistCampaign = await Campaigns.query()
+        .select()
+        .where('todate', '>=', Campaigns.raw('now()'))
+        .andWhere('productid', productId)
+        .andWhere('status', '<>', 'deactivate')
+      // console.log(isExistCampaign)
+      if (!isExistCampaign || isExistCampaign.length === 0) {
+        newCampaign = await Campaigns.query().insert({
+          supplierid: userId,
+          productid: productId,
+          quantity: quantity,
+          price: price,
+          fromdate: fromDate,
+          todate: toDate,
+        });
 
-      return res.status(200).send({
-        data: await Campaigns.query()
-          .select()
-          .where("id", newCampaign.id)
-          .first(),
-        message: "create successfully",
-      });
+        await Products.query().update({
+          status: "incampaign"
+        })
+          .where("id", productId);
+
+        return res.status(200).send({
+          data: await Campaigns.query()
+            .select()
+            .where("id", newCampaign.id)
+            .first(),
+          message: "campaign is created successfully",
+        });
+      } else {
+        return res.status(200).send({
+          message: 'the product is in campaign'
+        })
+      }
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   async updateCompaign(req: any, res: any, next: any) {
     try {
@@ -80,30 +99,30 @@ class Campaign {
 
       const campaigns = supplierId
         ? await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
                 count(orderdetail.id) filter (where orders.status = 'advanced') as numorderwaiting`
-              )
             )
-            .leftJoin("orders", "campaigns.id", "orders.campaignid")
-            .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
-            .where("supplierid", supplierId)
-            .andWhere("campaigns.status", "active")
-            .groupBy("campaigns.id")
+          )
+          .leftJoin("orders", "campaigns.id", "orders.campaignid")
+          .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+          .where("supplierid", supplierId)
+          .andWhere("campaigns.status", "active")
+          .groupBy("campaigns.id")
         : await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
                 count(orderdetail.id) filter (where orders.status = 'advanced') as numorderwaiting`
-              )
             )
-            .leftJoin("orders", "campaigns.id", "orders.campaignid")
-            .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
-            .where("campaigns.status", "active")
-            .groupBy("campaigns.id");
+          )
+          .leftJoin("orders", "campaigns.id", "orders.campaignid")
+          .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+          .where("campaigns.status", "active")
+          .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
