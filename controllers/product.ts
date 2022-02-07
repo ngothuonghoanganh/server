@@ -71,7 +71,7 @@ class ProductsController {
         })
         .where("supplierid", id)
         .andWhere("id", productId)
-        .andWhere("status", "<>","incampaign");
+        .andWhere("status", "<>", "incampaign");
 
       const productUpdated: any = await Products.query()
         .select()
@@ -109,11 +109,11 @@ class ProductsController {
             // .join('suppliers', 'suppliers.id', 'products.supplierid')
             .join("suppliers", "suppliers.id", "products.supplierid")
             .where("supplierid", supplierId)
-            .andWhere("status", "active")
+            .andWhere("status", "<>", "deactivated")
         : await Products.query()
             .select(...ListSupplierEntity, "products.*")
             .join("suppliers", "suppliers.id", "products.supplierid")
-            .where("status", "active");
+            .where("status", "<>", "deactivated");
       return res.status(200).send({
         message: "successful",
         data: List,
@@ -133,7 +133,7 @@ class ProductsController {
       let prods = await Products.query()
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
-        .where("products.status", "active")
+        .where("products.status", "<>", "deactivated")
         .andWhere("products.supplierid", req.user.id);
 
       prods = prods.map((prod: any) => {
@@ -169,7 +169,7 @@ class ProductsController {
         .select("products.*", ...listEntity)
         .join("suppliers", "suppliers.id", "products.supplierid")
         .where("products.id", productId)
-        .andWhere("products.status", "active")
+        .andWhere("products.status", "<>", "deactivated")
         .first();
 
       console.log(prod);
