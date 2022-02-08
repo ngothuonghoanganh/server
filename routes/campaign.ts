@@ -20,28 +20,17 @@ router.post(
   CampaignController.createCompaign
 );
 
-router.put(
-  "/:campaignId",
-  Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
-  validator.params(paramsSchema),
-  validator.body(bodySchema),
-  CampaignController.updateCompaign
-);
-
-router.delete(
-  "/:campaignId",
-  Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
-  validator.params(paramsSchema),
-  CampaignController.deleteCompaign
-);
-
 router.get(
   "/All",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
   CampaignController.getAllCampaignsInSupplier
+);
+
+router.get(
+  "/",
+  validator.query(querySchema),
+  CampaignController.getAllCampaigns
 );
 
 router.get(
@@ -52,11 +41,23 @@ router.get(
   CampaignController.getOneCompaign
 );
 
-router.get(
-  "/",
-  validator.query(querySchema),
-  CampaignController.getAllCampaigns
+router.delete(
+  "/:campaignId",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  validator.params(paramsSchema),
+  CampaignController.deleteCompaign
 );
+
+router.put(
+  "/:campaignId",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  validator.params(paramsSchema),
+  validator.body(bodySchema),
+  CampaignController.updateCompaign
+);
+
 
 router.post("/product", CampaignController.getAllCampaignsAllowProductId);
 
