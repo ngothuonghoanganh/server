@@ -8,12 +8,13 @@ class Campaign {
       const userId = req.user.id;
       const { productId, fromDate, toDate, quantity, price } = req.body;
 
-      let newCampaign, isExistCampaign = null;
+      let newCampaign,
+        isExistCampaign = null;
       isExistCampaign = await Campaigns.query()
         .select()
-        .where('todate', '>=', Campaigns.raw('now()'))
-        .andWhere('productid', productId)
-        .andWhere('status', '<>', 'deactivate')
+        .where("todate", ">=", Campaigns.raw("now()"))
+        .andWhere("productid", productId)
+        .andWhere("status", "<>", "deactivate");
       // console.log(isExistCampaign)
       if (!isExistCampaign || isExistCampaign.length === 0) {
         newCampaign = await Campaigns.query().insert({
@@ -25,9 +26,10 @@ class Campaign {
           todate: toDate,
         });
 
-        await Products.query().update({
-          status: "incampaign"
-        })
+        await Products.query()
+          .update({
+            status: "incampaign",
+          })
           .where("id", productId);
 
         return res.status(200).send({
@@ -39,13 +41,13 @@ class Campaign {
         });
       } else {
         return res.status(200).send({
-          message: 'the product is in campaign'
-        })
+          message: "the product is in campaign",
+        });
       }
     } catch (error) {
       console.log(error);
     }
-  };
+  }
 
   async updateCompaign(req: any, res: any, next: any) {
     try {
@@ -99,30 +101,30 @@ class Campaign {
 
       const campaigns = supplierId
         ? await Campaigns.query()
-          .select(
-            "campaigns.*",
-            Campaigns.raw(
-              `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
                 count(orderdetail.id) filter (where orders.status = 'advanced') as numorderwaiting`
+              )
             )
-          )
-          .leftJoin("orders", "campaigns.id", "orders.campaignid")
-          .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
-          .where("supplierid", supplierId)
-          .andWhere("campaigns.status", "active")
-          .groupBy("campaigns.id")
+            .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+            .where("supplierid", supplierId)
+            .andWhere("campaigns.status", "active")
+            .groupBy("campaigns.id")
         : await Campaigns.query()
-          .select(
-            "campaigns.*",
-            Campaigns.raw(
-              `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
                 count(orderdetail.id) filter (where orders.status = 'advanced') as numorderwaiting`
+              )
             )
-          )
-          .leftJoin("orders", "campaigns.id", "orders.campaignid")
-          .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
-          .where("campaigns.status", "active")
-          .groupBy("campaigns.id");
+            .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+            .where("campaigns.status", "active")
+            .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
@@ -164,8 +166,17 @@ class Campaign {
   async getAllCampaignsInSupplier(req: any, res: any, next: any) {
     try {
       const supplierId = req.user.id;
+      const listEntity = [
+        "products.id as productid",
+        "products.name as productname",
+        "products.retailprice as productretailprice",
+        "products.quantity as productquantity",
+        "products.description as productdescription",
+        "products.image as productimage",
+      ];
+
       const campaigns = await Campaigns.query()
-        .select("campaigns.*", "products.name as productname")
+        .select("campaigns.*", ...listEntity)
         .join("products", "campaigns.productid", "products.id")
         .where("campaigns.supplierid", supplierId)
         .andWhere("campaigns.status", "active");
