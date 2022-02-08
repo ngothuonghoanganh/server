@@ -3,7 +3,7 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 
 import order from "../controllers/order";
-import { changeStatusToCancelledSchema, changeStatusToProcessingSchema, createOrderBodySchema, validStatusForCreatedOrAdvancedToProcessingForSupplierSchema, validStatusForDeleveredSchema } from "../services/validation/order";
+import { changeStatusToCancelledSchema, changeStatusToProcessingSchema, createOrderBodySchema, getOrderByIdSchema, validStatusForCreatedOrAdvancedToProcessingForSupplierSchema, validStatusForDeleveredSchema } from "../services/validation/order";
 
 const router = express.Router();
 
@@ -77,6 +77,14 @@ router.put(
     Authentication.checkRole(["Supplier"]),
     validator.body(validStatusForCreatedOrAdvancedToProcessingForSupplierSchema),
     order.updateStatusFromCreatedOrAdvancedToProcessingForSupplier
+)
+
+router.get(
+    '/customer/:orderId',
+    Authentication.protected,
+    Authentication.checkRole(["Customer"]),
+    validator.params(getOrderByIdSchema),
+    order.getOrderById
 )
 
 

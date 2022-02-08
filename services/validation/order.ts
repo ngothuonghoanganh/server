@@ -33,3 +33,7 @@ export const validStatusForCreatedOrAdvancedToProcessingForSupplierSchema = Joi.
   status: Joi.string().required(),
 });
 
+export const getOrderByIdSchema = Joi.object({
+  orderId: Joi.string().required(),
+});
+
