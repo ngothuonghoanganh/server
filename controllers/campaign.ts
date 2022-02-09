@@ -14,7 +14,7 @@ class Campaign {
         .select()
         .where("todate", ">=", Campaigns.raw("now()"))
         .andWhere("productid", productId)
-        .andWhere("status", "<>", "deactivate");
+        .andWhere("status",  "active");
       // console.log(isExistCampaign)
       if (!isExistCampaign || isExistCampaign.length === 0) {
         newCampaign = await Campaigns.query().insert({
