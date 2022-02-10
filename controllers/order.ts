@@ -3,6 +3,8 @@ import { OrderDetail } from "../models/orderdetail";
 import { Address } from "../models/address";
 
 import crypto from "crypto";
+import { Campaigns } from "../models/campaigns";
+import { any } from "joi";
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
     try {
@@ -33,14 +35,14 @@ class OrderController {
         supplierid: supplierId,
         discountprice: discountPrice,
         shippingfee: shippingFee,
-        status: "created",
+        status: campaignId && campaignId !== null && campaignId !== undefined && campaignId !== "" ? "advanced" : "created",
         totalprice: products
           .map((item: any) => item.totalPrice)
           .reduce((prev: any, next: any) => {
             return prev + next;
           }),
         ordercode: orderCode,
-        address: address.street + " " + address.province
+        address: address?.street + " " + address?.province
       });
 
       const details = [];
@@ -68,31 +70,34 @@ class OrderController {
       //                                                100        200
       // if current quantity >= expectation quantity -> set status all order of campaign is created
 
-
-      // const status = 'advanced';
-      // const ListEntityOfOrder = [
-      //   'orders.customerid as customerid',
-      //   'orders.campaignid as iswholesale',
-      //   'orders.customerdiscountcodeid as customerdiscountcodeid',
-      //   'orders.status as statusoforder',
-      //   'orders.campaignid as campaignid',
-      //   'orders.addressid as addressid',
-      //   'orders.paymentid as paymentid',
-      //   'orders.discountprice as discountprice',
-      //   'orders.shippingfee as shippingfee',
-      //   'orders.ordercode as ordercode',
-      //   'orders.totalprice as totalprice',
-      //   'orders.supplierid as supplierid',
-      //   'orders.address as address',
-      // ]
-      // const allOrdersHaveCampaignIdInBody = await Order.query()
-      //   .select(...ListEntityOfOrder, 'orderdetail.*')
-      //   .join('orderdetail', 'orderdetail.orderid', 'orders.id')
-      //   .where('status', status)
-      //   .andWhere('campaignid', campaignId)
-      //   .sum('orderdetail.quantity')
-      //   console.log(allOrdersHaveCampaignIdInBody)
-
+      if (campaignId && campaignId !== null && campaignId !== undefined && campaignId !== "") {
+        const ordersInCampaign = await Order.query()
+          .select(
+            "orders.id as orderid",
+            Order.raw(
+              `sum(orderdetail.quantity) as orderquantity`
+            )
+          )
+          .join("orderdetail", "orders.id", "orderdetail.orderid")
+          .where("orders.campaignid", campaignId)
+          .andWhere('status', 'advanced')
+          .groupBy("orders.id");
+        const currentQuantity = ordersInCampaign.reduce((acc: any, curr: any) => parseInt(acc) + parseInt(curr.orderquantity), 0)
+        console.log(currentQuantity)
+        const campaign = await Campaigns.query()
+          .select()
+          .where('id', campaignId)
+          .andWhere('quantity', '<=', currentQuantity)
+          .first()
+        if (campaign) {
+          const orderId = ordersInCampaign.map((item: any) => item.orderid)
+          // console.log(orderId)
+          await Order.query().update({
+            status: 'created'
+          })
+            .whereIn('id', orderId)
+        }
+      }
 
       return res.status(200).send({
         message: "successful",
@@ -103,10 +108,10 @@ class OrderController {
     }
   };
 
-  public IsQuantityOfProductMeetCampaignQuantity = async(req: any, res: any, next: any)=>{
-    try{
+  public IsQuantityOfProductMeetCampaignQuantity = async (req: any, res: any, next: any) => {
+    try {
 
-    }catch(error){
+    } catch (error) {
       console.log(error)
     }
   }
