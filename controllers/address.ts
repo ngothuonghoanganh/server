@@ -57,7 +57,7 @@ class AddressController {
             const customerId = req.user.id;
             const listAddress: any = await Address.query()
                 .select()
-            // .where('customerid', customerId)
+            .where('customerid', customerId)
             // .andWhere('isdefault', true)
 
             return res.status(200).send({
