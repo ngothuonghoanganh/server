@@ -62,6 +62,38 @@ class OrderController {
 
       const newOrderDetails = await OrderDetail.query().insert(details);
 
+      // query all orders have compaign id above (in body) and status is advanced
+      // then sum all quantity of product (b)
+      // after that, query campaign by campaign id and quantity <= b
+      //                                                100        200
+      // if current quantity >= expectation quantity -> set status all order of campaign is created
+
+
+      // const status = 'advanced';
+      // const ListEntityOfOrder = [
+      //   'orders.customerid as customerid',
+      //   'orders.campaignid as iswholesale',
+      //   'orders.customerdiscountcodeid as customerdiscountcodeid',
+      //   'orders.status as statusoforder',
+      //   'orders.campaignid as campaignid',
+      //   'orders.addressid as addressid',
+      //   'orders.paymentid as paymentid',
+      //   'orders.discountprice as discountprice',
+      //   'orders.shippingfee as shippingfee',
+      //   'orders.ordercode as ordercode',
+      //   'orders.totalprice as totalprice',
+      //   'orders.supplierid as supplierid',
+      //   'orders.address as address',
+      // ]
+      // const allOrdersHaveCampaignIdInBody = await Order.query()
+      //   .select(...ListEntityOfOrder, 'orderdetail.*')
+      //   .join('orderdetail', 'orderdetail.orderid', 'orders.id')
+      //   .where('status', status)
+      //   .andWhere('campaignid', campaignId)
+      //   .sum('orderdetail.quantity')
+      //   console.log(allOrdersHaveCampaignIdInBody)
+
+
       return res.status(200).send({
         message: "successful",
         data: { ...newOrder, details: newOrderDetails },
@@ -70,6 +102,14 @@ class OrderController {
       console.log(error);
     }
   };
+
+  public IsQuantityOfProductMeetCampaignQuantity = async(req: any, res: any, next: any)=>{
+    try{
+
+    }catch(error){
+      console.log(error)
+    }
+  }
 
   public updateStatusOfOrderToCancelledForCustomer = async (
     req: any,
@@ -276,6 +316,31 @@ class OrderController {
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.supplierid", userId)
         .andWhere("orders.campaignid", campaignId)
+        .groupBy("orders.id");
+
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public getOrderById = async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.user.id;
+      const { orderId } = req.params;
+      const orders = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.customerid", userId)
+        .andWhere("orders.id", orderId)
         .groupBy("orders.id");
 
       return res.status(200).send({
