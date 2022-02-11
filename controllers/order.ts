@@ -4,7 +4,7 @@ import { Address } from "../models/address";
 
 import crypto from "crypto";
 import { Campaigns } from "../models/campaigns";
-import { any } from "joi";
+
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
     try {
@@ -340,8 +340,7 @@ class OrderController {
         .select(
           "orders.*",
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
-          )
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.customerid", userId)
