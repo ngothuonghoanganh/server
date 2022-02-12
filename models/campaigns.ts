@@ -19,4 +19,6 @@ export class Campaigns extends Model {
     status?: string;
     createdat?: Date;
     updatedat?: Date;
+    reasonforupdatestatus?: string;
+
 }

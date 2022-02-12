@@ -16,7 +16,6 @@ export const changeStatusToCancelledSchema = Joi.object({
 
 export const validStatusForDeleveredSchema = Joi.object({
   orderCode: Joi.string().required(),
-  status: Joi.string().required(),
 });
 
 export const changeStatusToProcessingSchema = Joi.object({
@@ -30,10 +29,13 @@ export const validStatusForDeliverydSchema = Joi.object({
 
 export const validStatusForCreatedOrAdvancedToProcessingForSupplierSchema = Joi.object({
   orderCode: Joi.string().required(),
-  status: Joi.string().required(),
 });
 
 export const getOrderByIdSchema = Joi.object({
   orderId: Joi.string().required(),
+});
+
+export const validOrderCodeSchema = Joi.object({
+  orderCode: Joi.string().required(),
 });
 
