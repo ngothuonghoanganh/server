@@ -108,91 +108,27 @@ class OrderController {
     }
   };
 
-  public IsQuantityOfProductMeetCampaignQuantity = async (req: any, res: any, next: any) => {
-    try {
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  public updateStatusOfOrderToCancelledForCustomer = async (
-    req: any,
-    res: any,
-    next: any
-  ) => {
-    try {
-      let { status = "cancelled", orderCode } = req.body;
-
-      const currentStatus: any = await Order.query()
-        .select("status")
-        .where("ordercode", orderCode);
-      // console.log(currentStatus)
-      var picked = currentStatus.find(
-        (o: { status: string }) =>
-          o.status === "created" || o.status === "advanced"
-      );
-      // console.log(picked.status === 'created')
-      if (picked) {
-        const updateStatus: any = await Order.query()
-          .update({
-            status: status,
-          })
-          .where("ordercode", orderCode);
-      }
-      res.status(200).send({
-        message: "successful",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   //ham nay chua valid status in body is only completed or returned
-  public updateStatusOfOrderToCompletedOrReturnedForCustomer = async (
+  public updateStatusFromDeliveredToCompletedForCustomer = async (
     req: any,
     res: any,
     next: any
   ) => {
     try {
-      let { status, orderCode } = req.body;
+      let { status = "completed", orderCode } = req.body;
 
-      const currentStatus: any = await Order.query()
-        .select("status")
-        .where("ordercode", orderCode);
-      var picked = currentStatus.find(
-        (o: { status: string }) => o.status === "delivered"
-      );
-      // console.log(picked)
-      if (picked) {
-        const updateStatus: any = await Order.query()
-          .update({
-            status: status,
-          })
-          .where("ordercode", orderCode);
-      }
-      res.status(200).send({
-        message: "successful",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  public updateStatusToCancelledForSupplierAndInspector = async (
-    req: any,
-    res: any,
-    next: any
-  ) => {
-    try {
-      let { status = "cancelled", orderCode } = req.body;
-
-      const update: any = await Order.query()
+      const update = await Order.query()
         .update({
           status: status,
         })
-        .where("ordercode", orderCode);
+        .where("ordercode", orderCode)
+        .andWhere('status', 'delivered')
 
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated"
+        });
+      }
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -202,29 +138,56 @@ class OrderController {
     }
   };
 
-  public updateStatusFromCreatedOrAdvancedToProcessingForSupplier = async (
+  public updateStatusFromDeliveredToReturnedForCustomer = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      let { status = "returned", orderCode } = req.body;
+
+      const update = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("ordercode", orderCode)
+        .andWhere('status', 'completed')
+
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated"
+        });
+      }
+      return res.status(200).send({
+        message: "successful",
+        data: update,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  public updateStatusFromCreatedToProcessingForSupplier = async (
     req: any,
     res: any,
     next: any
   ) => {
     try {
       let { status = "processing", orderCode } = req.body;
-      const currentStatus: any = await Order.query()
-        .select('status')
-        .where('ordercode', orderCode)
-      var picked = currentStatus.find(
-        (o: { status: string }) => o.status === "created" || o.status === 'advanced'
-      );
-      console.log(currentStatus)
-      let update: any = 0;
-      if (picked) {
-        update = await Order.query()
-          .update({
-            status: status,
-          })
-          .where("ordercode", orderCode);
-      }
 
+      const update = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("ordercode", orderCode)
+        .andWhere('status', 'created')
+
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated"
+        });
+      }
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -234,22 +197,78 @@ class OrderController {
     }
   };
 
-  public updateStatusForDelivery = async (req: any, res: any, next: any) => {
+  public updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier = async (req: any, res: any, next: any) => {
     try {
-      let { status, orderCode } = req.body;
+      let { status = "cancelled", orderCode } = req.body;
+      const update = await Order.query()
+        .update({
+          status: status
+        })
+        .where('status', 'created')
+        .orWhere('status', 'processing')
+        .andWhere('ordercode', orderCode)
+      console.log(update)
+      if (update === 0) {
+        return res.status(200).send({
+          message: 'not yet updated'
+        })
+      }
+      return res.status(200).send({
+        message: 'updated successful',
+        data: update
+      })
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  public updateStatusFromProcessingToDeliveringForDelivery = async (req: any, res: any, next: any) => {
+    try {
+      let { status = "delivering", orderCode } = req.body;
 
       const update: any = await Order.query()
         .update({
           status: status,
         })
-        .where("ordercode", orderCode);
+        .where("ordercode", orderCode)
+        .andWhere('status', 'processing')
 
+      if (update === 0) {
+        return res.status(200).send({
+          message: 'not yet updated'
+        })
+      }
       return res.status(200).send({
         message: "successful",
         data: update,
       });
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  public updateStatusFromDeliveringToDeliveredForDelivery = async (req: any, res: any, next: any) => {
+    try {
+      let { status = "delivered", orderCode } = req.body;
+      const update: any = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("ordercode", orderCode)
+        .andWhere('status', 'delivering')
+
+      if (update === 0) {
+        return res.status(200).send({
+          message: 'not yet updated'
+        })
+      }
+      return res.status(200).send({
+        message: "successful",
+        data: update,
+      });
+    }catch(error){
+      console.log(error)
     }
   };
 
@@ -355,6 +374,8 @@ class OrderController {
       console.log(error);
     }
   };
+
+
 }
 
 export default new OrderController();
