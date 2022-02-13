@@ -40,7 +40,7 @@ router.put(
 router.get(
     '/',
     authentication.protected,
-    authentication.checkRole(['Supplier']),
+    // authentication.checkRole(['Supplier']),
     // validator.body(bodySupplierIdSchema),
     discountcode.getAllDiscountCodeBySupplierId
 )
