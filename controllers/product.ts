@@ -152,6 +152,38 @@ class ProductsController {
     }
   };
 
+  public getAllProductsBySupplierId = async (req: any, res: any, next: any) => {
+    try {
+      let listEntity = [
+        "products.*",
+        // "categories.categoryname as categoryname",
+        // "categories.id as categoryid",
+      ];
+      const supplierId = req.query.supplierId;
+
+      let prods = await Products.query()
+        .select(...listEntity)
+        // .leftOuterJoin("categories", "categories.id", "products.categoryid")
+        // .where("products.status", "<>", "deactivated")
+        .where("products.supplierid", supplierId);
+
+      prods = prods.map((prod: any) => {
+        if (prod.image) {
+          console.log(prod.image);
+          // prod.image = JSON.parse(prod.image);
+        }
+        return prod;
+      });
+      // console.log('test')
+      return res.status(200).send({
+        message: "get success",
+        data: prods,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   public getProductById = async (req: any, res: any, next: any) => {
     try {
       const { productId } = req.params;
@@ -201,6 +233,7 @@ class ProductsController {
       console.log(error);
     }
   };
+
 }
 
 // export const ProductController = new ProductsController();

@@ -365,7 +365,6 @@ class OrderController {
         .where("orders.customerid", userId)
         .andWhere("orders.id", orderId)
         .groupBy("orders.id");
-
       return res.status(200).send({
         message: "successful",
         data: orders,

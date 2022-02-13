@@ -8,6 +8,7 @@ import { updateParamSchema } from "../services/validation/category";
 import {
   createBodyProductSchema,
   paramProductIdSchema,
+  querySupplierIdSchema,
   supplierIdSchema,
   updateBodyProductSchema,
 } from "../services/validation/product";
@@ -47,7 +48,7 @@ router.post(
 router.get(
   "/All",
   Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
+  // Authentication.checkRole(["Supplier"]),
   Product.getAllProductsAndCates
 );
 
@@ -65,4 +66,11 @@ router.delete(
   Product.deleteProduct
 );
 
+router.get(
+  "/products/:supplierId",
+  // Authentication.protected,
+  // Authentication.checkRole(["Supplier", "Inspector"]),
+  validator.params(querySupplierIdSchema),
+  Product.getAllProductsBySupplierId
+);
 export default router;
