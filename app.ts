@@ -20,6 +20,7 @@ import cartRouter from'./routes/cart';
 import campaignRouter from'./routes/campaign';
 import orderRouter from "./routes/order";
 import addressRouter from "./routes/address";
+import discontCodeRouter from "./routes/discountcode";
 
 
 import Logger from "./lib/logger";
@@ -77,6 +78,7 @@ app.use('/api/cart', cartRouter);
 app.use('/api/campaigns', campaignRouter); 
 app.use('/api/order', orderRouter); 
 app.use('/api/address', addressRouter); 
+app.use('/api/discountcode', discontCodeRouter); 
 
 
 
