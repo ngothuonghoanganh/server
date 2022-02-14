@@ -59,7 +59,7 @@ class ProductsController {
       //           .send("Make sure you enter a number for retail price!");
       //       }
 
-      await Products.query()
+      const productUpdated: any = await Products.query()
         .update({
           name: name,
           retailprice: retailPrice,
@@ -73,9 +73,9 @@ class ProductsController {
         .andWhere("id", productId)
         .andWhere("status", "<>", "incampaign");
 
-      const productUpdated: any = await Products.query()
-        .select()
-        .where("id", productId);
+      // const productUpdated: any = await Products.query()
+      //   .select()
+      //   .where("id", productId);
       return res.status(200).send({
         message: "updated product: " + name,
         data: productUpdated,
