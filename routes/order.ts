@@ -56,7 +56,7 @@ router.get(
 )
 
 router.put(
-    '/delivery',
+    '/supplier/delivering',
     Authentication.protected,
     Authentication.checkRole(["Supplier"]),
     validator.body(validStatusForDeleveredSchema),
