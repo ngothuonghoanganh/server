@@ -1,6 +1,7 @@
 import console from "console";
 import { DiscountCode } from "../models/discountcode";
 import router from "../routes";
+import product from "./product";
 
 class DiscountCodeController {
     public createDiscountCode = async (req: any, res: any, next: any) => {
@@ -10,12 +11,13 @@ class DiscountCodeController {
             let {
                 code,
                 description,
-                condition,
-                percent,
                 startDate,
                 endDate,
                 quantity,
-                status = "ready"
+                status = "ready",
+                productid,
+                minimunpricecondition,
+                discountprice
             } = req.body;
 
             const newDiscountcode: any = await DiscountCode.query()
@@ -23,12 +25,13 @@ class DiscountCodeController {
                     supplierid: id,
                     code: code,
                     description: description,
-                    condition: condition,
-                    percent: percent,
                     startdate: startDate,
                     enddate: endDate,
                     quantity: quantity,
-                    status: status
+                    status: status,
+                    productid: productid,
+                    minimunpricecondition: minimunpricecondition,
+                    discountprice: discountprice   
                 })
 
             return res.status(200).send({
@@ -58,17 +61,19 @@ class DiscountCodeController {
         }
     };
 
+    //can not update product id
     public updateDiscountCode = async (req: any, res: any, next: any) => {
         const { discountCodeId } = req.params;
         try {
             let {
                 code,
                 description,
-                condition,
-                percent,
+                minimunpricecondition,
+                productid,
                 startDate,
                 endDate,
                 quantity,
+                discountprice,
                 status = "ready"
             } = req.body;
 
@@ -76,12 +81,13 @@ class DiscountCodeController {
                 .update({
                     code: code,
                     description: description,
-                    condition: condition,
-                    percent: percent,
+                    minimunpricecondition: minimunpricecondition,
+                    discountprice: discountprice,
                     startdate: startDate,
                     enddate: endDate,
                     quantity: quantity,
-                    status: status
+                    status: status,
+                    productid: productid
                 })
                 .where('id', discountCodeId)
 
@@ -97,11 +103,11 @@ class DiscountCodeController {
     public getAllDiscountCodeBySupplierId = async (req: any, res: any, next: any) => {
         const supplierId = req.query.supplierId;
         // console.log(supplierId)
-        const statusCode = 'deactivated'
+        const status = 'deactivated'
         const List: any = await DiscountCode.query()
             .select()
             .where('supplierid', supplierId)
-            .andWhere('status', '<>', statusCode)
+            .andWhere('status', '<>', status)
 
         return res.status(200).send({
             message: 'successful',

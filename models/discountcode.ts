@@ -12,7 +12,7 @@ export class DiscountCode extends Model {
   supplierid?: string;
   code?: string;
   description?: string;
-  condition?: string;
+  minimunpricecondition?: Number;
   percent?: Number;
   startdate?: Date;
   enddate?: Date;
@@ -20,4 +20,7 @@ export class DiscountCode extends Model {
   createdat?: Date;
   updatedat?: Date;
   status?: string;
+  productid?: string;
+  discountprice?: Number;
+
 }

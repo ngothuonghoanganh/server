@@ -11,7 +11,7 @@ export class Cart extends Model{
     id?: string;
     customerid?:string;
     productid?: string;
-    quantity?: string;
+    quantity?: Number;
     wholesale?: Number;
     typeofproduct?: string;
     createdat?: Date;
