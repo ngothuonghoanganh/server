@@ -17,7 +17,7 @@ router.post(
     "/",
     authentication.protected,
     authentication.checkRole(["Supplier"]),
-    // validator.body(createBodyDiscountCodeSchema),
+    validator.body(createBodyDiscountCodeSchema),
     discountcode.createDiscountCode
 );
 

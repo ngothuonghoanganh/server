@@ -21,11 +21,12 @@ import campaignRouter from'./routes/campaign';
 import orderRouter from "./routes/order";
 import addressRouter from "./routes/address";
 import discontCodeRouter from "./routes/discountcode";
+import customerDiscontCodeRouter from "./routes/customerdiscountcode";
 
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob"
-import cart from "./routes/cart";
+
 
 const upload = multer();
 dotenv.config();
@@ -79,6 +80,8 @@ app.use('/api/campaigns', campaignRouter);
 app.use('/api/order', orderRouter); 
 app.use('/api/address', addressRouter); 
 app.use('/api/discountcode', discontCodeRouter); 
+app.use('/api/customerdiscountcode', customerDiscontCodeRouter); 
+
 
 
 

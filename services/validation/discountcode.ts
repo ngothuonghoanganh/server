@@ -5,9 +5,12 @@ export const createBodyDiscountCodeSchema = Joi.object({
     description: Joi.string().allow(null).allow(""),
     condition: Joi.array(),
     percent: Joi.number().integer().min(0),
-    startDate: Joi.date().iso().required(),
-    endDate: Joi.date().timestamp().greater(Joi.ref('startDate')).required(),
+    startDate: Joi.string().allow(null).allow("").default(""),
+    endDate: Joi.string().allow(null).allow("").default(""),
     quantity: Joi.number().integer().min(0),
+    productid: Joi.string().required(),
+    minimunpricecondition:Joi.number().integer().min(0),
+    discountprice:Joi.number().integer().min(0)
 });
 
 export const paramDiscountCodeIdSchema = Joi.object({

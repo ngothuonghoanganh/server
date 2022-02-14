@@ -223,7 +223,7 @@ class OrderController {
     }
   }
 
-  public updateStatusFromProcessingToDeliveringForDelivery = async (req: any, res: any, next: any) => {
+  public updateStatusFromProcessingToDeliveringForSupplier = async (req: any, res: any, next: any) => {
     try {
       let { status = "delivering", orderCode } = req.body;
 
