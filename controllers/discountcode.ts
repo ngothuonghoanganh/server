@@ -95,11 +95,13 @@ class DiscountCodeController {
     };
 
     public getAllDiscountCodeBySupplierId = async (req: any, res: any, next: any) => {
-        const supplierId = req.user.id;
+        const supplierId = req.query.supplierId;
         // console.log(supplierId)
+        const statusCode = 'deactivated'
         const List: any = await DiscountCode.query()
             .select()
-            .where('supplierid', supplierId);
+            .where('supplierid', supplierId)
+            .andWhere('status', '<>', statusCode)
 
         return res.status(200).send({
             message: 'successful',

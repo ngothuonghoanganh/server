@@ -25,4 +25,6 @@ export class Order extends Model {
   totalprice?: number;
   supplierid?: string;
   address?: string;
+  reasonforupdatestatus?: string;
+
 }

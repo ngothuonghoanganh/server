@@ -45,7 +45,7 @@ router.get(
 router.get(
   "/supplier/:supplierId",
   Authentication.protected,
-  Authentication.checkRole(["Customer", "Inspector"]),
+  // Authentication.checkRole(["Customer", "Inspector"]),
   validator.params(getSupplierParamsSchema),
   User.getOneSupplier
 );

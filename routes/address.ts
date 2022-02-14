@@ -26,7 +26,7 @@ router.post(
   router.get(
     "/All",
     Authentication.protected,
-    // Authentication.checkRole(["Customer"]),
+    Authentication.checkRole(["Customer"]),
     address.getAllAdress
   );
 

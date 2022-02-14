@@ -3,7 +3,7 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 
 import order from "../controllers/order";
-import { changeStatusToCancelledSchema, changeStatusToProcessingSchema, createOrderBodySchema, validStatusForCreatedOrAdvancedToProcessingForSupplierSchema, validStatusForDeleveredSchema } from "../services/validation/order";
+import { changeStatusToCancelledSchema, changeStatusToProcessingSchema, createOrderBodySchema, getOrderByIdSchema, validOrderCodeSchema, validStatusForCreatedOrAdvancedToProcessingForSupplierSchema, validStatusForDeleveredSchema } from "../services/validation/order";
 
 const router = express.Router();
 
@@ -21,8 +21,16 @@ router.put(
     '/customer',
     Authentication.protected,
     Authentication.checkRole(["Customer"]),
-    validator.body(changeStatusToCancelledSchema),
-    order.updateStatusOfOrderToCancelledForCustomer
+    validator.body(validOrderCodeSchema),
+    order.updateStatusFromDeliveredToCompletedForCustomer
+)
+
+router.put(
+    '/customer/returned',
+    Authentication.protected,
+    Authentication.checkRole(["Customer"]),
+    validator.body(validOrderCodeSchema),
+    order.updateStatusFromDeliveredToReturnedForCustomer
 )
 
 
@@ -48,27 +56,11 @@ router.get(
 )
 
 router.put(
-    '/customer/delivered',
-    Authentication.protected,
-    Authentication.checkRole(["Customer"]),
-    validator.body(validStatusForDeleveredSchema),
-    order.updateStatusOfOrderToCompletedOrReturnedForCustomer
-)
-
-router.put(
-    '/',
-    Authentication.protected,
-    Authentication.checkRole(["Supplier", "Inspector"]),
-    validator.body(changeStatusToCancelledSchema),
-    order.updateStatusToCancelledForSupplierAndInspector
-)
-
-router.put(
     '/delivery',
     Authentication.protected,
     Authentication.checkRole(["Delivery"]),
     validator.body(validStatusForDeleveredSchema),
-    order.updateStatusForDelivery
+    order.updateStatusFromProcessingToDeliveringForDelivery
 )
 
 router.put(
@@ -76,7 +68,39 @@ router.put(
     Authentication.protected,
     Authentication.checkRole(["Supplier"]),
     validator.body(validStatusForCreatedOrAdvancedToProcessingForSupplierSchema),
-    order.updateStatusFromCreatedOrAdvancedToProcessingForSupplier
+    order.updateStatusFromCreatedToProcessingForSupplier
+)
+
+router.put(
+    '/supplier/cancel',
+    Authentication.protected,
+    Authentication.checkRole(["Supplier"]),
+    validator.body(validOrderCodeSchema),
+    order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
+)
+
+router.put(
+    '/inspector',
+    Authentication.protected,
+    Authentication.checkRole(["Inspector"]),
+    validator.body(validOrderCodeSchema),
+    order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
+)
+
+router.put(
+    '/delivery/delivered',
+    Authentication.protected,
+    Authentication.checkRole(["Delivery"]),
+    validator.body(validOrderCodeSchema),
+    order.updateStatusFromDeliveringToDeliveredForDelivery
+)
+
+router.get(
+    '/customer/:orderId',
+    Authentication.protected,
+    Authentication.checkRole(["Customer"]),
+    validator.params(getOrderByIdSchema),
+    order.getOrderById
 )
 
 
