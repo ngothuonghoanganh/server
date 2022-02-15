@@ -116,7 +116,7 @@ class DiscountCodeController {
     };
 
     public getAllDiscountCodeInSupplier = async (req: any, res: any, next: any) => {
-        const supplierId = req.query.supplierId;
+        const supplierId = req.user.id;
         // console.log(supplierId)
         // const status = 'deactivated'
         const List: any = await DiscountCode.query()
