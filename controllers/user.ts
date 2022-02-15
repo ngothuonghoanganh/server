@@ -144,6 +144,33 @@ class User {
     }
   };
 
+  public updateCustomerAccountByCustomerId = async(req: any, res: any, next: any)=>{
+    try{
+      const customerid= req.user.id
+      let {
+        fistName="",
+        lastName="",
+        email, 
+        avt=""
+
+      }=req.body
+      console.log(customerid + 'test')
+      const update=await Customers.query().update({
+        firstname: fistName,
+        lastname: lastName,
+        email: email,
+        avt: JSON.stringify(avt),
+      })
+      .where('id', customerid)
+      return res.status(200).send({
+        message: 'successful',
+        data: update
+      })
+    }catch(error){
+      console.log(error)
+    }
+  }
+
 }
 export default new User();
 

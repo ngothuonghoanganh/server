@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getSupplierParamsSchema } from "../services/validation/user";
+import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getSupplierParamsSchema, updateCustomerAccSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -41,6 +41,15 @@ router.get(
   Authentication.checkRole(["Customer", "Inspector"]),
   User.listSupplier
 );
+
+router.put(
+  "/customer",
+  Authentication.protected,
+  Authentication.checkRole(["Customer"]),
+  validator.body(updateCustomerAccSchema),
+  User.updateCustomerAccountByCustomerId
+
+)
 
 router.get(
   "/supplier/:supplierId",
@@ -84,5 +93,7 @@ router.delete(
 router.get("/:phone",
 validator.params(getCustomerOrSupplierByPhoneParamsSchema),
  User.getUserByPhone);
+
+
 
 export default router;
