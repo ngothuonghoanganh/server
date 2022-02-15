@@ -15,9 +15,9 @@ class DiscountCodeController {
                 endDate,
                 quantity,
                 status = "ready",
-                productid,
-                minimunpricecondition,
-                discountprice
+                productId,
+                minimunPriceCondition,
+                discountPrice
             } = req.body;
 
             const newDiscountcode: any = await DiscountCode.query()
@@ -29,9 +29,9 @@ class DiscountCodeController {
                     enddate: endDate,
                     quantity: quantity,
                     status: status,
-                    productid: productid,
-                    minimunpricecondition: minimunpricecondition,
-                    discountprice: discountprice   
+                    productid: productId,
+                    minimunpricecondition: minimunPriceCondition,
+                    discountprice: discountPrice   
                 })
 
             return res.status(200).send({
