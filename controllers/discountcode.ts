@@ -114,5 +114,20 @@ class DiscountCodeController {
             data: List
         })
     };
+
+    public getAllDiscountCodeInSupplier = async (req: any, res: any, next: any) => {
+        const supplierId = req.query.supplierId;
+        // console.log(supplierId)
+        // const status = 'deactivated'
+        const List: any = await DiscountCode.query()
+            .select()
+            .where('supplierid', supplierId)
+            // .andWhere('status', '<>', status)
+
+        return res.status(200).send({
+            message: 'successful',
+            data: List
+        })
+    };
 }
 export default new DiscountCodeController();
