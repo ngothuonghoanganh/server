@@ -31,7 +31,7 @@ class DiscountCodeController {
                     status: status,
                     productid: productId,
                     minimunpricecondition: minimunPriceCondition,
-                    discountprice: discountPrice   
+                    discountprice: discountPrice
                 })
 
             return res.status(200).send({
@@ -61,19 +61,18 @@ class DiscountCodeController {
         }
     };
 
-    //can not update product id
     public updateDiscountCode = async (req: any, res: any, next: any) => {
         const { discountCodeId } = req.params;
         try {
             let {
                 code,
                 description,
-                minimunpricecondition,
-                productid,
+                minimunPriceCondition,
+                productId,
                 startDate,
                 endDate,
                 quantity,
-                discountprice,
+                discountPrice,
                 status = "ready"
             } = req.body;
 
@@ -81,16 +80,20 @@ class DiscountCodeController {
                 .update({
                     code: code,
                     description: description,
-                    minimunpricecondition: minimunpricecondition,
-                    discountprice: discountprice,
+                    minimunpricecondition: minimunPriceCondition,
+                    discountprice: discountPrice,
                     startdate: startDate,
                     enddate: endDate,
                     quantity: quantity,
                     status: status,
-                    productid: productid
+                    productid: productId
                 })
                 .where('id', discountCodeId)
-
+            if (updateCode === 0) {
+                return res.status(200).send({
+                    message: 'not yet updated'
+                })
+            }
             return res.status(200).send({
                 data: updateCode,
                 message: 'updated discount code'
@@ -101,18 +104,23 @@ class DiscountCodeController {
     };
 
     public getAllDiscountCodeBySupplierId = async (req: any, res: any, next: any) => {
-        const supplierId = req.query.supplierId;
-        // console.log(supplierId)
-        const status = 'deactivated'
-        const List: any = await DiscountCode.query()
-            .select()
-            .where('supplierid', supplierId)
-            .andWhere('status', '<>', status)
-
-        return res.status(200).send({
-            message: 'successful',
-            data: List
-        })
+        try {
+            const supplierId = req.query.supplierId;
+            // console.log(supplierId)
+            const status = 'deactivated'
+            const List = await DiscountCode.query()
+                .select()
+                .leftJoin('products', 'discountcode.productid', 'products.id')
+                .where('discountcode.supplierid', supplierId)
+                // .where('supplierid', supplierId)
+                .andWhere('discountcode.status', '<>', status)
+            return res.status(200).send({
+                message: 'successful',
+                data: List
+            })
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     public getAllDiscountCodeInSupplier = async (req: any, res: any, next: any) => {
@@ -122,7 +130,7 @@ class DiscountCodeController {
         const List: any = await DiscountCode.query()
             .select()
             .where('supplierid', supplierId)
-            // .andWhere('status', '<>', status)
+        // .andWhere('status', '<>', status)
 
         return res.status(200).send({
             message: 'successful',

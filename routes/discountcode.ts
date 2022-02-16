@@ -9,6 +9,7 @@ import {
   bodySupplierIdSchema,
   createBodyDiscountCodeSchema,
   paramDiscountCodeIdSchema,
+  updateDiscountCodeSchema,
 } from "../services/validation/discountcode";
 
 // import { } from "../services/validation/discountcode";
@@ -38,12 +39,13 @@ router.put(
   authentication.protected,
   authentication.checkRole(["Supplier"]),
   validator.params(paramDiscountCodeIdSchema),
+  validator.body(updateDiscountCodeSchema),
   discountcode.updateDiscountCode
 );
 
 router.get(
   "/",
-  authentication.protected,
+  // authentication.protected,
   // authentication.checkRole(['Supplier']),
   // validator.body(bodySupplierIdSchema),
   discountcode.getAllDiscountCodeBySupplierId

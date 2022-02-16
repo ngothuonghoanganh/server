@@ -13,7 +13,6 @@ export class DiscountCode extends Model {
   code?: string;
   description?: string;
   minimunpricecondition?: Number;
-  percent?: Number;
   startdate?: Date;
   enddate?: Date;
   quantity?: Number;
