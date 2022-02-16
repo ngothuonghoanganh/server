@@ -68,7 +68,7 @@ class DiscountCodeController {
                 code,
                 description,
                 minimunPriceCondition,
-                // productid,
+                productId,
                 startDate,
                 endDate,
                 quantity,
@@ -86,7 +86,7 @@ class DiscountCodeController {
                     enddate: endDate,
                     quantity: quantity,
                     status: status,
-                    // productid: productId
+                    productid: productId
                 })
                 .where('id', discountCodeId)
             if (updateCode === 0) {

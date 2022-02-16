@@ -24,6 +24,7 @@ export const updateDiscountCodeSchema = Joi.object({
     endDate: Joi.date().allow(""),
     quantity: Joi.number().integer().min(0).required(),
     discountPrice: Joi.number().integer().min(0).required(),
+    productId: Joi.string().required(),
 })
 
 export const bodySupplierIdSchema = Joi.object({
