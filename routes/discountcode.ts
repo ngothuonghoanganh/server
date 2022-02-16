@@ -54,7 +54,7 @@ router.get(
 router.get(
   "/supplier",
   authentication.protected,
-  // authentication.checkRole(['Supplier']),
+  authentication.checkRole(['Supplier']),
   // validator.body(bodySupplierIdSchema),
   discountcode.getAllDiscountCodeInSupplier
 );
