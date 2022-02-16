@@ -31,7 +31,7 @@ class DiscountCodeController {
                     status: status,
                     productid: productId,
                     minimunpricecondition: minimunPriceCondition,
-                    discountprice: discountPrice
+                    discountprice: discountPrice   
                 })
 
             return res.status(200).send({
