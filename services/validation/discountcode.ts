@@ -14,8 +14,8 @@ export const createBodyDiscountCodeSchema = Joi.object({
 });
 
 export const paramDiscountCodeIdSchema = Joi.object({
-    discountCodeId: Joi.string().required(),
-})
+  discountCodeId: Joi.string().required(),
+});
 
 export const updateDiscountCodeSchema = Joi.object({
     code: Joi.string().required(),
@@ -29,5 +29,5 @@ export const updateDiscountCodeSchema = Joi.object({
 })
 
 export const bodySupplierIdSchema = Joi.object({
-    supplierId: Joi.string().required(),
-})
+  supplierId: Joi.string().required(),
+});
