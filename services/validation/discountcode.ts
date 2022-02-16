@@ -16,15 +16,16 @@ export const paramDiscountCodeIdSchema = Joi.object({
 });
 
 export const updateDiscountCodeSchema = Joi.object({
-    code: Joi.string().required(),
-    description: Joi.string().allow(null).allow("").default(""),
-    minimunPriceCondition: Joi.number().integer().min(0).required(),
-    startDate: Joi.date().allow(""),
-    endDate: Joi.date().allow(""),
-    quantity: Joi.number().integer().min(0).required(),
-    discountPrice: Joi.number().integer().min(0).required(),
-    productId: Joi.string().required(),
-})
+  code: Joi.string().required(),
+  description: Joi.string().allow(null).allow("").default(""),
+  minimunPriceCondition: Joi.number().integer().min(0).required(),
+  startDate: Joi.date().allow(""),
+  endDate: Joi.date().allow(""),
+  quantity: Joi.number().integer().min(0).required(),
+  discountPrice: Joi.number().integer().min(0).required(),
+  productId: Joi.string().required(),
+  status: Joi.string().required(),
+});
 
 export const bodySupplierIdSchema = Joi.object({
   supplierId: Joi.string().required(),
