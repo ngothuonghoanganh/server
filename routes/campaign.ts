@@ -35,8 +35,6 @@ router.get(
 
 router.get(
   "/:campaignId",
-  // Authentication.protected,
-  // Authentication.checkRole(["Supplier"]),
   validator.params(paramsSchema),
   CampaignController.getOneCompaignByCampaignId
 );
