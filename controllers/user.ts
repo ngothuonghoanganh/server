@@ -148,18 +148,18 @@ class User {
     try{
       const customerid= req.user.id
       let {
-        fistName="",
+        firstName="",
         lastName="",
         email, 
         avt=""
 
       }=req.body
-      console.log(customerid + 'test')
+      // console.log(customerid + 'test')
       const update=await Customers.query().update({
-        firstname: fistName,
+        firstname: firstName,
         lastname: lastName,
         email: email,
-        avt: JSON.stringify(avt),
+        avt: avt,
       })
       .where('id', customerid)
       return res.status(200).send({

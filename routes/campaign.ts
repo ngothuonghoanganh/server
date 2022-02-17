@@ -38,7 +38,7 @@ router.get(
   // Authentication.protected,
   // Authentication.checkRole(["Supplier"]),
   validator.params(paramsSchema),
-  CampaignController.getOneCompaign
+  CampaignController.getOneCompaignByCampaignId
 );
 
 router.delete(
