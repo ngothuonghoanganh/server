@@ -191,27 +191,31 @@ class Campaign {
     }
   }
 
-  public getOneCompaign = async (req: any, res: any, next: any) => {
-    try {
-      const campaignId = req.params.campaignId;
+  // public getOneCompaignByCampaignId = async (req: any, res: any, next: any) => {
+  //   try {
+  //     const campaignId = req.params.campaignId;
 
-      const campaign: any = await Campaigns.query()
-        .select('campaigns.*',
-          'products.name as productname'
-        )
-        .join('products', 'campaigns.productid', 'products.id')
-        .where('campaigns.id', campaignId)
-        .first()
-      // console.log(campaign)
+  //     const campaign: any = await Campaigns.query()
+  //       .select('campaigns.*',
+  //         'products.name as productname',
+  //         Campaigns.raw(`
+  //         sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+  //         count(order.id) filter (where orders.status = 'advanced') as numorderwaiting
+  //         `)
+  //       )
+  //       .join('products', 'campaigns.productid', 'products.id')
+  //       .where('campaigns.id', campaignId)
+  //       .first()
+  //     // console.log(campaign)
 
-      return res.status(200).send({
-        data: campaign,
-        message: "get successfully",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     return res.status(200).send({
+  //       data: campaign,
+  //       message: "get successfully",
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
 }
 

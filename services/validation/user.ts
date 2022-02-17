@@ -13,7 +13,7 @@ export const getCustomerOrSupplierByPhoneParamsSchema = Joi.object({
 });
 
 export const updateCustomerAccSchema = Joi.object({
-  fistName: Joi.string().allow(null).allow(""),
+  firstName: Joi.string().allow(null).allow(""),
   lastName: Joi.string().allow(null).allow(""),
   email: Joi.string().required(),
   avt: Joi.string().allow(null).allow(""),

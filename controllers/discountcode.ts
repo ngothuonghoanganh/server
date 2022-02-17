@@ -38,9 +38,19 @@ class DiscountCodeController {
                 data: newDiscountcode,
                 message: 'successful'
             })
-        } catch (error) {
+        } catch (error: any) {
             console.log(error)
+            if (
+                error.message.includes("duplicate key value violates unique constraint")
+            ) {
+                return res.status(400).send({
+                    message:
+                        "duplicate code, please check again!",
+                    data: null,
+                });
+            }
         }
+        
 
     };
 
@@ -124,18 +134,24 @@ class DiscountCodeController {
     };
 
     public getAllDiscountCodeInSupplier = async (req: any, res: any, next: any) => {
-        const supplierId = req.user.id;
-        // console.log(supplierId)
-        // const status = 'deactivated'
-        const List: any = await DiscountCode.query()
-            .select()
-            .where('supplierid', supplierId)
-        // .andWhere('status', '<>', status)
+        try {
+            const supplierId = req.user.id;
+            // console.log(supplierId)
+            // const status = 'deactivated'
+            const List: any = await DiscountCode.query()
+                .select()
+                .leftJoin('products', 'discountcode.productid', 'products.id')
+                .where('discountcode.supplierid', supplierId)
+            // .andWhere('status', '<>', status)
 
-        return res.status(200).send({
-            message: 'successful',
-            data: List
-        })
+            return res.status(200).send({
+                message: 'successful',
+                data: List
+            })
+        } catch (error) {
+            console.log(error)
+        }
+
     };
 }
 export default new DiscountCodeController();
