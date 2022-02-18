@@ -19,3 +19,7 @@ export const updateCustomerAccSchema = Joi.object({
   avt: Joi.string().allow(null).allow(""),
 
 });
+
+export const resetPasswordForCustomerBodySchema = Joi.object({
+  password: Joi.string().required(),
+});
