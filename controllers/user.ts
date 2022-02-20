@@ -7,7 +7,7 @@
 import { Accounts } from "../models/accounts";
 import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
-
+import bcrypt from "bcrypt";
 class User {
   public async listSupplier(req: any, res: any, next: any) {
     try {
@@ -148,18 +148,18 @@ class User {
     try{
       const customerid= req.user.id
       let {
-        fistName="",
+        firstName="",
         lastName="",
         email, 
         avt=""
 
       }=req.body
-      console.log(customerid + 'test')
+      // console.log(customerid + 'test')
       const update=await Customers.query().update({
-        firstname: fistName,
+        firstname: firstName,
         lastname: lastName,
         email: email,
-        avt: JSON.stringify(avt),
+        avt: avt,
       })
       .where('id', customerid)
       return res.status(200).send({
@@ -169,7 +169,34 @@ class User {
     }catch(error){
       console.log(error)
     }
-  }
+  };
+
+  public resetPasswordForCustomer = async(req: any,  res: any,  next: any)=>{
+    try{
+      const accountId=req.user.accountid;
+      // console.log(accountId)
+      let{
+        password
+      }= req.body;
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(password, salt);
+      // console.log(password)
+      const update = await Accounts.query()
+      .update({
+        password: password
+      })
+      .where('id', accountId);
+      if(update===0){
+        return res.status(200).message('not yet updated')
+      }
+      return res.status(200).send({
+        message: 'updated password',
+        data: update
+      })
+    }catch(error){
+      console.log(error)
+    }
+  };
 
 }
 export default new User();
