@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
+import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema, userIdParamsSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -57,6 +57,14 @@ router.post(
   Authentication.checkRole(["Customer"]),
   validator.body(resetPasswordForCustomerBodySchema),
   User.resetPasswordForCustomer
+  
+)
+
+router.get(
+  '/noti',
+  Authentication.protected,
+  // Authentication.checkRole(["Customer"]),
+  User.getNotiByUserId
   
 )
 
