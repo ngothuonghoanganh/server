@@ -8,6 +8,8 @@ import { Accounts } from "../models/accounts";
 import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
 import bcrypt from "bcrypt";
+import {Notification} from "../models/notification";
+import notification from "../services/realtime/notification";
 class User {
   public async listSupplier(req: any, res: any, next: any) {
     try {
@@ -192,6 +194,22 @@ class User {
       return res.status(200).send({
         message: 'updated password',
         data: update
+      })
+    }catch(error){
+      console.log(error)
+    }
+  };
+
+  public getNotiByUserId = async(req: any, res: any, next: any)=>{
+    try{
+      const userId=req.user.id;
+      const data = await Notification.query()
+      .select()
+      .where('userid', userId)
+      
+      return res.status(200).send({
+        message: 'successful',
+        data: data
       })
     }catch(error){
       console.log(error)
