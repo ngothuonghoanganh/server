@@ -14,10 +14,11 @@ export class OrderDetail extends Model {
   productname?: string;
   quantity?: number;
   price?: number;
-  totalPrice?: number;
+  totalprice?: number;
   notes?: string;
   typeofproduct?: string;
   ordercode?: string;
   orderid?: string;
   image?: string;
+  customerid?: string;
 }

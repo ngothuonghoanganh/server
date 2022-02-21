@@ -1,17 +1,17 @@
 import { Cart } from "../models/cart";
+import { OrderDetail } from "../models/orderdetail";
 
 class CartController {
   public addToCart = async (req: any, res: any, next: any) => {
     try {
       const customerId = req.user.id; //customer id
 
-      let { productId, quantity, wholesale, typeofproduct } = req.body;
+      let { productId, quantity,  typeofproduct } = req.body;
 
-      const newCart: any = await Cart.query().insert({
+      const newCart: any = await OrderDetail.query().insert({
         customerid: customerId,
         productid: productId,
         quantity: quantity,
-        wholesale: wholesale,
         typeofproduct: typeofproduct,
       });
 
@@ -27,12 +27,11 @@ class CartController {
   public updateCart = async (req: any, res: any, next: any) => {
     try {
       const { cartId } = req.params;
-      let { productId, quantity, wholesale, typeofproduct } = req.body;
-      const updateCart = await Cart.query()
+      let { productId, quantity,  typeofproduct } = req.body;
+      const updateCart = await OrderDetail.query()
         .update({
           productid: productId,
           quantity: quantity,
-          wholesale: wholesale,
           typeofproduct: typeofproduct,
         })
         .where("id", cartId);
@@ -49,7 +48,10 @@ class CartController {
     try {
       const { cartId } = req.params;
       // console.log(cartId)
-      const deleteCart: any = await Cart.query().where("id", cartId).del();
+      const deleteCart: any = await OrderDetail.query()
+        .where("id", cartId)
+        .andWhere("orderdetail.ordercode", "is", null)
+        .del();
       return res.status(200).send({
         message: "cart deleted",
         data: deleteCart,
@@ -78,11 +80,12 @@ class CartController {
         "suppliers.address as supplieraddress",
       ];
       // console.log(id)
-      const List = await Cart.query()
-        .select("cart.*", ...listEntity)
-        .join("products", "cart.productid", "products.id")
+      const List = await OrderDetail.query()
+        .select("orderdetail.*", ...listEntity)
+        .join("products", "orderdetail.productid", "products.id")
         .join("suppliers", "suppliers.id", "products.supplierid")
-        .where("cart.customerid", id);
+        .where("orderdetail.customerid", id)
+        .andWhere("orderdetail.ordercode", "is", null);
 
       res.status(200).send({
         message: "success",
