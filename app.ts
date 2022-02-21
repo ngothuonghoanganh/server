@@ -14,19 +14,18 @@ import cookies_reader from "./services/cookies";
 import indexRoute from "./routes/index";
 import userRoute from "./routes/users";
 import fileRoute from "./routes/files";
-import categoryRoute from './routes/category';
-import productRouter from'./routes/product';
-import cartRouter from'./routes/cart';
-import campaignRouter from'./routes/campaign';
+import categoryRoute from "./routes/category";
+import productRouter from "./routes/product";
+import cartRouter from "./routes/cart";
+import campaignRouter from "./routes/campaign";
 import orderRouter from "./routes/order";
 import addressRouter from "./routes/address";
 import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
-
+import { database } from "./models/firebase/firebase";
 
 import Logger from "./lib/logger";
-import cronjob from "./controllers/cron/cronjob"
-
+import cronjob from "./controllers/cron/cronjob";
 
 const upload = multer();
 dotenv.config();
@@ -36,7 +35,7 @@ const port = 3000;
 const server: http.Server = http.createServer(app);
 
 // cronjob config
-cronjob.run()
+cronjob.run();
 
 // logger config
 const stream: StreamOptions = {
@@ -52,7 +51,9 @@ const morganMiddleware = morgan(
   ":method :url :status :res[content-length] - :response-time ms",
   { stream, skip }
 );
-
+database.ref("hello").on("value", (snapshot) => {
+  console.log(snapshot.val());
+});
 // server config
 app.use(morganMiddleware);
 app.use(bodyParser.json());
@@ -73,17 +74,14 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", indexRoute);
 app.use("/api/users", userRoute);
 app.use("/api/files", fileRoute);
-app.use('/api/categories', categoryRoute);
-app.use('/api/products', productRouter);
-app.use('/api/cart', cartRouter);
-app.use('/api/campaigns', campaignRouter); 
-app.use('/api/order', orderRouter); 
-app.use('/api/address', addressRouter); 
-app.use('/api/discountcode', discontCodeRouter); 
-app.use('/api/customerdiscountcode', customerDiscontCodeRouter); 
-
-
-
+app.use("/api/categories", categoryRoute);
+app.use("/api/products", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/campaigns", campaignRouter);
+app.use("/api/order", orderRouter);
+app.use("/api/address", addressRouter);
+app.use("/api/discountcode", discontCodeRouter);
+app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
