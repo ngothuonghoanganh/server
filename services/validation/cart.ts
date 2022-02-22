@@ -5,6 +5,7 @@ export const createAndUpdateBodyCartSchema = Joi.object({
   quantity: Joi.number().integer().min(0),
   inCampaign: Joi.boolean(),
   typeofproduct: Joi.string().allow(null).allow("").default(""),
+  campaignId: Joi.string().allow(null).allow("").default(""),
 });
 
 export const paramCartSchema = Joi.object({
