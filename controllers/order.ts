@@ -4,6 +4,7 @@ import { Address } from "../models/address";
 
 import crypto from "crypto";
 import { Campaigns } from "../models/campaigns";
+import { Products } from "../models/products";
 
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -142,6 +143,30 @@ class OrderController {
             .where("id", campaignId);
         }
       }
+      for (const product of products) {
+        //  details.push({
+        //   customerid: req.user.id,
+        //   productid: product.productId,
+        //   productname: product.productName,
+        //   quantity: product.quantity,
+        //   price: product.price,
+        //   totalprice: product.totalPrice,
+        //   notes: product.notes,
+        //   typeofproduct: product.typeOfProduct,
+        //   ordercode: orderCode,
+        //   image: product.image,
+        //   orderid: newOrder.id,
+        // });
+        await Products.query()
+        .update({
+          quantity: Products.raw(`
+            quantity - ${product.quantity}
+          `)
+          
+        })
+        .where('id', product.productId)
+      }
+      
 
       return res.status(200).send({
         message: "successful",
