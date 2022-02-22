@@ -22,4 +22,5 @@ export class OrderDetail extends Model {
   image?: string;
   customerid?: string;
   incampaign?: boolean;
+  campaignid?: string;
 }
