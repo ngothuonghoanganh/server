@@ -136,6 +136,10 @@ class OrderController {
               status: "created",
             })
             .whereIn("id", orderId);
+
+          await Campaigns.query()
+            .update({ status: "done" })
+            .where("id", campaignId);
         }
       }
 
