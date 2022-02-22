@@ -3,7 +3,7 @@ import * as Joi from "joi";
 export const createAndUpdateBodyCartSchema = Joi.object({
   productId: Joi.string().required(),
   quantity: Joi.number().integer().min(0),
-  wholesale: Joi.boolean(),
+  inCampaign: Joi.boolean(),
   typeofproduct: Joi.string().allow(null).allow("").default(""),
 });
 

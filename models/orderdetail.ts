@@ -21,4 +21,5 @@ export class OrderDetail extends Model {
   orderid?: string;
   image?: string;
   customerid?: string;
+  incampaign?: boolean;
 }
