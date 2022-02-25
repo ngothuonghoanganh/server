@@ -25,7 +25,7 @@ class Campaign {
         .andWhere("productid", productId)
         .andWhere("status", "active")
         .first();
-
+      if (!campaign.maxquantitycampaign) campaign.maxquantitycampaign = 0;
       const product = await Products.query()
         .select()
         .where("id", productId)
