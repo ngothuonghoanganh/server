@@ -35,7 +35,7 @@ class Campaign {
           parseInt(campaign.maxquantitycampaign) + maxQuantity
         );
       console.log(product);
-      if (!product || product.length === 0) {
+      if (product && product.length > 0) {
         newCampaign = await Campaigns.query().insert({
           supplierid: userId,
           productid: productId,
