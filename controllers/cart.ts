@@ -6,7 +6,7 @@ class CartController {
     try {
       const customerId = req.user.id; //customer id
 
-      let { productId, quantity, inCampaign = false, typeofproduct } = req.body;
+      let { productId, quantity, inCampaign = false, typeofproduct, campaignId } = req.body;
 
       const newCart: any = await OrderDetail.query().insert({
         customerid: customerId,
@@ -14,6 +14,7 @@ class CartController {
         quantity: quantity,
         typeofproduct: typeofproduct,
         incampaign: inCampaign,
+        campaignid: campaignId
       });
 
       return res.status(200).send({
