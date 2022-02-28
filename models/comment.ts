@@ -8,7 +8,7 @@ export class Comments extends Model {
         return 'comments';
     }
     id?:string;
-    orderid?:string;
+    oderdetailid?:string;
     productid?:string;
     rating?:Number;
     comment?: string;
