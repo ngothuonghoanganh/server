@@ -10,8 +10,9 @@ export class Comments extends Model {
     id?:string;
     orderid?:string;
     productid?:string;
-    vote?:Number;
+    rating?:Number;
     comment?: string;
+    customerid?: string;
     createdat?: Date;
     updatedat?: Date;
 

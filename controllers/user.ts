@@ -10,6 +10,7 @@ import { Suppliers } from "../models/suppliers";
 import bcrypt from "bcrypt";
 import {Notification} from "../models/notification";
 import notification from "../services/realtime/notification";
+
 class User {
   public async listSupplier(req: any, res: any, next: any) {
     try {
@@ -137,6 +138,12 @@ class User {
       
       // const supplier:any=await Suppliers.query().select().where('phone', phone)
       // account.password.delete
+      
+      // notification.sendNotiForWeb({
+      //   userId: "abct",
+      //   link: "test link",
+      //   message: "test"
+      // })
       return res.status(200).send({
         message: 'list user by phone',
         data: account

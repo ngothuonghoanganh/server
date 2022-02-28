@@ -14,7 +14,7 @@ class Notif {
                 userid: data.userId,
                 link: data.link,
                 message: data.message,
-                status: "unseen",
+                status: "unread",
             })
         
     }
