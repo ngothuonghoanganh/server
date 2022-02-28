@@ -24,6 +24,8 @@ import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
 import paymentRouter from "./routes/payment";
 import { database } from "./models/firebase/firebase";
+import commentRouter from "./routes/comment";
+
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -84,6 +86,7 @@ app.use("/api/address", addressRouter);
 app.use("/api/discountcode", discontCodeRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
+app.use("/api/comment", commentRouter);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
