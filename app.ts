@@ -23,6 +23,8 @@ import addressRouter from "./routes/address";
 import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
 import { database } from "./models/firebase/firebase";
+import commentRouter from "./routes/comment";
+
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -82,6 +84,7 @@ app.use("/api/order", orderRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/discountcode", discontCodeRouter);
 app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
+app.use("/api/comment", commentRouter);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
