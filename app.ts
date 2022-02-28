@@ -22,6 +22,7 @@ import orderRouter from "./routes/order";
 import addressRouter from "./routes/address";
 import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
+import paymentRouter from "./routes/payment";
 import { database } from "./models/firebase/firebase";
 
 import Logger from "./lib/logger";
@@ -81,6 +82,7 @@ app.use("/api/campaigns", campaignRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/discountcode", discontCodeRouter);
+app.use("/api/payment", paymentRouter);
 app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
 
 try {
