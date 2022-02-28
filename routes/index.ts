@@ -3,11 +3,11 @@ import { database } from "../models/firebase/firebase";
 import { createValidator } from "express-joi-validation";
 import authentication from "../controllers/authentication";
 import notification from "../services/realtime/notification";
-
 // khởi tạo validator
 const validator = createValidator();
 //lấy schema từ validation trong services
 import { querySchema } from "../services/validation/index";
+import Payment from "../controllers/payment";
 
 const router = express.Router();
 
@@ -24,9 +24,9 @@ router.get(
       // });
 
       notification.sendNotiForWeb({
-        userid: 'abc123',
-        link: '',
-        message: 'hello world'
+        userid: "abc123",
+        link: "",
+        message: "hello world",
       });
       return res.status(200).send("successful");
     } catch (error) {
@@ -34,4 +34,7 @@ router.get(
     }
   }
 );
+
+router.post("/", Payment.createPayment);
+
 export default router;
