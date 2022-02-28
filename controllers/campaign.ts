@@ -25,7 +25,7 @@ class Campaign {
         .andWhere("productid", productId)
         .andWhere("status", "active")
         .first();
-
+      if (!campaign.maxquantitycampaign) campaign.maxquantitycampaign = 0;
       const product = await Products.query()
         .select()
         .where("id", productId)
@@ -34,7 +34,8 @@ class Campaign {
           ">=",
           parseInt(campaign.maxquantitycampaign) + maxQuantity
         );
-      if (!product || product.length === 0) {
+      console.log(product);
+      if (product && product.length > 0) {
         newCampaign = await Campaigns.query().insert({
           supplierid: userId,
           productid: productId,
@@ -72,19 +73,53 @@ class Campaign {
   async updateCompaign(req: any, res: any, next: any) {
     try {
       const campaignId = req.params.campaignId;
-      const { productId, fromDate, toDate, quantity, price } = req.body;
-
-      await Campaigns.query()
-        .update({
-          productid: productId,
-          quantity: quantity,
-          price: price,
-          fromdate: fromDate,
-          todate: toDate,
-        })
-        .where("id", campaignId)
-        .andWhere("status", "active");
-
+      const {
+        productId,
+        fromDate,
+        toDate,
+        quantity,
+        price,
+        maxQuantity = 0,
+        isShare = false,
+      } = req.body;
+      let newCampaign,
+        campaign: any = null;
+      campaign = await Campaigns.query()
+        .select()
+        .sum("maxquantity as maxquantitycampaign")
+        .where("todate", ">=", Campaigns.raw("now()"))
+        .andWhere("productid", productId)
+        .andWhere("status", "active")
+        .first();
+      if (!campaign.maxquantitycampaign) campaign.maxquantitycampaign = 0;
+      const product = await Products.query()
+        .select()
+        .where("id", productId)
+        .andWhere(
+          "quantity",
+          ">=",
+          parseInt(campaign.maxquantitycampaign) + maxQuantity
+        );
+      console.log(product);
+      if (product && product.length > 0) {
+        await Campaigns.query()
+          .update({
+            productid: productId,
+            quantity: quantity,
+            price: price,
+            fromdate: fromDate,
+            todate: toDate,
+            maxquantity: maxQuantity,
+            isshare: isShare,
+          })
+          .where("id", campaignId)
+          .andWhere("fromdate", ">=", Campaigns.raw("now()"))
+          .andWhere("status", "active");
+      } else {
+        return res.status(200).send({
+          message: "Max quantity in campaign is exceeded quantity of product",
+        });
+      }
       return res.status(200).send({
         data: null,
         message: "update successfully",
