@@ -103,19 +103,26 @@ class Comment {
     public countNumOfCommentByProductId = async (req: any, res: any, next: any) => {
         try {
             const productId = req.body.productId;
+            let totalNumOfComment = 0;
+            let averageRating
             const data: any = await Comments.query()
                 .select(
                     '*'
                 )
                 .where('productid', productId)
-            // .groupBy('comments.id')
 
-            const totalNumOfComment = data.length
+            if (data.length > 0) {
+                totalNumOfComment = data.length
+                averageRating = (data.map((item: any) => item.rating).reduce((prev: any, next: any) => prev + next)) / totalNumOfComment;
+                return res.status(200).send({
+                    message: 'successful',
+                    data: ({ comments: data, totalNumOfComment, averageRating })
+                })
+            }
 
-            const averageRating = (data.map((item: any) => item.rating).reduce((prev: any, next: any) => prev + next)) / totalNumOfComment;
             return res.status(200).send({
                 message: 'successful',
-                data: ({ comments: data, totalNumOfComment, averageRating })
+                data: ({ comment: 'no comment', rating: 'no rating'})
             })
         } catch (error) {
             console.log(error)
