@@ -16,6 +16,6 @@ export const getCommentByOrderDetailIdQuerySchema = Joi.object({
     orderDetailId: Joi.string().required(),
 });
 
-export const getCommentByProductIdBodySchema = Joi.object({
+export const getCommentByProductIdParamSchema = Joi.object({
     productId: Joi.string().required(),
 });
