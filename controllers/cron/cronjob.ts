@@ -27,7 +27,7 @@ class cronJob {
   });
 
   public run = () => {
-    this.getAllCampaign.start();
+    // this.getAllCampaign.start();
 
   };
 
