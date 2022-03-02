@@ -2,7 +2,6 @@ import QueryString from "qs";
 import crypto from "crypto";
 import dateFormat from "dateformat";
 import { Order } from "../models/orders";
-import { VNPay } from "vn-payments";
 
 class Payment {
   public createPayment = async (req: any, res: any) => {

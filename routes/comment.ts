@@ -4,7 +4,7 @@ import authentication from "../controllers/authentication";
 
 // khởi tạo validator
 import Comment from "../controllers/comment";
-import { createCommentBodySchema, getCommentByIdParamSchema, getCommentByOrderDetailIdQuerySchema, getCommentByProductIdBodySchema } from "../services/validation/comment";
+import { createCommentBodySchema, getCommentByIdParamSchema, getCommentByOrderDetailIdQuerySchema, getCommentByProductIdParamSchema } from "../services/validation/comment";
 
 const validator = createValidator();
 
@@ -23,17 +23,10 @@ router.post(
     validator.query(getCommentByOrderDetailIdQuerySchema),
     Comment.getCommentByOrderDetailId
   );
-
   router.get(
-    "/:commentId",
-    validator.params(getCommentByIdParamSchema),
-    Comment.getCommentById
-  );
-
-  router.post(
-    "/productId",
-    validator.body(getCommentByProductIdBodySchema),
-    Comment.getCommentByProductId
+    "/product/order",
+    // validator.params(getCommentByIdParamSchema),
+    Comment.countNumOfOrderCompleted
   );
 
   router.post(
@@ -41,5 +34,19 @@ router.post(
     // validator.body(getCommentByProductIdBodySchema),
     Comment.countNumOfCommentByProductId
   );
+
+  router.get(
+    "/product/:productId",
+    validator.params(getCommentByProductIdParamSchema),
+    Comment.getCommentByProductId
+  );
+
+  router.get(
+    "/:commentId",
+    validator.params(getCommentByIdParamSchema),
+    Comment.getCommentById
+  );
+
+  
 
 export default router;
