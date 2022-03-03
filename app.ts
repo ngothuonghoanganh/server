@@ -26,9 +26,9 @@ import paymentRouter from "./routes/payment";
 import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
 
-
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
+import chat from "./controllers/chat";
 
 const upload = multer();
 dotenv.config();
@@ -54,9 +54,9 @@ const morganMiddleware = morgan(
   ":method :url :status :res[content-length] - :response-time ms",
   { stream, skip }
 );
-database.ref("hello").on("value", (snapshot) => {
-  console.log(snapshot.val());
-});
+
+chat.run();
+
 // server config
 app.use(morganMiddleware);
 app.use(bodyParser.json());

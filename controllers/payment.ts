@@ -46,7 +46,7 @@ class Payment {
         (parseInt(order.totalprice as any) -
           parseInt(order.discountprice as any)) *
         100;
-      vnp_Params["vnp_ReturnUrl"] = returnUrl + `?order_id=${orderId}`;
+      vnp_Params["vnp_ReturnUrl"] = returnUrl + `/order/payment?order_id=${orderId}`;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = dateFormat(date, "yyyymmddHHmmss");
       if (bankCode !== null && bankCode !== "") {
