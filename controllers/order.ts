@@ -44,8 +44,8 @@ class OrderController {
           campaignId !== null &&
           campaignId !== undefined &&
           campaignId !== ""
-            ? "advanced"
-            : "created",
+            ? "notAdvanced"
+            : "unpaid",
         totalprice: products
           .map((item: any) => item.totalPrice)
           .reduce((prev: any, next: any) => {
@@ -98,75 +98,15 @@ class OrderController {
           .where("ordercode", orderCode);
       }
 
-      // query all orders have compaign id above (in body) and status is advanced
-      // then sum all quantity of product (b)
-      // after that, query campaign by campaign id and quantity <= b
-      //                                                100        200
-      // if current quantity >= expectation quantity -> set status all order of campaign is created
-
-      if (
-        campaignId &&
-        campaignId !== null &&
-        campaignId !== undefined &&
-        campaignId !== ""
-      ) {
-        const ordersInCampaign = await Order.query()
-          .select(
-            "orders.id as orderid",
-            Order.raw(`sum(orderdetail.quantity) as orderquantity`)
-          )
-          .join("orderdetail", "orders.id", "orderdetail.orderid")
-          .where("orders.campaignid", campaignId)
-          .andWhere("status", "advanced")
-          .groupBy("orders.id");
-        const currentQuantity = ordersInCampaign.reduce(
-          (acc: any, curr: any) => parseInt(acc) + parseInt(curr.orderquantity),
-          0
-        );
-        console.log(currentQuantity);
-        const campaign = await Campaigns.query()
-          .select()
-          .where("id", campaignId)
-          .andWhere("quantity", "<=", currentQuantity)
-          .first();
-        if (campaign) {
-          const orderId = ordersInCampaign.map((item: any) => item.orderid);
-          // console.log(orderId)
-          await Order.query()
-            .update({
-              status: "created",
-            })
-            .whereIn("id", orderId);
-
-          await Campaigns.query()
-            .update({ status: "done" })
-            .where("id", campaignId);
-        }
-      }
       for (const product of products) {
-        //  details.push({
-        //   customerid: req.user.id,
-        //   productid: product.productId,
-        //   productname: product.productName,
-        //   quantity: product.quantity,
-        //   price: product.price,
-        //   totalprice: product.totalPrice,
-        //   notes: product.notes,
-        //   typeofproduct: product.typeOfProduct,
-        //   ordercode: orderCode,
-        //   image: product.image,
-        //   orderid: newOrder.id,
-        // });
         await Products.query()
-        .update({
-          quantity: Products.raw(`
+          .update({
+            quantity: Products.raw(`
             quantity - ${product.quantity}
-          `)
-          
-        })
-        .where('id', product.productId)
+          `),
+          })
+          .where("id", product.productId);
       }
-      
 
       return res.status(200).send({
         message: "successful",
@@ -446,6 +386,69 @@ class OrderController {
         message: "successful",
         data: orders,
       });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public paymentOrder = async (req: any, res: any, next: any) => {
+    try {
+      const orderId = req.query.order_id;
+
+      const order = await Order.query().select().where("id", orderId).first();
+      const campaignId = order.campaignid;
+
+      if (
+        campaignId &&
+        campaignId !== null &&
+        campaignId !== undefined &&
+        campaignId !== ""
+      ) {
+        await Order.query()
+          .update({
+            status: "advanced",
+          })
+          .where("id", orderId);
+
+        const ordersInCampaign = await Order.query()
+          .select(
+            "orders.id as orderid",
+            Order.raw(`sum(orderdetail.quantity) as orderquantity`)
+          )
+          .join("orderdetail", "orders.id", "orderdetail.orderid")
+          .where("orders.campaignid", campaignId)
+          .andWhere("status", "advanced")
+          .groupBy("orders.id");
+        const currentQuantity = ordersInCampaign.reduce(
+          (acc: any, curr: any) => parseInt(acc) + parseInt(curr.orderquantity),
+          0
+        );
+        console.log(currentQuantity);
+        const campaign = await Campaigns.query()
+          .select()
+          .where("id", campaignId)
+          .andWhere("quantity", "<=", currentQuantity)
+          .first();
+        if (campaign) {
+          const orderId = ordersInCampaign.map((item: any) => item.orderid);
+          // console.log(orderId)
+          await Order.query()
+            .update({
+              status: "unpaid",
+            })
+            .whereIn("id", orderId);
+
+          await Campaigns.query()
+            .update({ status: "done" })
+            .where("id", campaignId);
+        }
+      }
+      await Order.query()
+        .update({
+          status: "created",
+        })
+        .where("id", orderId)
+        .andWhere("status", "unpaid");
     } catch (error) {
       console.log(error);
     }
