@@ -156,7 +156,6 @@ class Comment {
                 return r;
             }, Object.create({}));
             
-
             return res.status(200).send({
                 message: 'successful',
                 data: ({ result, })
