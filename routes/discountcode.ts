@@ -34,15 +34,6 @@ router.delete(
   discountcode.deactivateDiscountCode
 );
 
-router.put(
-  "/:discountCodeId",
-  authentication.protected,
-  authentication.checkRole(["Supplier"]),
-  validator.params(paramDiscountCodeIdSchema),
-  validator.body(updateDiscountCodeSchema),
-  discountcode.updateDiscountCode
-);
-
 router.get(
   "/",
   // authentication.protected,
