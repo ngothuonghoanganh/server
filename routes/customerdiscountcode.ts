@@ -18,4 +18,13 @@ router.post(
   customerDiscountCode.createCustomerDiscountCode
 );
 
+router.get(
+  '/getByStatus',
+  authentication.protected,
+  authentication.checkRole(["Customer"]),
+  customerDiscountCode.getListDiscountCodeByStatus
+);
+
+
+
 export default router;

@@ -121,8 +121,8 @@ class Comment {
             }
 
             return res.status(200).send({
-                message: 'successful',
-                data: ({ comment: 'no comment', rating: 'no rating'})
+                message: 'no result',
+               
             })
         } catch (error) {
             console.log(error)
@@ -155,42 +155,7 @@ class Comment {
                 r[a.productId].push(a);
                 return r;
             }, Object.create({}));
-            console.log(result)
-            // Object.keys(result.Data).length
-            // const countUniques = (result = []) => {
-            //     const tableObj = {} = {};
-            //     result.forEach(el => {
-            //         tableObj[el.productId] = null;
-            //     //    foodObj[result.food_id] = null;
-            //     });
-            //     const tableUniqueIDs = Object.keys(tableObj).length;
-            //     // const foodUniqueIDs = Object.keys(foodObj).length;
-            //     return {
-            //        tableUniqueIDs
-            //     };
-            //  };
-
-            // let counts = [];
-            // for (var i = 0; i < result.length; i++) {
-            //     counts[result[i]] = 1 + (counts[result[i]] || 0);
-            // }
-            // console.log(result)
-            // const counts: any = {};
-            // result.forin((x: any) => {
-            //     counts[x] = (counts[x] || 0) + 1;
-            // });
-
-            // const counts: any = {};
-            // result.forin((x: any) => {
-            //     counts[x] = (counts[x] || 0) + 1;
-            // });
-            // console.log(counts)
-
-            // const counts: any = {};
-            // result.forEach((x: any) => {
-            //     counts[x] = (counts[x] || 0) + 1;
-            // });
-            // console.log(counts)
+            
 
             return res.status(200).send({
                 message: 'successful',
