@@ -103,19 +103,26 @@ class Comment {
     public countNumOfCommentByProductId = async (req: any, res: any, next: any) => {
         try {
             const productId = req.body.productId;
+            let totalNumOfComment = 0;
+            let averageRating
             const data: any = await Comments.query()
                 .select(
                     '*'
                 )
                 .where('productid', productId)
-            // .groupBy('comments.id')
 
-            const totalNumOfComment = data.length
+            if (data.length > 0) {
+                totalNumOfComment = data.length
+                averageRating = (data.map((item: any) => item.rating).reduce((prev: any, next: any) => prev + next)) / totalNumOfComment;
+                return res.status(200).send({
+                    message: 'successful',
+                    data: ({ comments: data, totalNumOfComment, averageRating })
+                })
+            }
 
-            const averageRating = (data.map((item: any) => item.rating).reduce((prev: any, next: any) => prev + next)) / totalNumOfComment;
             return res.status(200).send({
                 message: 'successful',
-                data: ({ comments: data, totalNumOfComment, averageRating })
+                data: ({ comment: 'no comment', rating: 'no rating'})
             })
         } catch (error) {
             console.log(error)
@@ -123,7 +130,6 @@ class Comment {
     };
 
     public countNumOfOrderCompleted = async (req: any, res: any, next: any) => {
-        // console.log('asdasdas')
         try {
             const productIds = req.body.productIds;
             const status = "completed";
@@ -149,7 +155,7 @@ class Comment {
                 r[a.productId].push(a);
                 return r;
             }, Object.create({}));
-            // console.log(result)
+            console.log(result)
             // Object.keys(result.Data).length
             // const countUniques = (result = []) => {
             //     const tableObj = {} = {};
@@ -180,15 +186,15 @@ class Comment {
             // });
             // console.log(counts)
 
-            const counts: any = {};
-            result.forEach((x: any) => {
-                counts[x] = (counts[x] || 0) + 1;
-            });
-            console.log(counts)
+            // const counts: any = {};
+            // result.forEach((x: any) => {
+            //     counts[x] = (counts[x] || 0) + 1;
+            // });
+            // console.log(counts)
 
             return res.status(200).send({
                 message: 'successful',
-                data: ({ numOfOrderCompletedByProductId, })
+                data: ({ result, })
             })
         } catch (error) {
             console.log(error)
