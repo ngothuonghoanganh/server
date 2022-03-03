@@ -23,7 +23,7 @@ router.post(
     validator.query(getCommentByOrderDetailIdQuerySchema),
     Comment.getCommentByOrderDetailId
   );
-  router.get(
+  router.post(
     "/product/order",
     // validator.params(getCommentByIdParamSchema),
     Comment.countNumOfOrderCompleted
