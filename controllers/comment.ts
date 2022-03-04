@@ -163,7 +163,7 @@ class Comment {
         } catch (error) {
             console.log(error)
         }
-    }
+    };
 }
 
 export default new Comment();

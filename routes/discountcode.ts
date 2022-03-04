@@ -26,6 +26,15 @@ router.post(
   discountcode.createDiscountCode
 );
 
+router.put(
+  '/:discountCodeId',
+  authentication.protected,
+  authentication.checkRole(["Supplier"]),
+  discountcode.updateDiscountCode
+
+)
+
+
 router.delete(
   "/:discountCodeId",
   authentication.protected,
