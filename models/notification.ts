@@ -1,5 +1,4 @@
 import { Model } from "objection";
-import { StringLiteralLike } from "typescript";
 import * as connection from "./db/connection";
 
 Model.knex(connection.knex);
