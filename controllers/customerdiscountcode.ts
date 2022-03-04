@@ -1,5 +1,6 @@
 import console from "console";
 import { CustomerDiscountCode } from "../models/customerdiscountcode";
+import { DiscountCode } from "../models/discountcode";
 
 class CustomerDiscountCodeController {
     public createCustomerDiscountCode = async (req: any, res: any, next: any) => {
@@ -52,15 +53,38 @@ class CustomerDiscountCodeController {
         }
     };
 
-    public UpdateStatusToUsed = async (req: any, res: any, next: any) => {
+    public reduceDiscountUse = async (req: any, res: any, next: any) => {
         try {
             const status = 'used';
-            const update = await CustomerDiscountCode.query()
+            const discountCodeId = req.body.discountCodeId;
+            // const ListEntity =[
+            //     'customerdiscountcode.customerid',
+            //     'customerdiscountcode.discountcodeid',
+            //     'customerdiscountcode.status'
+            // ]
+             
+            const currentQuantity: any =await DiscountCode.query()
+                .select('quantity')
+                .where('id', discountCodeId)
+                .first()
+            // console.log(currentQuantity['quantity']);
+            const updateQuantity: any=await DiscountCode.query()
+                .update({
+                    quantity: currentQuantity['quantity']-1
+                })
+                .where('id', discountCodeId)
+            // console.log(updateQuantity)
+
+            const updateStatusForCusDiscountCode: any = await CustomerDiscountCode.query()
                 .update({
                     status: status
                 })
-                .where('status', 'ready')
-
+                .where('discountcodeid', discountCodeId)
+                .andWhere('status', 'ready')
+            return res.status(200).send({
+                message: 'successful',
+                data: updateStatusForCusDiscountCode
+            })
         } catch (error) {
             console.log(error)
         }

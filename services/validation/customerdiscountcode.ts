@@ -5,3 +5,8 @@ export const createCustomerDiscountCodeSchema = Joi.object({
     quantity: Joi.number().min(0),
     customerId: Joi.string().required(),
 });
+
+
+export const getByStatusQuerySchema = Joi.object({
+    status: Joi.string().required(),
+});
