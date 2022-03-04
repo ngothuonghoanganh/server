@@ -5,6 +5,8 @@ import { Address } from "../models/address";
 import crypto from "crypto";
 import { Campaigns } from "../models/campaigns";
 import { Products } from "../models/products";
+import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
+import { LoyalCustomer } from "../models/loyalCustomer";
 
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -132,6 +134,67 @@ class OrderController {
         })
         .where("ordercode", orderCode)
         .andWhere("status", "delivered");
+      // check loyal customer
+      const order: any = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(`sum(orderdetail.quantity) as orderquantity`)
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.ordercode", orderCode)
+        .groupBy("orders.id")
+        .first();
+      console.log(order);
+
+      if (order) {
+        const loyalCustomer = await LoyalCustomer.query()
+          .select()
+          .where("customerid", order.customerid)
+          .andWhere("supplierid", order.supplierid)
+          .first();
+
+        if (!loyalCustomer) {
+          await LoyalCustomer.query().insert({
+            customerid: order.customerid,
+            supplierid: order.supplierid,
+            numoforder: 1,
+            numofproduct: order.orderquantity,
+          });
+        } else {
+          await LoyalCustomer.query()
+            .update({
+              customerid: order.customerid,
+              supplierid: order.supplierid,
+              numoforder: LoyalCustomer.raw(`numoforder + 1`),
+              numofproduct: LoyalCustomer.raw(
+                `numofproduct + ${order.orderquantity}`
+              ),
+            })
+            .where("id", loyalCustomer.id);
+        }
+
+        const newLoyalCustomer = await LoyalCustomer.query()
+          .select()
+          .where("customerid", order.customerid)
+          .andWhere("supplierid", order.supplierid)
+          .first();
+
+        const condition = await LoyalCustomerCondition.query()
+          .select()
+          .where("supplierid", order.supplierid)
+          .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
+          .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
+
+        const maxPercent = condition.reduce((p: any, c: any) =>
+          p.discountpercent > c.discountpercent ? p : c
+        );
+        
+        await LoyalCustomer.query()
+          .update({
+            discountpercent: maxPercent.discountpercent,
+          })
+          .where("id", newLoyalCustomer.id);
+      }
 
       if (update === 0) {
         return res.status(200).send({
