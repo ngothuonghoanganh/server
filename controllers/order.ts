@@ -177,23 +177,26 @@ class OrderController {
           .select()
           .where("customerid", order.customerid)
           .andWhere("supplierid", order.supplierid)
+          .andWhere("status", "active")
           .first();
 
-        const condition = await LoyalCustomerCondition.query()
-          .select()
-          .where("supplierid", order.supplierid)
-          .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
-          .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
+        if (newLoyalCustomer) {
+          const condition =  await LoyalCustomerCondition.query()
+            .select()
+            .where("supplierid", order.supplierid)
+            .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
+            .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
 
-        const maxPercent = condition.reduce((p: any, c: any) =>
-          p.discountpercent > c.discountpercent ? p : c
-        );
-        
-        await LoyalCustomer.query()
-          .update({
-            discountpercent: maxPercent.discountpercent,
-          })
-          .where("id", newLoyalCustomer.id);
+          const maxPercent = condition.reduce((p: any, c: any) =>
+            p.discountpercent > c.discountpercent ? p : c
+          );
+
+          await LoyalCustomer.query()
+            .update({
+              discountpercent: maxPercent.discountpercent,
+            })
+            .where("id", newLoyalCustomer.id);
+        }
       }
 
       if (update === 0) {

@@ -6,11 +6,21 @@ const router = express.Router();
 
 router.post("/", authentication.protected, loyalCustomerController.create);
 router.get("/", authentication.protected, loyalCustomerController.getAll);
+router.get(
+  "/customer",
+  authentication.protected,
+  loyalCustomerController.getAllCustoner
+);
 
 router.put(
   "/:loyalCustomerConditionId",
   authentication.protected,
   loyalCustomerController.update
+);
+router.put(
+  "/customer/:loyalCustomerId",
+  authentication.protected,
+  loyalCustomerController.updateStatusLoyalCustomer
 );
 
 router.delete(

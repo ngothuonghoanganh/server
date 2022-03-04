@@ -14,4 +14,5 @@ export class LoyalCustomer extends Model {
   numofproduct?: string;
   discountpercent?: number;
   created?: Date;
+  status?: string;
 }

@@ -1,3 +1,4 @@
+import { LoyalCustomer } from "../models/loyalCustomer";
 import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
 
 class LoyalcustomerController {
@@ -81,11 +82,50 @@ class LoyalcustomerController {
 
   public getAll = async (req: any, res: any, next: any) => {
     try {
-      const condition = await LoyalCustomerCondition.query().select();
+      const data = await LoyalCustomerCondition.query().select();
 
       return res.status(200).send({
-        data: condition,
-        message: "create successfully",
+        data: data,
+        message: "get successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public getAllCustoner = async (req: any, res: any, next: any) => {
+    try {
+      const listEntity = [
+        "loyalcustomer.*",
+        "customers.id as customerid",
+        "customers.firstname as customerfirstname",
+        "customers.lastname as customerlastname",
+        "customers.avt as customeravt",
+      ];
+      const data = await LoyalCustomer.query()
+        .select(...listEntity)
+        .join("customers", "customers.id", "loyalcustomer.customerid");
+
+      return res.status(200).send({
+        data: data,
+        message: "get successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public updateStatusLoyalCustomer = async (req: any, res: any, next: any) => {
+    try {
+      const id = req.params.loyalCustomerId;
+      const { status = "active" } = req.body;
+      const data = await LoyalCustomer.query()
+        .update({ status: status })
+        .where("id", id);
+
+      return res.status(200).send({
+        data: data,
+        message: "get successfully",
       });
     } catch (error) {
       console.log(error);
