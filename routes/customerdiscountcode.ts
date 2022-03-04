@@ -4,7 +4,7 @@ import { createValidator } from "express-joi-validation";
 // khởi tạo validator
 import authentication from "../controllers/authentication";
 import customerDiscountCode from "../controllers/customerdiscountcode";
-import { createCustomerDiscountCodeSchema, getByStatusQuerySchema } from "../services/validation/customerdiscountcode";
+import { createCustomerDiscountCodeSchema, getByStatusQuerySchema, reduceDiscountCodeBodySchema } from "../services/validation/customerdiscountcode";
 
 const validator = createValidator();
 
@@ -31,6 +31,7 @@ router.post(
   '/usedOneDiscountCode',
   authentication.protected,
   authentication.checkRole(["Customer"]),
+  validator.body(reduceDiscountCodeBodySchema),
   customerDiscountCode.reduceDiscountUse
 )
 

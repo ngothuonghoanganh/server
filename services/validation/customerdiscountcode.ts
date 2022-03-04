@@ -10,3 +10,7 @@ export const createCustomerDiscountCodeSchema = Joi.object({
 export const getByStatusQuerySchema = Joi.object({
     status: Joi.string().required(),
 });
+
+export const reduceDiscountCodeBodySchema = Joi.object({
+    discountCodeId: Joi.string().required(),
+});
