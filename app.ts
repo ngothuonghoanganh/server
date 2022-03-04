@@ -23,6 +23,7 @@ import addressRouter from "./routes/address";
 import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
 import paymentRouter from "./routes/payment";
+import loyalCustomerRouter from "./routes/loyalCustomer";
 import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
 
@@ -87,6 +88,7 @@ app.use("/api/discountcode", discontCodeRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
 app.use("/api/comment", commentRouter);
+app.use("/api/loyalcustomer", loyalCustomerRouter);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
