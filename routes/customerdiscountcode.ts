@@ -35,6 +35,14 @@ router.post(
   customerDiscountCode.reduceDiscountUse
 )
 
+router.post(
+  '/productIds',
+  authentication.protected,
+  authentication.checkRole(["Customer"]),
+  // validator.body(reduceDiscountCodeBodySchema),
+  customerDiscountCode.getListCustomerDiscountCodeBySuppId
+)
+
 
 
 export default router;
