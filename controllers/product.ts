@@ -1,6 +1,8 @@
 import { Products } from "../models/products";
 import console from "console";
 import { Suppliers } from "../models/suppliers";
+import { Comments } from "../models/comment";
+import { rmSync } from "fs";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -233,6 +235,23 @@ class ProductsController {
       console.log(error);
     }
   };
+
+  public getRatingByListProducts = async(req: any, res: any, next: any)=>{
+    try {
+      const productIds = req.body.productIds;
+
+      const listRating = await Comments.query()
+        .select()
+        .whereIn('productid', productIds)
+
+        return res.status(200).send({
+          message: 'successful',
+          data: listRating
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
 }
 
