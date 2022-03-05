@@ -32,6 +32,7 @@ class CustomerDiscountCodeController {
     public getListDiscountCodeByStatus = async (req: any, res: any, next: any) => {
         try {
             const status = req.query.status;
+            const customerId=req.user.id
             // console.log(status)
             const ListEntity = [
                 'customerdiscountcode.customerid as customerId',
@@ -42,7 +43,8 @@ class CustomerDiscountCodeController {
             const listDiscountCode: any = await CustomerDiscountCode.query()
                 .select('discountcode.*', ListEntity)
                 .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                .where('customerdiscountcode.status', status);
+                .where('customerdiscountcode.status', status)
+                .andWhere('customerid', customerId)
 
             return res.status(200).send({
                 message: 'successful',
@@ -56,34 +58,42 @@ class CustomerDiscountCodeController {
     public reduceDiscountUse = async (req: any, res: any, next: any) => {
         try {
             const status = 'used';
-            const discountCodeId = req.body.discountCodeId;
-            // const ListEntity =[
-            //     'customerdiscountcode.customerid',
-            //     'customerdiscountcode.discountcodeid',
-            //     'customerdiscountcode.status'
-            // ]
-
-            const currentQuantity: any = await DiscountCode.query()
-                .select('quantity')
-                .where('id', discountCodeId)
-                .first()
-            // console.log(currentQuantity['quantity']);
-            const updateQuantity: any = await DiscountCode.query()
-                .update({
-                    quantity: currentQuantity['quantity'] - 1
-                })
-                .where('id', discountCodeId)
-            // console.log(updateQuantity)
+            const customerDiscountCodeId = req.body.customerDiscountCodeId;
 
             const updateStatusForCusDiscountCode: any = await CustomerDiscountCode.query()
+            .update({
+                status: status
+            })
+            .where('id', customerDiscountCodeId)
+            .andWhere('status', 'ready')
+
+            if(updateStatusForCusDiscountCode===0){
+                return res.status(200).send('discount code is used')
+            }
+
+            const currentDiscountCodeId: any = await CustomerDiscountCode.query()
+                .select('discountcodeid')
+                .where('id', customerDiscountCodeId)
+                .first()
+
+                // console.log(currentDiscountCodeId['discountcodeid'])
+
+            const currentQuantityOfDiscountCode: any = await DiscountCode.query()
+                .select('quantity')
+                .where('id', currentDiscountCodeId['discountcodeid'])
+                .first()
+            // console.log(currentQuantityOfDiscountCode['quantity']);
+            const updateQuantity: any = await DiscountCode.query()
                 .update({
-                    status: status
+                    quantity: currentQuantityOfDiscountCode['quantity'] - 1
                 })
-                .where('discountcodeid', discountCodeId)
-                .andWhere('status', 'ready')
+                .where('id', currentDiscountCodeId['discountcodeid'])
+            // console.log(updateQuantity)
+
+            
             return res.status(200).send({
                 message: 'successful',
-                data: updateStatusForCusDiscountCode
+                data: updateQuantity
             })
         } catch (error) {
             console.log(error)
@@ -93,6 +103,7 @@ class CustomerDiscountCodeController {
     public getListCustomerDiscountCodeBySuppId = async (req: any, res: any, next: any) => {
         try {
             const suppId = req.body.suppId;
+            const customerId=req.user.id;
             const status = 'ready';
             const minPriceCondition = req.body.minPriceCondition;
             const productIds = req.body.productIds;
@@ -116,6 +127,7 @@ class CustomerDiscountCodeController {
                     .whereIn('discountcode.productid', productIds)
                     .where('discountcode.supplierid', suppId)
                     .andWhere('customerdiscountcode.status', status)
+                    .andWhere('customerid', customerId)
 
                 : await CustomerDiscountCode.query()
                     // .select('discountcode.*', ...ListEntity)
@@ -129,6 +141,8 @@ class CustomerDiscountCodeController {
                     .where('discountcode.supplierid', suppId)
                     .andWhere('discountcode.minimunpricecondition', '<=',  minPriceCondition)
                     .andWhere('customerdiscountcode.status', status)
+                    .andWhere('customerid', customerId)
+
 
                     console.log(ListCusDiscountCode)
                     return res.status(200).send({

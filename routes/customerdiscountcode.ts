@@ -23,7 +23,6 @@ router.get(
   authentication.protected,
   authentication.checkRole(["Customer"]),
   validator.query(getByStatusQuerySchema),
-
   customerDiscountCode.getListDiscountCodeByStatus
 );
 
