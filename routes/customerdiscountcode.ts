@@ -38,7 +38,7 @@ router.post(
   '/productIds',
   authentication.protected,
   authentication.checkRole(["Customer"]),
-  // validator.body(reduceDiscountCodeBodySchema),
+  validator.body(reduceDiscountCodeBodySchema),
   customerDiscountCode.getListCustomerDiscountCodeBySuppId
 )
 

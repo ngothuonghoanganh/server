@@ -16,8 +16,9 @@ export const paramProductIdSchema = Joi.object({
 });
 
 export const bodyProductIdsSchema = Joi.object({
-  productId: Joi.string().required(),
+  productIds: Joi.string().required(),
 });
+
 
 export const querySupplierIdSchema = Joi.object({
   supplierId: Joi.string().required(),
