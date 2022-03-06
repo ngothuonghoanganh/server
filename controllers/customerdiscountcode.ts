@@ -36,12 +36,28 @@ class CustomerDiscountCodeController {
             // console.log(status)
             const ListEntity = [
                 'customerdiscountcode.customerid as customerId',
+                'customerdiscountcode.id as id',
                 'customerdiscountcode.discountcodeid as discountCodeId',
                 'customerdiscountcode.status as customerDiscountCodeStatus',
             ]
+
+            const discountCodeEntit=[
+                'discountcode.supplierid as supplierId',
+                'discountcode.code as code',
+                'discountcode.description as description',
+                'discountcode.minimunpricecondition as minimunPriceCondition',
+                'discountcode.startdate as startdate',
+                'discountcode.enddate as enddate',
+                'discountcode.quantity as quantity',
+                'discountcode.createdat as createdAt',
+                'discountcode.updatedat as updatedAt',
+                'discountcode.status as status',
+                'discountcode.productid as productId',
+                'discountcode.discountprice as discountPrice',
+            ]
             // console.log(status)
             const listDiscountCode: any = await CustomerDiscountCode.query()
-                .select('discountcode.*', ListEntity)
+                .select(discountCodeEntit, ListEntity)
                 .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
                 .where('customerdiscountcode.status', status)
                 .andWhere('customerid', customerId)
@@ -109,9 +125,25 @@ class CustomerDiscountCodeController {
             const productIds = req.body.productIds;
             // console.log(productIds)
             const ListEntity = [
+                'customerdiscountcode.id as id',
                 'customerdiscountcode.customerid as customerId',
                 'customerdiscountcode.discountcodeid as discountCodeId',
                 'customerdiscountcode.status as customerDiscountCodeStatus',
+            ]
+
+            const discountCodeEntity=[
+                'discountcode.supplierid as supplierId',
+                'discountcode.code as code',
+                'discountcode.description as description',
+                'discountcode.minimunpricecondition as minimunPriceCondition',
+                'discountcode.startdate as startdate',
+                'discountcode.enddate as enddate',
+                'discountcode.quantity as quantity',
+                'discountcode.createdat as createdAt',
+                'discountcode.updatedat as updatedAt',
+                'discountcode.status as status',
+                'discountcode.productid as productId',
+                'discountcode.discountprice as discountPrice',
             ]
 
             const ListCusDiscountCode = productIds
@@ -122,7 +154,7 @@ class CustomerDiscountCodeController {
                     // .andWhere('discountcode.minimunpricecondition', '<=',  minPriceCondition)
                     // .andWhere('customerdiscountcode.status', status)
 
-                    .select('discountcode.*', ...ListEntity)
+                    .select(discountCodeEntity, ...ListEntity)
                     .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
                     .whereIn('discountcode.productid', productIds)
                     .where('discountcode.supplierid', suppId)
@@ -136,7 +168,7 @@ class CustomerDiscountCodeController {
                     // .where('discountcode.supplierid', suppId)
                     // .andWhere('customerdiscountcode.status', status)
 
-                    .select('discountcode.*', ...ListEntity)
+                    .select(discountCodeEntity, ...ListEntity)
                     .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
                     .where('discountcode.supplierid', suppId)
                     .andWhere('discountcode.minimunpricecondition', '<=',  minPriceCondition)
