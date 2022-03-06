@@ -46,7 +46,7 @@ router.post(
 
 router.post(
   '/products/rating',
-  validator.body(bodyProductIdsSchema),
+  // validator.body(bodyProductIdsSchema),
   Product.getRatingByListProducts
 
 )

@@ -143,7 +143,6 @@ class CustomerDiscountCodeController {
                     .andWhere('customerdiscountcode.status', status)
                     .andWhere('customerid', customerId)
 
-
                     console.log(ListCusDiscountCode)
                     return res.status(200).send({
                         message: 'successful',
