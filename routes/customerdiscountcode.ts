@@ -42,6 +42,4 @@ router.post(
   customerDiscountCode.getListCustomerDiscountCodeBySuppId
 )
 
-
-
 export default router;
