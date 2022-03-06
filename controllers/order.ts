@@ -22,6 +22,7 @@ class OrderController {
         isWholeSale = false,
         customerDiscountCodeId = null,
         inCart = false,
+        paymentMethod = "cod",
       } = req.body;
 
       const address: Address = await Address.query()
@@ -47,6 +48,8 @@ class OrderController {
           campaignId !== undefined &&
           campaignId !== ""
             ? "notAdvanced"
+            : paymentMethod === "cod"
+            ? "created"
             : "unpaid",
         totalprice: products
           .map((item: any) => item.totalPrice)
@@ -181,7 +184,7 @@ class OrderController {
           .first();
 
         if (newLoyalCustomer) {
-          const condition =  await LoyalCustomerCondition.query()
+          const condition = await LoyalCustomerCondition.query()
             .select()
             .where("supplierid", order.supplierid)
             .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
@@ -463,7 +466,13 @@ class OrderController {
 
       const order = await Order.query().select().where("id", orderId).first();
       const campaignId = order.campaignid;
-
+      await Order.query()
+        .update({
+          status: "created",
+        })
+        .where("id", orderId)
+        .andWhere("status", "unpaid");
+      0;
       if (
         campaignId &&
         campaignId !== null &&
@@ -489,7 +498,6 @@ class OrderController {
           (acc: any, curr: any) => parseInt(acc) + parseInt(curr.orderquantity),
           0
         );
-        console.log(currentQuantity);
         const campaign = await Campaigns.query()
           .select()
           .where("id", campaignId)
@@ -497,24 +505,25 @@ class OrderController {
           .first();
         if (campaign) {
           const orderId = ordersInCampaign.map((item: any) => item.orderid);
-          // console.log(orderId)
-          await Order.query()
-            .update({
-              status: "unpaid",
-            })
-            .whereIn("id", orderId);
-
+          await Promise.all([
+            Order.query()
+              .update({
+                status: "unpaid",
+              })
+              .whereIn("id", orderId)
+              .andWhere("paymentmethod", "online"),
+            Order.query()
+              .update({
+                status: "created",
+              })
+              .whereIn("id", orderId)
+              .andWhere("paymentmethod", "cod"),
+          ]);
           await Campaigns.query()
             .update({ status: "done" })
             .where("id", campaignId);
         }
       }
-      await Order.query()
-        .update({
-          status: "created",
-        })
-        .where("id", orderId)
-        .andWhere("status", "unpaid");
     } catch (error) {
       console.log(error);
     }
