@@ -6,6 +6,7 @@ import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
 import { updateParamSchema } from "../services/validation/category";
 import {
+  bodyProductIdsSchema,
   createBodyProductSchema,
   paramProductIdSchema,
   querySupplierIdSchema,
@@ -42,6 +43,13 @@ router.post(
   validator.body(createBodyProductSchema),
   Product.createNewProduct
 );
+
+router.post(
+  '/products/rating',
+  // validator.body(bodyProductIdsSchema),
+  Product.getRatingByListProducts
+
+)
 
 // ở đây cũng lấy toàn bộ product ra nhưng để cho supplier quản lý nên là cần authentication
 // và check cả role của nó nên là userId lấy từ request

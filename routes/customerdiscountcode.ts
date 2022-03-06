@@ -23,7 +23,6 @@ router.get(
   authentication.protected,
   authentication.checkRole(["Customer"]),
   validator.query(getByStatusQuerySchema),
-
   customerDiscountCode.getListDiscountCodeByStatus
 );
 
@@ -33,6 +32,14 @@ router.post(
   authentication.checkRole(["Customer"]),
   validator.body(reduceDiscountCodeBodySchema),
   customerDiscountCode.reduceDiscountUse
+)
+
+router.post(
+  '/productIds',
+  authentication.protected,
+  authentication.checkRole(["Customer"]),
+  validator.body(reduceDiscountCodeBodySchema),
+  customerDiscountCode.getListCustomerDiscountCodeBySuppId
 )
 
 

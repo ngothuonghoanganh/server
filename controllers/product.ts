@@ -1,6 +1,9 @@
 import { Products } from "../models/products";
 import console from "console";
 import { Suppliers } from "../models/suppliers";
+import { Comments } from "../models/comment";
+import { rmSync } from "fs";
+import { any } from "joi";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -105,15 +108,15 @@ class ProductsController {
 
       const List = supplierId
         ? await Products.query()
-            .select("products.*", ...ListSupplierEntity)
-            // .join('suppliers', 'suppliers.id', 'products.supplierid')
-            .join("suppliers", "suppliers.id", "products.supplierid")
-            .where("supplierid", supplierId)
-            .andWhere("status", "<>", "deactivated")
+          .select("products.*", ...ListSupplierEntity)
+          // .join('suppliers', 'suppliers.id', 'products.supplierid')
+          .join("suppliers", "suppliers.id", "products.supplierid")
+          .where("supplierid", supplierId)
+          .andWhere("status", "<>", "deactivated")
         : await Products.query()
-            .select(...ListSupplierEntity, "products.*")
-            .join("suppliers", "suppliers.id", "products.supplierid")
-            .where("status", "<>", "deactivated");
+          .select(...ListSupplierEntity, "products.*")
+          .join("suppliers", "suppliers.id", "products.supplierid")
+          .where("status", "<>", "deactivated");
       return res.status(200).send({
         message: "successful",
         data: List,
@@ -233,6 +236,29 @@ class ProductsController {
       console.log(error);
     }
   };
+
+  public getRatingByListProducts = async (req: any, res: any, next: any) => {
+    try {
+      const productIds = req.body.productIds;
+
+      const listRating = await Comments.query()
+        .select('productid', Comments.raw(`AVG(rating) as rating`))
+        .whereIn('productid', productIds).groupBy("productid")
+      console.log(listRating[0].rating)
+
+      // const result = listRating.reduce((r, a: any) => {
+      //   r[a.productid] = r[a.productid] || [];
+      //   r[a.productid].push(a);
+
+      //   return r;
+      // }, Object.create({}));
+      // console.log(result)
+      // let extractedValue = result.map(function(item: any) {return item[prop as any]});
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
 
 }
 
