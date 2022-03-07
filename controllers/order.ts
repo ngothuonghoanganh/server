@@ -521,7 +521,9 @@ class OrderController {
           const getCampaigns = await Campaigns.query()
             .select()
             .where("productid", campaign.productid);
-
+          await Campaigns.query()
+            .update({ status: "done" })
+            .where("id", campaignId);
           if (getCampaigns.length === 0) {
             await Products.query()
               .update({ status: "active" })
