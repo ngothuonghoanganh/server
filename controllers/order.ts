@@ -581,6 +581,10 @@ class OrderController {
       //       .where("id", campaignId);
       //   }
       // }
+
+      return res.status(200).send({
+        message: "successful",
+      })
     } catch (error) {
       console.log(error);
     }
