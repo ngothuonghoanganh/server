@@ -120,7 +120,7 @@ class Campaign {
             advancefee: advanceFee,
           })
           .where("id", campaignId)
-          .andWhere("fromdate", ">=", Campaigns.raw("now()"))
+          // .andWhere("fromdate", ">=", Campaigns.raw("now()"))
           .andWhere("status", "ready");
       } else {
         return res.status(200).send({
