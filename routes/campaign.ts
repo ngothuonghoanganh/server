@@ -51,8 +51,8 @@ router.put(
   "/:campaignId",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.params(paramsSchema),
-  validator.body(bodySchema),
+  // validator.params(paramsSchema),
+  // validator.body(bodySchema),
   CampaignController.updateCompaign
 );
 
