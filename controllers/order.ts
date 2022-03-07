@@ -77,6 +77,7 @@ class OrderController {
             ordercode: orderCode,
             image: product.image,
             orderid: newOrder.id,
+            incampaign: !campaignId ? false : true,
           });
         }
 
