@@ -15,6 +15,7 @@ class Campaign {
         maxQuantity = 0,
         isShare = false,
         advanceFee = 0,
+        status = "ready",
       } = req.body;
 
       let newCampaign,
@@ -47,6 +48,7 @@ class Campaign {
           isshare: isShare,
           maxquantity: maxQuantity,
           advancefee: advanceFee,
+          status: status
         });
 
         await Products.query()
