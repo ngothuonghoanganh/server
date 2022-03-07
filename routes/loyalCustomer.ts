@@ -1,6 +1,7 @@
 import * as express from "express";
 import authentication from "../controllers/authentication";
 import loyalCustomerController from "../controllers/loyalCustomer";
+import Authentication from "../controllers/authentication";
 
 const router = express.Router();
 
@@ -11,6 +12,13 @@ router.get(
   authentication.protected,
   loyalCustomerController.getAllCustoner
 );
+
+router.post(
+  '/list/loyalCustomer',
+  Authentication.protected,
+  Authentication.checkRole(["Customer"]),
+  loyalCustomerController.getLoyaCustomerBySuppIdAndCusId
+)
 
 router.put(
   "/:loyalCustomerConditionId",

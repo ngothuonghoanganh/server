@@ -244,17 +244,6 @@ class ProductsController {
       const listRating = await Comments.query()
         .select('productid', Comments.raw(`AVG(rating) as rating`))
         .whereIn('productid', productIds).groupBy("productid")
-      // console.log(listRating[0].rating)
-
-      // const result = listRating.reduce((r, a: any) => {
-      //   r[a.productid] = r[a.productid] || [];
-      //   r[a.productid].push(a);
-
-      //   return r;
-      // }, Object.create({}));
-      // console.log(result)
-      // let extractedValue = result.map(function(item: any) {return item[prop as any]});
-      console.log(listRating)
       return res.status(200).send({
         message: 'successful',
         data: listRating
