@@ -475,7 +475,7 @@ class OrderController {
       } else {
         await Order.query()
           .update({
-            paymentid: vnp_TxnRef,
+            advancedid: vnp_TxnRef,
             status: status,
             advancefee: amount,
           })
