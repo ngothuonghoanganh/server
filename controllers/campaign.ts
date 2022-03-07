@@ -163,8 +163,8 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status <> 'canceled' and orders.status <> 'returned' then orderdetail.quantity else 0 end) as quantityorderwaiting,
-                count(orderdetail.id) filter (where orders.status <> 'canceled' and orders.status <> 'returned') as numorderwaiting`
+                `sum(case when orders.status <> 'canceled' and orders.status <> 'returned' and orders.status <> 'notAdvanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+                count(orderdetail.id) filter (where orders.status <> 'canceled' and orders.status <> 'returned' and orders.status <> 'notAdvanced') as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
@@ -176,8 +176,8 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status <> 'canceled' and orders.status <> 'returned' then orderdetail.quantity else 0 end) as quantityorderwaiting,
-                count(orderdetail.id) filter (where orders.status <> 'canceled' and orders.status <> 'returned') as numorderwaiting`
+                `sum(case when orders.status <> 'canceled' and orders.status <> 'returned' and orders.status <> 'notAdvanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+                count(orderdetail.id) filter (where orders.status <> 'canceled' and orders.status <> 'returned' and orders.status <> 'notAdvanced') as numorderwaiting`
               )
             )
             .leftJoin("orders", "campaigns.id", "orders.campaignid")
@@ -203,8 +203,8 @@ class Campaign {
         .select(
           "campaigns.*",
           Campaigns.raw(
-            `sum(case when orders.status <> 'canceled' and orders.status <> 'returned' then orderdetail.quantity else 0 end) as quantityorderwaiting,
-            count(orderdetail.id) filter (where orders.status <> 'canceled' and orders.status <> 'returned') as numorderwaiting`
+            `sum(case when orders.status <> 'canceled' and orders.status <> 'returned' and orders.status <> 'notAdvanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+            count(orderdetail.id) filter (where orders.status <> 'canceled' and orders.status <> 'returned' and orders.status <> 'notAdvanced') as numorderwaiting`
           )
         )
         .leftJoin("orders", "campaigns.id", "orders.campaignid")
