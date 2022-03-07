@@ -42,6 +42,7 @@ class OrderController {
         supplierid: supplierId,
         discountprice: discountPrice,
         shippingfee: shippingFee,
+        paymentmethod: paymentMethod,
         status:
           campaignId &&
           campaignId !== null &&
@@ -462,29 +463,25 @@ class OrderController {
 
   public paymentOrder = async (req: any, res: any, next: any) => {
     try {
-      const orderId = req.query.order_id;
+      const { orderId, status, isAdvanced, amount, vnp_TxnRef } = req.body;
 
-      const order = await Order.query().select().where("id", orderId).first();
-      const campaignId = order.campaignid;
-      await Order.query()
-        .update({
-          status: "created",
-        })
-        .where("id", orderId)
-        .andWhere("status", "unpaid");
-      0;
-      if (
-        campaignId &&
-        campaignId !== null &&
-        campaignId !== undefined &&
-        campaignId !== ""
-      ) {
+      if (!isAdvanced) {
         await Order.query()
           .update({
-            status: "advanced",
+            paymentid: vnp_TxnRef,
+            status: status,
           })
           .where("id", orderId);
-
+      } else {
+        await Order.query()
+          .update({
+            advancedid: vnp_TxnRef,
+            status: status,
+            advancefee: amount,
+          })
+          .where("id", orderId);
+        const order = await Order.query().select().where("id", orderId).first();
+        const campaignId = order.campaignid;
         const ordersInCampaign = await Order.query()
           .select(
             "orders.id as orderid",
@@ -519,11 +516,75 @@ class OrderController {
               .whereIn("id", orderId)
               .andWhere("paymentmethod", "cod"),
           ]);
-          await Campaigns.query()
-            .update({ status: "done" })
-            .where("id", campaignId);
         }
       }
+
+      // const orderId = req.query.order_id;
+
+      // const order = await Order.query().select().where("id", orderId).first();
+      // const campaignId = order.campaignid;
+      // await Order.query()
+      //   .update({
+      //     status: "created",
+      //   })
+      //   .where("id", orderId)
+      //   .andWhere("status", "unpaid");
+      // 0;
+      // if (
+      //   campaignId &&
+      //   campaignId !== null &&
+      //   campaignId !== undefined &&
+      //   campaignId !== ""
+      // ) {
+      //   await Order.query()
+      //     .update({
+      //       status: "advanced",
+      //     })
+      //     .where("id", orderId);
+
+      //   const ordersInCampaign = await Order.query()
+      //     .select(
+      //       "orders.id as orderid",
+      //       Order.raw(`sum(orderdetail.quantity) as orderquantity`)
+      //     )
+      //     .join("orderdetail", "orders.id", "orderdetail.orderid")
+      //     .where("orders.campaignid", campaignId)
+      //     .andWhere("status", "advanced")
+      //     .groupBy("orders.id");
+      //   const currentQuantity = ordersInCampaign.reduce(
+      //     (acc: any, curr: any) => parseInt(acc) + parseInt(curr.orderquantity),
+      //     0
+      //   );
+      //   const campaign = await Campaigns.query()
+      //     .select()
+      //     .where("id", campaignId)
+      //     .andWhere("quantity", "<=", currentQuantity)
+      //     .first();
+      //   if (campaign) {
+      //     const orderId = ordersInCampaign.map((item: any) => item.orderid);
+      //     await Promise.all([
+      //       Order.query()
+      //         .update({
+      //           status: "unpaid",
+      //         })
+      //         .whereIn("id", orderId)
+      //         .andWhere("paymentmethod", "online"),
+      //       Order.query()
+      //         .update({
+      //           status: "created",
+      //         })
+      //         .whereIn("id", orderId)
+      //         .andWhere("paymentmethod", "cod"),
+      //     ]);
+      //     await Campaigns.query()
+      //       .update({ status: "done" })
+      //       .where("id", campaignId);
+      //   }
+      // }
+
+      return res.status(200).send({
+        message: "successful",
+      })
     } catch (error) {
       console.log(error);
     }

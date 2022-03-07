@@ -26,5 +26,7 @@ export class Order extends Model {
   supplierid?: string;
   address?: string;
   reasonforupdatestatus?: string;
-
+  advancefee?: number;
+  advancedid?: number;
+  paymentmethod?: string;
 }

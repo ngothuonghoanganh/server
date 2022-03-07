@@ -22,4 +22,5 @@ export class Campaigns extends Model {
   reasonforupdatestatus?: string;
   maxquantity?: number;
   isshare?: boolean;
+  advancefee?: number;
 }

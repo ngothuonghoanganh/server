@@ -42,11 +42,12 @@ class Payment {
       vnp_Params["vnp_TxnRef"] = dateFormat(date, "HHmmss");
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
+      vnp_Params["vnp_ReturnUrl"] =
+        returnUrl + `/order/payment?order_id=${orderId}`;
       vnp_Params["vnp_Amount"] =
         (parseInt(order.totalprice as any) -
           parseInt(order.discountprice as any)) *
         100;
-      vnp_Params["vnp_ReturnUrl"] = returnUrl + `/order/payment?order_id=${orderId}`;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = dateFormat(date, "yyyymmddHHmmss");
       if (bankCode !== null && bankCode !== "") {
