@@ -516,6 +516,16 @@ class OrderController {
               .whereIn("id", orderId)
               .andWhere("paymentmethod", "cod"),
           ]);
+
+          const getCampaigns = await Campaigns.query()
+            .select()
+            .where("productid", campaign.productid);
+
+          if (getCampaigns.length === 0) {
+            await Products.query()
+              .update({ status: "active" })
+              .where("id", campaign.productid);
+          }
         }
       }
 
@@ -584,7 +594,7 @@ class OrderController {
 
       return res.status(200).send({
         message: "successful",
-      })
+      });
     } catch (error) {
       console.log(error);
     }
