@@ -14,6 +14,7 @@ class Campaign {
         price,
         maxQuantity = 0,
         isShare = false,
+        advanceFee = 0,
       } = req.body;
 
       let newCampaign,
@@ -45,6 +46,7 @@ class Campaign {
           todate: toDate,
           isshare: isShare,
           maxquantity: maxQuantity,
+          advancefee: advanceFee,
         });
 
         await Products.query()
@@ -81,6 +83,7 @@ class Campaign {
         price,
         maxQuantity = 0,
         isShare = false,
+        advanceFee = 0,
       } = req.body;
       let newCampaign,
         campaign: any = null;
@@ -111,6 +114,7 @@ class Campaign {
             todate: toDate,
             maxquantity: maxQuantity,
             isshare: isShare,
+            advancefee: advanceFee,
           })
           .where("id", campaignId)
           .andWhere("fromdate", ">=", Campaigns.raw("now()"))

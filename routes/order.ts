@@ -25,7 +25,7 @@ router.post(
   order.createOrder
 );
 
-router.get("/payment", order.paymentOrder);
+router.post("/payment", order.paymentOrder);
 
 router.put(
   "/customer",
