@@ -13,12 +13,12 @@ router.get(
   loyalCustomerController.getAllCustoner
 );
 
-router.post(
-  '/list/loyalCustomer',
-  Authentication.protected,
-  Authentication.checkRole(["Customer"]),
-  loyalCustomerController.getLoyaCustomerBySuppIdAndCusId
-)
+// router.post(
+//   '/list/loyalCustomer',
+//   Authentication.protected,
+//   Authentication.checkRole(["Customer"]),
+//   loyalCustomerController.getLoyaCustomerBySuppIdAndCusId
+// )
 
 router.put(
   "/:loyalCustomerConditionId",

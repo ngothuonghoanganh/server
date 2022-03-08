@@ -14,3 +14,8 @@ export const getByStatusQuerySchema = Joi.object({
 export const reduceDiscountCodeBodySchema = Joi.object({
     customerDiscountCodeId: Joi.string().required(),
 });
+
+export const getBydiscountCodeAndSuppIdBodySchema = Joi.object({
+    discountCode: Joi.string().required(),
+    supplierId: Joi.string().required()
+});

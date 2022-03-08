@@ -132,6 +132,7 @@ class LoyalcustomerController {
     }
   };
 
+  // no use
   public getLoyaCustomerBySuppIdAndCusId=async(req: any, res: any, next: any)=>{
     try {
       const supplierId=req.query.supplierId;
