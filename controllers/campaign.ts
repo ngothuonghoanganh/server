@@ -15,6 +15,7 @@ class Campaign {
         maxQuantity = 0,
         isShare = false,
         advanceFee = 0,
+        status = "ready",
       } = req.body;
 
       let newCampaign,
@@ -47,6 +48,7 @@ class Campaign {
           isshare: isShare,
           maxquantity: maxQuantity,
           advancefee: advanceFee,
+          status: status,
         });
 
         await Products.query()
@@ -104,8 +106,9 @@ class Campaign {
           parseInt(campaign.maxquantitycampaign) + maxQuantity
         );
       console.log(product);
+      let numRecordUpdated = 0;
       if (product && product.length > 0) {
-        await Campaigns.query()
+        numRecordUpdated = await Campaigns.query()
           .update({
             productid: productId,
             quantity: quantity,
@@ -117,15 +120,15 @@ class Campaign {
             advancefee: advanceFee,
           })
           .where("id", campaignId)
-          .andWhere("fromdate", ">=", Campaigns.raw("now()"))
-          .andWhere("status", "active");
+          // .andWhere("fromdate", ">=", Campaigns.raw("now()"))
+          .andWhere("status", "ready");
       } else {
         return res.status(200).send({
           message: "Max quantity in campaign is exceeded quantity of product",
         });
       }
       return res.status(200).send({
-        data: null,
+        data: numRecordUpdated,
         message: "update successfully",
       });
     } catch (error) {
