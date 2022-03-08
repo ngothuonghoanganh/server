@@ -183,7 +183,52 @@ class CustomerDiscountCodeController {
         } catch (error) {
             console.log(error)
         }
-    }
+    };
+
+    public getCustomerDiscountByDiscountCodeAndSuppId = async( req: any, res: any, next: any)=>{
+        try {
+            const status ='ready';
+            const discountCode = req.body.discountCode;
+            const supplierId = req.body.supplierId;
+            const customerId= req.user.id;
+            const ListEntity = [
+                'customerdiscountcode.id as id',
+                'customerdiscountcode.customerid as customerId',
+                'customerdiscountcode.discountcodeid as discountCodeId',
+                'customerdiscountcode.status as customerDiscountCodeStatus',
+            ]
+
+            const discountCodeEntity=[
+                'discountcode.supplierid as supplierId',
+                'discountcode.code as code',
+                'discountcode.description as description',
+                'discountcode.minimunpricecondition as minimunPriceCondition',
+                'discountcode.startdate as startdate',
+                'discountcode.enddate as enddate',
+                'discountcode.quantity as quantity',
+                'discountcode.createdat as createdAt',
+                'discountcode.updatedat as updatedAt',
+                'discountcode.status as status',
+                'discountcode.productid as productId',
+                'discountcode.discountprice as discountPrice',
+            ]
+
+            const data= await CustomerDiscountCode.query()
+                .select(...ListEntity, ...discountCodeEntity)
+                .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
+                .where('customerdiscountcode.status', status)
+                .andWhere('discountcode.code', discountCode)
+                .andWhere('discountcode.supplierid', supplierId)
+                .andWhere('customerdiscountcode.customerid', customerId)
+
+                return res.status(200).send({
+                    message: 'successful',
+                    data: data
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    };
 }
 
 export default new CustomerDiscountCodeController();
