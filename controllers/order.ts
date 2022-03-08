@@ -442,6 +442,7 @@ class OrderController {
     try {
       const userId = req.user.id;
       const { orderId } = req.params;
+      // console.log(orderId)
       const orders = await Order.query()
         .select(
           "orders.*",
