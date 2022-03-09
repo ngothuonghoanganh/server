@@ -132,12 +132,15 @@ class LoyalcustomerController {
     }
   };
 
-  // no use
-  public getLoyaCustomerBySuppIdAndCusId=async(req: any, res: any, next: any)=>{
+
+  public getLoyaCustomerBySuppIdAndCusId = async (req: any, res: any, next: any) => {
+    // console.log('aewdae')
     try {
-      const supplierId=req.query.supplierId;
+      const supplierId = req.query.supplierId;
       const status = 'active';
-      const customerId=req.user.id;
+      const customerId = req.user.id;
+
+      // console.log(supplierId)
 
       const data = await LoyalCustomer.query()
         .select()
@@ -148,7 +151,7 @@ class LoyalcustomerController {
       return res.status(200).send({
         message: 'successful',
         data: data
-      }) 
+      })
     } catch (error) {
       console.log(error)
     }
