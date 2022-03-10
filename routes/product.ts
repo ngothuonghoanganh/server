@@ -51,6 +51,11 @@ router.post(
 
 )
 
+router.post(
+  '/searchProduct',
+  Product.searchProduct
+)
+
 // ở đây cũng lấy toàn bộ product ra nhưng để cho supplier quản lý nên là cần authentication
 // và check cả role của nó nên là userId lấy từ request
 router.get(
@@ -71,7 +76,7 @@ router.delete(
   Authentication.protected,
   Authentication.checkRole(["Supplier", "Inspector"]),
   validator.params(paramProductIdSchema),
-  Product.deleteProduct
+  Product.disableProduct
 );
 
 router.get(
