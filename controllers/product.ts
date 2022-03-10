@@ -218,7 +218,7 @@ class ProductsController {
   };
 
   //supplier  or inspector can do it
-  public deleteProduct = async (req: any, res: any, next: any) => {
+  public disableProduct = async (req: any, res: any, next: any) => {
     try {
       const { productId } = req.params;
       await Products.query()
@@ -248,6 +248,36 @@ class ProductsController {
         message: 'successful',
         data: listRating
       })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public searchProduct = async (req: any, res: any, next: any) => {
+    try {
+      const value = req.body.value;
+      const listEntity = [
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
+      const prod: any = await Products.query()
+        .select("products.*", ...listEntity)
+        .join("suppliers", "suppliers.id", "products.supplierid")
+        .where("products.name", 'like', '%' + value + '%')
+        .orWhere('suppliers.name', 'like', '%' + value + '%')
+        .andWhere("products.status", "<>", "deactivated")
+
+      // console.log(prod);
+      return res.status(200).send({
+        message: "success",
+        data: prod,
+      });
     } catch (error) {
       console.log(error)
     }
