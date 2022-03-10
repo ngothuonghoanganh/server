@@ -26,6 +26,8 @@ import paymentRouter from "./routes/payment";
 import loyalCustomerRouter from "./routes/loyalCustomer";
 import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
+import chatRouter from "./routes/chat";
+
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -89,6 +91,8 @@ app.use("/api/payment", paymentRouter);
 app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
 app.use("/api/comment", commentRouter);
 app.use("/api/loyalcustomer", loyalCustomerRouter);
+app.use("/api/chat", chatRouter);
+
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {

@@ -76,6 +76,9 @@ class ProductsController {
         .andWhere("id", productId)
         .andWhere("status", "<>", "incampaign");
 
+      if (productUpdated === 0) {
+        return res.status(200).send('product: ' + name + ' is in campaign')
+      }
       // const productUpdated: any = await Products.query()
       //   .select()
       //   .where("id", productId);
