@@ -25,6 +25,39 @@ class ChatController {
       console.log(error);
     }
   };
+
+  public getChatMessageByCustomer = async (req: any, res: any, next: any) => {
+    try {
+      const customerId = req.user.accountid;
+      // console.log(req.user)
+
+      const chatData = await Chat.query()
+        .select()
+        .where('from', customerId)
+        .orWhere('to', customerId)
+
+      return res.status(200).send({
+        message: 'successful',
+        data: chatData
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public getChatMessageBySenderOrReceiver = async (req: any, res: any, next: any) => {
+    try {
+      const customerId = req.user.accountid;
+      const supplierId = req.body.supplierId;
+      const customerService = req.body.customerService;
+
+      const data= await Chat.query()
+        .select()
+        .where('from', customerId)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 export default new ChatController();
