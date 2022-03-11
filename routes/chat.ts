@@ -15,6 +15,13 @@ router.get(
     chat.getChatMessageByCustomer
 )
 
+router.post(
+    '/getChatMessage/SenderOrReceiver',
+    authentication.protected,
+    authentication.checkRole(["Customer"]),
+    chat.getChatMessageBySenderOrReceiver
+)
+
 
 export default router;
 

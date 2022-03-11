@@ -51,9 +51,16 @@ class ChatController {
       const supplierId = req.body.supplierId;
       const customerService = req.body.customerService;
 
-      const data= await Chat.query()
+      const data = await Chat.query()
         .select()
         .where('from', customerId)
+        .andWhere('to', supplierId)
+        .orWhere('to', customerService)
+
+        return res.status(200).send({
+          message: 'successful',
+          data: data
+        })
     } catch (error) {
       console.log(error)
     }
