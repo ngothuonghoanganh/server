@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
+import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -49,6 +49,12 @@ router.put(
   validator.body(updateCustomerAccSchema),
   User.updateCustomerAccountByCustomerId
 
+)
+
+router.post(
+  '/getListAccountIdBySupplierId',
+  validator.body(getListSupplierIdByListAccountIdBodySchema),
+  User.getListSupplierIdByListAccountId
 )
 
 router.post(

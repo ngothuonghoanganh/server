@@ -23,3 +23,7 @@ export const updateCustomerAccSchema = Joi.object({
 export const resetPasswordForCustomerBodySchema = Joi.object({
   password: Joi.string().required(),
 });
+
+export const getListSupplierIdByListAccountIdBodySchema = Joi.object({
+  listAccountIds: Joi.array().required(),
+});
