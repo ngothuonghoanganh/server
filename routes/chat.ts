@@ -3,7 +3,7 @@ import * as express from "express";
 import authentication from "../controllers/authentication";
 import chat from "../controllers/chat";
 import { createValidator } from "express-joi-validation";
-import { getChatMessageBodySchema } from "../services/validation/chat";
+import { getChatMessageBodySchema, updateStatusBodySchema } from "../services/validation/chat";
 
 
 const validator = createValidator();
@@ -24,7 +24,12 @@ router.post(
     chat.getChatMessageBySenderOrReceiver
 )
 
-
+router.post(
+    '/updateStatusToRead',
+    validator.body(updateStatusBodySchema),
+    chat.updateChatMessageToRead
+    
+)
 
 
 export default router;

@@ -8,6 +8,7 @@ import { updateParamSchema } from "../services/validation/category";
 import {
   bodyProductIdsSchema,
   createBodyProductSchema,
+  listCatesIdBodySchema,
   paramProductIdSchema,
   querySupplierIdSchema,
   supplierIdSchema,
@@ -43,6 +44,12 @@ router.post(
   validator.body(createBodyProductSchema),
   Product.createNewProduct
 );
+
+router.post(
+  '/getListProductByCates',
+  validator.body(listCatesIdBodySchema),
+  Product.getListProductByCates
+)
 
 router.post(
   '/products/rating',

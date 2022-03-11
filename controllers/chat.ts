@@ -47,20 +47,41 @@ class ChatController {
 
   public getChatMessageBySenderOrReceiver = async (req: any, res: any, next: any) => {
     try {
-      const customerId = req.user.accountid;
-      const supplierId = req.body.supplierId;
-      const customerService = req.body.customerService;
+      // const from = req.user.accountid;
+      const from = req.body.from;
+      const to = req.body.to;
 
       const data = await Chat.query()
         .select()
-        .where('from', customerId)
-        .andWhere('to', supplierId)
-        .orWhere('to', customerService)
+        .where('from', from)
+        .andWhere('to', to)
 
-        return res.status(200).send({
-          message: 'successful',
-          data: data
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public updateChatMessageToRead = async (req: any, res: any, next: any) => {
+    try {
+      const from = req.body.from;
+      const to = req.body.to;
+      const status = 'read';
+
+      const data = await Chat.query()
+        .update({
+          status: status
         })
+        .where('from', from)
+        .andWhere('to', to)
+
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
     } catch (error) {
       console.log(error)
     }

@@ -223,6 +223,24 @@ class User {
     }
   };
 
+  public getListSupplierIdByListAccountId = async (req: any , res: any, next: any)=>{
+    try {
+      const listAccountIds=  req.body.listAccountIds;
+      console.log(listAccountIds)
+      const data = await Suppliers.query()
+        .select()
+        .whereIn('accountid', listAccountIds)
+        .andWhere('isdeleted', false)
+
+        return res.status(200).send({
+          message: 'successful',
+          data: data
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
 }
 export default new User();
 
