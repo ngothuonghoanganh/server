@@ -15,6 +15,10 @@ export const paramProductIdSchema = Joi.object({
   productId: Joi.string().required(),
 });
 
+export const listCatesIdBodySchema = Joi.object({
+  listCategories: Joi.array().required(),
+});
+
 export const bodyProductIdsSchema = Joi.object({
   productIds: Joi.string().required(),
 });

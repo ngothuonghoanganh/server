@@ -4,6 +4,7 @@ import { Suppliers } from "../models/suppliers";
 import { Comments } from "../models/comment";
 import { rmSync } from "fs";
 import { any } from "joi";
+import { Categories } from "../models/category";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -285,6 +286,27 @@ class ProductsController {
       console.log(error)
     }
   };
+
+  public getListProductByCates = async (req: any, res: any, next: any) => {
+    try {
+      const listCategories = req.body.listCategories;
+
+      const data: any = await Products.query()
+        .select()
+        .whereIn('categoryid', listCategories)
+        .andWhere('status', 'active')
+
+      if (data === 0) {
+        return res.status(200).send('no product found')
+      }
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
 
 }
