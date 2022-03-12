@@ -15,5 +15,6 @@ export class Comments extends Model {
     customerid?: string;
     createdat?: Date;
     updatedat?: Date;
+    campaignorderid?: string;
 
 }
