@@ -86,11 +86,13 @@ router.delete(
   Product.disableProduct
 );
 
-router.get(
-  "/products/:supplierId",
-  // Authentication.protected,
-  // Authentication.checkRole(["Supplier", "Inspector"]),
-  validator.params(querySupplierIdSchema),
-  Product.getAllProductsBySupplierId
-);
+
+// no use
+// router.get(
+//   "/products/:supplierId",
+//   // Authentication.protected,
+//   // Authentication.checkRole(["Supplier", "Inspector"]),
+//   validator.params(querySupplierIdSchema),
+//   Product.getAllProductsBySupplierId
+// );
 export default router;
