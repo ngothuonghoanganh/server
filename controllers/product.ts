@@ -17,21 +17,18 @@ class ProductsController {
         quantity,
         description = "",
         image = "",
-        categoryId = null,
+        categoryId,
         status = "active",
-        typeofproduct = "",
       } = req.body;
 
       const prod: any = await Products.query().insert({
         name: name,
-        supplierid: supplierId,
         retailprice: retailPrice,
         quantity: quantity,
         description: description,
         image: JSON.stringify(image),
         categoryid: categoryId,
         status: status,
-        typeofproduct: typeofproduct,
       });
       return res.status(200).send({
         message: "successful",
@@ -44,7 +41,6 @@ class ProductsController {
 
   public updateProduct = async (req: any, res: any, next: any) => {
     try {
-      const { id } = req.user; //supplier id
       const { productId } = req.params;
       let {
         name,
@@ -52,16 +48,8 @@ class ProductsController {
         quantity,
         description,
         image,
-        categoryId = null,
-        status = false,
-        typeofproduct = "",
+        categoryId,
       } = req.body;
-
-      //       if (!retailPrice || !Number.isInteger(retailPrice)) {
-      //         return res
-      //           .status(400)
-      //           .send("Make sure you enter a number for retail price!");
-      //       }
 
       const productUpdated: any = await Products.query()
         .update({
@@ -71,18 +59,16 @@ class ProductsController {
           quantity: quantity,
           description: description,
           image: JSON.stringify(image),
-          typeofproduct: typeofproduct,
         })
-        .where("supplierid", id)
-        .andWhere("id", productId)
+        .where("id", productId)
         .andWhere("status", "<>", "incampaign");
 
       if (productUpdated === 0) {
-        return res.status(200).send('product: ' + name + ' is in campaign')
+        return res.status(200).send({
+          message: 'update failed',
+          data: 0
+        })
       }
-      // const productUpdated: any = await Products.query()
-      //   .select()
-      //   .where("id", productId);
       return res.status(200).send({
         message: "updated product: " + name,
         data: productUpdated,
@@ -110,17 +96,31 @@ class ProductsController {
         "suppliers.address as supplieraddress",
       ];
 
-      const List = supplierId
-        ? await Products.query()
+      // const List = supplierId
+      //   ? await Products.query()
+      //     .select("products.*", ...ListSupplierEntity)
+      //     // .join('suppliers', 'suppliers.id', 'products.supplierid')
+      //     .join("suppliers", "suppliers.id", "products.supplierid")
+      //     .where("supplierid", supplierId)
+      //     .andWhere("status", "<>", "deactivated")
+      //   : await Products.query()
+      //     .select(...ListSupplierEntity, "products.*")
+      //     .join("suppliers", "suppliers.id", "products.supplierid")
+      //     .where("status", "<>", "deactivated");
+
+      const List = supplierId ? await Categories.query()
+        .select("products.*", ...ListSupplierEntity)
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .join('products', 'products.categoryid', 'categories.id')
+        .where('products.status', '<>', 'deactivated')
+        .andWhere('categories.supplierid', supplierId)
+        :
+        await Categories.query()
           .select("products.*", ...ListSupplierEntity)
-          // .join('suppliers', 'suppliers.id', 'products.supplierid')
-          .join("suppliers", "suppliers.id", "products.supplierid")
-          .where("supplierid", supplierId)
-          .andWhere("status", "<>", "deactivated")
-        : await Products.query()
-          .select(...ListSupplierEntity, "products.*")
-          .join("suppliers", "suppliers.id", "products.supplierid")
-          .where("status", "<>", "deactivated");
+          .join("suppliers", "suppliers.id", "categories.supplierid")
+          .join('products', 'products.categoryid', 'categories.id')
+          .where('products.status', '<>', 'deactivated')
+
       return res.status(200).send({
         message: "successful",
         data: List,
@@ -141,7 +141,7 @@ class ProductsController {
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
         .where("products.status", "<>", "deactivated")
-        .andWhere("products.supplierid", req.user.id);
+        .andWhere("categories.supplierid", req.user.id);
 
       prods = prods.map((prod: any) => {
         if (prod.image) {
@@ -159,40 +159,41 @@ class ProductsController {
     }
   };
 
-  public getAllProductsBySupplierId = async (req: any, res: any, next: any) => {
-    try {
-      let listEntity = [
-        "products.*",
-        // "categories.categoryname as categoryname",
-        // "categories.id as categoryid",
-      ];
-      const supplierId = req.query.supplierId;
+  // public getAllProductsBySupplierId = async (req: any, res: any, next: any) => {
+  //   try {
+  //     let listEntity = [
+  //       "products.*",
+  //       // "categories.categoryname as categoryname",
+  //       // "categories.id as categoryid",
+  //     ];
+  //     const supplierId = req.query.supplierId;
 
-      let prods = await Products.query()
-        .select(...listEntity)
-        // .leftOuterJoin("categories", "categories.id", "products.categoryid")
-        // .where("products.status", "<>", "deactivated")
-        .where("products.supplierid", supplierId);
+  //     let prods = await Products.query()
+  //       .select(...listEntity)
+  //       // .leftOuterJoin("categories", "categories.id", "products.categoryid")
+  //       // .where("products.status", "<>", "deactivated")
+  //       .where("products.supplierid", supplierId);
 
-      prods = prods.map((prod: any) => {
-        if (prod.image) {
-          console.log(prod.image);
-          // prod.image = JSON.parse(prod.image);
-        }
-        return prod;
-      });
-      // console.log('test')
-      return res.status(200).send({
-        message: "get success",
-        data: prods,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     prods = prods.map((prod: any) => {
+  //       if (prod.image) {
+  //         console.log(prod.image);
+  //         // prod.image = JSON.parse(prod.image);
+  //       }
+  //       return prod;
+  //     });
+  //     // console.log('test')
+  //     return res.status(200).send({
+  //       message: "get success",
+  //       data: prods,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   public getProductById = async (req: any, res: any, next: any) => {
     try {
+      // console.log('testtt')
       const { productId } = req.params;
       const listEntity = [
         "products.id as productid",
@@ -204,17 +205,17 @@ class ProductsController {
         "suppliers.isdeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
-      const prod: any = await Products.query()
+      const data = await Categories.query()
         .select("products.*", ...listEntity)
-        .join("suppliers", "suppliers.id", "products.supplierid")
-        .where("products.id", productId)
-        .andWhere("products.status", "<>", "deactivated")
-        .first();
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .join('products', 'products.categoryid', 'categories.id')
+        .where('products.id', productId)
+        .first()
 
-      console.log(prod);
+      console.log(data);
       return res.status(200).send({
         message: "success",
-        data: prod,
+        data: data,
       });
     } catch (error) {
       console.log(error);
@@ -270,12 +271,22 @@ class ProductsController {
         "suppliers.isdeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
-      const prod: any = await Products.query()
+      const prod: any = await Categories.query()
         .select("products.*", ...listEntity)
-        .join("suppliers", "suppliers.id", "products.supplierid")
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .join('products', 'products.categoryid', 'categories.id')
         .where("products.name", 'like', '%' + value + '%')
         .orWhere('suppliers.name', 'like', '%' + value + '%')
         .andWhere("products.status", "<>", "deactivated")
+
+      // await Categories.query()
+      //   .select("products.*", ...listEntity)
+      //   .join("suppliers", "suppliers.id", "categories.supplierid")
+      //   .join('products', 'products.categoryid', 'categories.id')
+      //   .where("products.name", 'like', '%' + value + '%')
+      //   .orWhere('suppliers.name', 'like', '%' + value + '%')
+      //   .andWhere("products.status", "<>", "deactivated")
+
 
       // console.log(prod);
       return res.status(200).send({
@@ -306,10 +317,9 @@ class ProductsController {
     } catch (error) {
       console.log(error)
     }
-  }
+  };
 
 
 }
 
-// export const ProductController = new ProductsController();
 export default new ProductsController();
