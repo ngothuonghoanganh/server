@@ -160,10 +160,12 @@ class User {
         firstName="",
         lastName="",
         email, 
-        avt=""
+        avt="",
+        phone,
 
       }=req.body
-      // console.log(customerid + 'test')
+
+      // console.log(phone)
       const update=await Customers.query().update({
         firstname: firstName,
         lastname: lastName,
@@ -171,9 +173,18 @@ class User {
         avt: avt,
       })
       .where('id', customerid)
+
+      const accountId = await Customers.query().select('accountid').where('id', customerid).first()
+    console.log(accountId)
+      const updatePhone = await Accounts.query()
+      .update({
+        phone: phone
+      })
+      .where('id', accountId['accountid'])
+
       return res.status(200).send({
         message: 'successful',
-        data: update
+        data: ({information: update, phone: phone})
       })
     }catch(error){
       console.log(error)
