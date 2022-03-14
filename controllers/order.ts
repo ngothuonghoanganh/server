@@ -346,10 +346,15 @@ class OrderController {
   public updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier =
     async (req: any, res: any, next: any) => {
       try {
+        const reasonForCancel = req.body.reasonForCancel;
+        const imageProof = req.body.imageProof;
+
         let { status = "cancelled", orderCode } = req.body;
         let update = await Order.query()
           .update({
             status: status,
+            reasonforcancel: reasonForCancel,
+            imageproof: imageProof
           })
           .where("status", "created")
           .orWhere("status", "processing")
@@ -359,6 +364,8 @@ class OrderController {
           update = await CampaignOrder.query()
             .update({
               status: status,
+              reasonforcancel: reasonForCancel,
+              imageproof: imageProof
             })
             .where("status", "created")
             .orWhere("status", "processing")
