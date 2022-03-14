@@ -156,6 +156,7 @@ class Campaign {
     }
   }
 
+  //TODO
   async getAllCampaigns(req: any, res: any, next: any) {
     try {
       const supplierId = req.query.supplierId;
@@ -166,11 +167,11 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when orders.status <> 'cancelled' and orders.status <> 'returned' and orders.status <> 'notAdvanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
-                count(orderdetail.id) filter (where orders.status <> 'cancelled' and orders.status <> 'returned' and orders.status <> 'notAdvanced') as numorderwaiting`
+                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
+                count(orderdetail.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
               )
             )
-            .leftJoin("orders", "campaigns.id", "orders.campaignid")
+            .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
             .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
             .where("supplierid", supplierId)
             // .andWhere("campaigns.status", "active")
@@ -197,6 +198,7 @@ class Campaign {
     }
   }
 
+  //TODO
   async getAllCampaignsAllowProductId(req: any, res: any, next: any) {
     try {
       const productIds = req.body.productIds;
@@ -210,8 +212,8 @@ class Campaign {
             count(orderdetail.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
           )
         )
-        .leftJoin("orders", "campaigns.id", "orders.campaignid")
-        .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+        .leftJoin("campaignorder", "campaignorder.id", "campaignorder.campaignid")
+        .leftJoin("orderdetail", "campaignorder.id", "orderdetail.campaignorder")
         .whereIn("campaigns.productid", productIds)
         .andWhere("campaigns.status", status)
         .groupBy("campaigns.id");
@@ -225,6 +227,7 @@ class Campaign {
     }
   }
 
+//TODO
   async getAllCampaignsInSupplier(req: any, res: any, next: any) {
     try {
       const supplierId = req.user.id;
@@ -257,6 +260,7 @@ class Campaign {
     }
   }
 
+  //TODO
   public getOneCompaignByCampaignId = async (req: any, res: any, next: any) => {
     try {
       const campaignId = req.params.campaignId;
