@@ -19,13 +19,15 @@ export class CampaignOrder extends Model {
   address?: string;
   paymentid?: string;
   shippingfee?: Number;
-  supplierid?: string;
   reasonforupdatestatus?: string;
   advancedid?: string;
   advancefee?: Number;
   imageproof?: string;
   createdat?: Date;
   updatedat?: Date;
-
-
+  ordercode?: string;
+  discountprice?: number;
+  totalprice?: number;
+  paymentmethod?: string;
+  campaignid?: string;
 }
