@@ -29,4 +29,6 @@ export class Order extends Model {
   advancefee?: number;
   advancedid?: number;
   paymentmethod?: string;
+  reasonforcancel?:string;
+  imageproof?: string;
 }

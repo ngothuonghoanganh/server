@@ -39,3 +39,8 @@ export const validOrderCodeSchema = Joi.object({
   orderCode: Joi.string().required(),
 });
 
+export const validOrderForSuppAndInsCancelBodySchema = Joi.object({
+  orderCode: Joi.string().required(),
+  reasonForCancel: Joi.string().required(),
+  imageProof: Joi.array().required(),
+});

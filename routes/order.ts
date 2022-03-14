@@ -9,6 +9,7 @@ import {
   createOrderBodySchema,
   getOrderByIdSchema,
   validOrderCodeSchema,
+  validOrderForSuppAndInsCancelBodySchema,
   validStatusForCreatedOrAdvancedToProcessingForSupplierSchema,
   validStatusForDeleveredSchema,
 } from "../services/validation/order";
@@ -84,7 +85,7 @@ router.put(
   "/supplier/cancel",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.body(validOrderCodeSchema),
+  validator.body(validOrderForSuppAndInsCancelBodySchema),
   order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
 );
 
@@ -92,7 +93,7 @@ router.put(
   "/inspector",
   Authentication.protected,
   Authentication.checkRole(["Inspector"]),
-  validator.body(validOrderCodeSchema),
+  validator.body(validOrderForSuppAndInsCancelBodySchema),
   order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
 );
 
