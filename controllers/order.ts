@@ -493,7 +493,7 @@ class OrderController {
         .where("status", status)
         .groupBy("id");
 
-      orders.push(ordersInCampaign);
+      orders.push(...ordersInCampaign);
       return res.status(200).send({
         message: "successful",
         data: orders,
@@ -543,7 +543,7 @@ class OrderController {
         .where("campaigns.supplierid", userId)
         .groupBy("campaignorder.id");
 
-      orders.push(ordersInCampaign);
+      orders.push(...ordersInCampaign);
 
       return res.status(200).send({
         message: "successful",
