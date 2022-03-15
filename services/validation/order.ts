@@ -42,5 +42,5 @@ export const validOrderCodeSchema = Joi.object({
 export const validOrderForSuppAndInsCancelBodySchema = Joi.object({
   orderCode: Joi.string().required(),
   reasonForCancel: Joi.string().required(),
-  imageProof: Joi.array().required(),
+  imageProof: Joi.string().allow(null).allow(""),
 });
