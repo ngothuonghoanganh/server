@@ -462,36 +462,43 @@ class OrderController {
     try {
       const userId = req.user.id;
       const status = req.query.status;
+
       const orders: any = await Order.query()
         .select(
           "orders.*",
-          Order.raw(`json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+          Order.raw(`(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`),
+
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.customerid", userId)
         .andWhere("orders.status", status)
-        .groupBy("orders.id");
+        .groupBy("orders.id")
+
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          "*",
+          "campaignorder.*",
+          'campaigns.supplierid',
           CampaignOrder.raw(
-            `array_to_json(array_agg(json_build_object(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,
-            'price', price,
-            'quantity', quantity,
+            'price', campaignorder.price,
+            'quantity', campaignorder.quantity,
             'ordercode', ordercode,
-            'productid', productid,
+            'productid', campaignorder.productid,
             'campaignid', campaignid,
             'incampaign', true,
             'customerid', customerid,
             'totalprice', totalprice,
-            'productname', productname)
+            'productname', campaignorder.productname)
             )) as details`
           )
         )
-        .where("status", status)
-        .groupBy("id");
+        .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
+        .where("campaignorder.status", status)
+        .groupBy("campaignorder.id")
+        .groupBy("campaigns.id");
 
       orders.push(...ordersInCampaign);
       return res.status(200).send({
