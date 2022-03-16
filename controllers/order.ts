@@ -269,6 +269,8 @@ class OrderController {
     }
   };
 
+  //trước tien phải để cho customer gửi req muốn trả hàng cho supp, sau đó supp mới nhấn accept mới chuyển status
+  //thêm reasonforcancel
   public updateStatusFromDeliveredToReturnedForCustomer = async (
     req: any,
     res: any,
@@ -466,6 +468,7 @@ class OrderController {
       const orders: any = await Order.query()
         .select(
           "orders.*",
+          // 'orderdetail.notes as orderdetailnotes',
           Order.raw(`(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`),
 
         )
@@ -491,7 +494,8 @@ class OrderController {
             'incampaign', true,
             'customerid', customerid,
             'totalprice', totalprice,
-            'productname', campaignorder.productname)
+            'productname', campaignorder.productname,
+            'notes', campaignorder.notes)
             )) as details`
           )
         )
@@ -542,7 +546,8 @@ class OrderController {
             'incampaign', true,
             'customerid', customerid,
             'totalprice', totalprice,
-            'productname', campaignorder.productname)
+            'productname', campaignorder.productname,
+            'notes', campaignorder.notes)
             )) as details`
           )
         )
@@ -587,7 +592,8 @@ class OrderController {
           'incampaign', true,
           'customerid', customerid,
           'totalprice', totalprice,
-          'productname', campaignorder.productname)
+          'productname', campaignorder.productname,
+          'notes', campaignorder.notes)
           )) as details`
           )
         )
@@ -634,6 +640,7 @@ class OrderController {
           incampaign: true,
           totalprice: orders[0].totalprice,
           productname: orders[0].productname,
+          notes: orders[0].notes
         });
       }
 

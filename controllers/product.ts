@@ -301,15 +301,18 @@ class ProductsController {
   public getListProductByCates = async (req: any, res: any, next: any) => {
     try {
       const listCategories = req.body.listCategories;
-
+      // console.log(listCategories)
       const data: any = await Products.query()
         .select()
         .whereIn('categoryid', listCategories)
-        .andWhere('status', 'active')
-
-      if (data === 0) {
-        return res.status(200).send('no product found')
-      }
+        // .andWhere('status', 'active')
+        // .andWhere('status', 'incampaign')
+        .andWhere('status', '<>', 'deactivated');
+      // console.log('test')
+      // console.log(data)
+      // if (data === '' || data === null) {
+      //   return res.status(200).send('no product found')
+      // }
       return res.status(200).send({
         message: 'successful',
         data: data
