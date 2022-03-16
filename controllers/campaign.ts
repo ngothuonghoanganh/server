@@ -87,7 +87,7 @@ class Campaign {
         isShare = false,
         advanceFee = 0,
       } = req.body;
-      let newCampaign,
+      let 
         campaign: any = null;
       campaign = await Campaigns.query()
         .select()
