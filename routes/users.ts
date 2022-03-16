@@ -60,9 +60,9 @@ router.post(
 router.post(
   '/user/resetPassword',
   Authentication.protected,
-  Authentication.checkRole(["Customer"]),
+  // Authentication.checkRole(["Customer"]),
   validator.body(resetPasswordForCustomerBodySchema),
-  User.resetPasswordForCustomer
+  User.resetPassword
   
 )
 
