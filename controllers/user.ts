@@ -191,9 +191,9 @@ class User {
     }
   };
 
-  public resetPasswordForCustomer = async(req: any,  res: any,  next: any)=>{
+  public resetPassword = async(req: any,  res: any,  next: any)=>{
     try{
-      const accountId=req.user.accountid;
+      const accountId=req.user.accountId;
       // console.log(accountId)
       let{
         password

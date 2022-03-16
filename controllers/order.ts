@@ -726,12 +726,13 @@ class OrderController {
               .andWhere("paymentmethod", "cod"),
           ]);
 
-          const getCampaigns = await Campaigns.query()
-            .select()
-            .where("productid", campaign.productid);
           await Campaigns.query()
             .update({ status: "done" })
             .where("id", campaignId);
+          const getCampaigns = await Campaigns.query()
+            .select()
+            .where("productid", campaign.productid);
+          
           if (getCampaigns.length === 0) {
             await Products.query()
               .update({ status: "active" })
