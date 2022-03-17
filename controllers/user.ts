@@ -193,7 +193,7 @@ class User {
 
   public resetPassword = async(req: any,  res: any,  next: any)=>{
     try{
-      const accountId=req.user.accountId;
+      const accountId=req.body.accountId;
       // console.log(accountId)
       let{
         password
