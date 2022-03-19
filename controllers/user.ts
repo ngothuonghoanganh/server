@@ -251,8 +251,9 @@ class User {
     }
   };
 
-  public getCustomerInforByCustomerId = async (req: any, res: any, next: any) => {
+  public getCustomerInforByListCustomerId = async (req: any, res: any, next: any) => {
     try {
+      const listCustomerIds=req.body.listCustomerIds;
       const customerEntity = [
         'customers.id as customerid',
         'customers.accountid as accountid',
@@ -271,7 +272,7 @@ class User {
       const data = await Customers.query()
         .select(...customerEntity)
         .join('accounts', 'accounts.id', 'customers.accountid')
-        .where('customers.id', customerId)
+        .whereIn('customers.id', listCustomerIds)
       return res.status(200).send({
         message: 'successful',
         data: data

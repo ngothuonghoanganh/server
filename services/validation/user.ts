@@ -30,6 +30,6 @@ export const getListSupplierIdByListAccountIdBodySchema = Joi.object({
 });
 
 
-export const getGetCustomerInfParamsSchema = Joi.object({
-  customerId: Joi.string().required(),
+export const getGetCustomerInfBodySchema = Joi.object({
+  listCustomerIds: Joi.array().required(),
 });
