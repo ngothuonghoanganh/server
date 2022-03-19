@@ -9,7 +9,6 @@ import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
 import bcrypt from "bcrypt";
 import {Notification} from "../models/notification";
-import notification from "../services/realtime/notification";
 
 class User {
   public async listSupplier(req: any, res: any, next: any) {
