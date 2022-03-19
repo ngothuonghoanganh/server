@@ -4,10 +4,8 @@ import Authentication from "../controllers/authentication";
 
 import order from "../controllers/order";
 import {
-  changeStatusToCancelledSchema,
-  changeStatusToProcessingSchema,
-  createOrderBodySchema,
   getOrderByIdSchema,
+  getOrderForDeliveryQuerySchema,
   validOrderCodeSchema,
   validOrderForSuppAndInsCancelBodySchema,
   validStatusForCreatedOrAdvancedToProcessingForSupplierSchema,
@@ -112,5 +110,11 @@ router.get(
   validator.params(getOrderByIdSchema),
   order.getOrderById
 );
+
+router.get(
+  '/delivery/getListOrderForDelivery',
+  validator.query(getOrderForDeliveryQuerySchema),
+  order.getListOrderForDelivery
+)
 
 export default router;

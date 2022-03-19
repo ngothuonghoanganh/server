@@ -9,8 +9,6 @@ import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
 import { LoyalCustomer } from "../models/loyalCustomer";
 import { CampaignOrder } from "../models/campaingorder";
 import { Categories } from "../models/category";
-import { Customers } from "../models/customers";
-import { Role } from "../models/role";
 
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -735,7 +733,7 @@ class OrderController {
             .select()
             .where("productid", campaign.productid)
             .andWhere('status', 'active')
-          
+
           if (getCampaigns.length === 0) {
             await Products.query()
               .update({ status: "active" })
@@ -814,49 +812,86 @@ class OrderController {
       console.log(error);
     }
   };
-  
-  public getListOrderForDelivery =async (req: any, res: any, next: any)=>{
-    try {
-      const status = req.params.status;
-      
-      const Entity =[
-        ''
-      ]
-      const data = Customers.query()
-        // .select(...customerEntity)
-        .join('accounts', 'accounts.id', 'customers.accountid')
-        .join('orders', '')
-        // .where('accounts.roleid', customerRoleId)
 
-        return res.status(200).send({
-          message: 'successful',
-          data: data
-        })
+  public getListOrderForDelivery = async (req: any, res: any, next: any) => {
+    try {
+      const status = req.query.status;
+      // const customerId = req.params.customerId;
+
+      // const listEntity = [
+      //   'orders.customerdiscountcode as customerdiscountcode',
+      //   'orders.status as status',
+      //   'orders.campaignid as campaignid',
+      //   'orders.addressid as addressid',
+      //   'orders.paymentid as paymentid',
+      //   'orders.createdat as createdat',
+      //   'orders.updatedat as updatedat',
+      //   'orders.discountprice as discountprice',
+      //   'orders.ordercode as ordercode',
+      //   'orders.totalprice as totalprice',
+      //   'orders.supplierid as supplierid',
+      //   'orders.address as address',
+      //   'orders.reasonforupdatestatus as reasonforupdatestatus',
+      //   'orders.paymentmethod as paymentmethod',
+      //   'orders.advancedid as advancedid',
+      //   'orders.advancedfee as advancedfee',
+      //   'orders.imageproof as imageproof',
+      //   'orders.customerid as customerid',
+      //   'orders.reasonforcancel as reasonforcancel',
+      //   'orders.shippingfee as shippingfee',
+      //   'orders.shippingfee as shippingfee',
+
+
+      // ]
+
+      const orders: any = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(`(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`),
+
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.status", status)
+        .groupBy("orders.id")
+
+      const ordersInCampaign = await CampaignOrder.query()
+        .select(
+          "campaignorder.*",
+          'campaigns.supplierid',
+          CampaignOrder.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            array_to_json(array_agg(json_build_object(
+            'id','',
+            'image', image,
+            'price', campaignorder.price,
+            'quantity', campaignorder.quantity,
+            'ordercode', ordercode,
+            'productid', campaignorder.productid,
+            'campaignid', campaignid,
+            'incampaign', true,
+            'customerid', customerid,
+            'totalprice', totalprice,
+            'productname', campaignorder.productname,
+            'notes', campaignorder.notes)
+            )) as details`
+          )
+        )
+        .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
+        .where("campaignorder.status", status)
+        .groupBy("campaignorder.id")
+        .groupBy("campaigns.id");
+
+      orders.push(...ordersInCampaign);
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      })
     } catch (error) {
       console.log(error)
     }
   };
 
-  public getCustomerInfor = async(req: any, res: any, next: any)=>{
-    try {
-      const customerEntity = [
-        'customers.id as customerid',
-        'customers.accountid as accountid',
-        'customers.fistname as fistname',
-        'customers.lastname as lastname',
-        'customers.email as email',
-        'customers.avt as avt',
-        'customers.lastname as isdeleted',
-        'customers.createdat as createdat',
-        'customers.updatedat as updatedat',
-        'accounts.username as username',
-        'accounts.phone as phone'
-      ]
-      const customerRoleId = Role.query().select('id').where('roles', 'Customer')
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  
 }
 
 export default new OrderController();

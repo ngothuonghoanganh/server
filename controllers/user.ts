@@ -249,7 +249,37 @@ class User {
     } catch (error) {
       console.log(error)
     }
-  }
+  };
+
+  public getCustomerInforByCustomerId = async (req: any, res: any, next: any) => {
+    try {
+      const customerEntity = [
+        'customers.id as customerid',
+        'customers.accountid as accountid',
+        'customers.firstname as fistname',
+        'customers.lastname as lastname',
+        'customers.email as email',
+        'customers.avt as avt',
+        'customers.lastname as isdeleted',
+        'customers.createdat as createdat',
+        'customers.updatedat as updatedat',
+        'accounts.username as username',
+        'accounts.phone as phone'
+      ]
+      // const customerRoleId = Role.query().select('id').where('roles', 'Customer')
+      const customerId = req.params.customerId;
+      const data = await Customers.query()
+        .select(...customerEntity)
+        .join('accounts', 'accounts.id', 'customers.accountid')
+        .where('customers.id', customerId)
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
 
 }
 export default new User();

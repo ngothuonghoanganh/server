@@ -28,3 +28,8 @@ export const resetPasswordForCustomerBodySchema = Joi.object({
 export const getListSupplierIdByListAccountIdBodySchema = Joi.object({
   listAccountIds: Joi.array().required(),
 });
+
+
+export const getGetCustomerInfParamsSchema = Joi.object({
+  customerId: Joi.string().required(),
+});
