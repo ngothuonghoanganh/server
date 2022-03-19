@@ -227,7 +227,7 @@ class Authentication {
         firstName = "",
         lastName = "",
         email = "",
-        phone,
+        phone="",
         address = "",
         roleName = "Customer",
       } = req.body;

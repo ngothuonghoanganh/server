@@ -27,6 +27,8 @@ import loyalCustomerRouter from "./routes/loyalCustomer";
 import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
 import chatRouter from "./routes/chat";
+import supplierRouter from "./routes/supplier";
+
 
 
 import Logger from "./lib/logger";
@@ -92,6 +94,8 @@ app.use("/api/customerdiscountcode", customerDiscontCodeRouter);
 app.use("/api/comment", commentRouter);
 app.use("/api/loyalcustomer", loyalCustomerRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/supplier", supplierRouter);
+
 
 
 try {

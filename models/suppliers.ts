@@ -16,4 +16,9 @@ export class Suppliers extends Model {
   isdeleted?: boolean;
   createdat?: Date;
   updatedat?: Date;
+  identificationcard?: string;
+  identificationimage?: string;
+  ewalletcode?: string;
+  ewalletsecrect?: string;
+
 }
