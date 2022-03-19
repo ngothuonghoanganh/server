@@ -9,6 +9,8 @@ import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
 import { LoyalCustomer } from "../models/loyalCustomer";
 import { CampaignOrder } from "../models/campaingorder";
 import { Categories } from "../models/category";
+import { Customers } from "../models/customers";
+import { Role } from "../models/role";
 
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -812,6 +814,49 @@ class OrderController {
       console.log(error);
     }
   };
+  
+  public getListOrderForDelivery =async (req: any, res: any, next: any)=>{
+    try {
+      const status = req.params.status;
+      
+      const Entity =[
+        ''
+      ]
+      const data = Customers.query()
+        // .select(...customerEntity)
+        .join('accounts', 'accounts.id', 'customers.accountid')
+        .join('orders', '')
+        // .where('accounts.roleid', customerRoleId)
+
+        return res.status(200).send({
+          message: 'successful',
+          data: data
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public getCustomerInfor = async(req: any, res: any, next: any)=>{
+    try {
+      const customerEntity = [
+        'customers.id as customerid',
+        'customers.accountid as accountid',
+        'customers.fistname as fistname',
+        'customers.lastname as lastname',
+        'customers.email as email',
+        'customers.avt as avt',
+        'customers.lastname as isdeleted',
+        'customers.createdat as createdat',
+        'customers.updatedat as updatedat',
+        'accounts.username as username',
+        'accounts.phone as phone'
+      ]
+      const customerRoleId = Role.query().select('id').where('roles', 'Customer')
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 export default new OrderController();
