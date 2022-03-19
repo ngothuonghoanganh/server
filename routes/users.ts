@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
+import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getGetCustomerInfParamsSchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -63,7 +63,7 @@ router.post(
   // Authentication.checkRole(["Customer"]),
   validator.body(resetPasswordForCustomerBodySchema),
   User.resetPassword
-  
+
 )
 
 router.get(
@@ -71,7 +71,7 @@ router.get(
   Authentication.protected,
   // Authentication.checkRole(["Customer"]),
   User.getNotiByUserId
-  
+
 )
 
 router.get(
@@ -114,8 +114,14 @@ router.delete(
 )
 
 router.get("/:phone",
-validator.params(getCustomerOrSupplierByPhoneParamsSchema),
- User.getUserByPhone);
+  validator.params(getCustomerOrSupplierByPhoneParamsSchema),
+  User.getUserByPhone);
+
+router.get(
+  '/getCustomerInforByCustomerId/:customerId',
+  validator.params(getGetCustomerInfParamsSchema),
+  User.getCustomerInforByCustomerId
+)
 
 
 
