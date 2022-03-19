@@ -142,7 +142,7 @@ class Campaign {
 
       const campaign = await Campaigns.query()
         .update({
-          status: "deactivate",
+          status: "deactivated",
         })
         .where("id", campaignId)
         .andWhere("status", "active")

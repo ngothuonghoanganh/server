@@ -731,7 +731,8 @@ class OrderController {
             .where("id", campaignId);
           const getCampaigns = await Campaigns.query()
             .select()
-            .where("productid", campaign.productid);
+            .where("productid", campaign.productid)
+            .andWhere('status', 'active')
           
           if (getCampaigns.length === 0) {
             await Products.query()
