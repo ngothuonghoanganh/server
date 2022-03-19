@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getGetCustomerInfParamsSchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
+import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getGetCustomerInfBodySchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
@@ -117,10 +117,10 @@ router.get("/:phone",
   validator.params(getCustomerOrSupplierByPhoneParamsSchema),
   User.getUserByPhone);
 
-router.get(
+router.post(
   '/getCustomerInforByCustomerId/:customerId',
-  validator.params(getGetCustomerInfParamsSchema),
-  User.getCustomerInforByCustomerId
+  validator.body(getGetCustomerInfBodySchema),
+  User.getCustomerInforByListCustomerId
 )
 
 
