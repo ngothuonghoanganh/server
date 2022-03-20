@@ -161,7 +161,8 @@ class User {
         email, 
         avt="",
         phone,
-
+        ewalletaccount="",
+        ewalletprovider="",
       }=req.body
 
       // console.log(phone)
@@ -170,11 +171,13 @@ class User {
         lastname: lastName,
         email: email,
         avt: avt,
+        ewalletaccount: ewalletaccount,
+        ewalletprovider: ewalletprovider
       })
       .where('id', customerid)
 
       const accountId = await Customers.query().select('accountid').where('id', customerid).first()
-    console.log(accountId)
+    // console.log(accountId)
       const updatePhone = await Accounts.query()
       .update({
         phone: phone
