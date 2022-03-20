@@ -12,7 +12,7 @@ import {
   bodyRegisterSchema,
 } from "../services/validation/authentication";
 
-import { getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getGetCustomerInfBodySchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
+import {getCustomerOrSupplierByPhoneParamsSchema, getCustomerParamsSchema, getGetCustomerInfBodySchema, getListSupplierIdByListAccountIdBodySchema, getSupplierParamsSchema, resetPasswordForCustomerBodySchema, updateCustomerAccSchema } from "../services/validation/user";
 // import { UserController } from "../controllers/user";
 // import { bodyLoginSchema } from "../services/validation/authentication";
 
