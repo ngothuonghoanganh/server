@@ -6,3 +6,7 @@ export const bodyUpdateEwalletSchema = Joi.object({
     ewalletcode: Joi.string().required(),
     ewalletsecret: Joi.string().required(),
 });
+
+export const checkExistEmailQuerySchema = Joi.object({
+    email: Joi.string().required(),
+  });
