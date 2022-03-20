@@ -18,6 +18,8 @@ export const updateCustomerAccSchema = Joi.object({
   email: Joi.string().required(),
   avt: Joi.string().allow(null).allow(""),
   phone: Joi.string().allow(null).allow(""),
+  ewalletaccount:Joi.string().allow(null).allow(""),
+  ewalletprovider:Joi.string().allow(null).allow(""),
 });
 
 export const resetPasswordForCustomerBodySchema = Joi.object({
