@@ -9,6 +9,8 @@ import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
 import { LoyalCustomer } from "../models/loyalCustomer";
 import { CampaignOrder } from "../models/campaingorder";
 import { Categories } from "../models/category";
+import { CampaignHistory } from "../models/campaignhistory";
+import { RetailHistory } from "../models/retailhistory";
 
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -106,7 +108,6 @@ class OrderController {
             price: product.price,
             totalprice: product.totalPrice,
             notes: product.notes,
-            typeofproduct: product.typeOfProduct,
             ordercode: orderCode,
             image: product.image,
             orderid: newOrder.id,
@@ -126,7 +127,6 @@ class OrderController {
               price: product.price,
               totalprice: product.totalPrice,
               notes: product.notes,
-              typeofproduct: product.typeOfProduct,
               ordercode: orderCode,
               image: product.image,
               orderid: newOrder.id,
@@ -138,12 +138,29 @@ class OrderController {
           .where("ordercode", orderCode);
       }
       // insert into history
-      if(campaignId){
-        //insert vào campaign history
+      let insertedCampaignHistory
+      let insertedRetailHistory
+      if (campaignId) {
+        //insert into campaign history
         //order campaign id, order code, status history = notAdvanced
-      }else{
+        insertedCampaignHistory = await CampaignHistory.query()
+          .insert({
+            ordercampaignid: campaignId,
+            ordercode: orderCode,
+            statushistory: "notAdvanced"
+          })
+      } else {
         //insert vao retail his
-        //order campaign id, order code, status history = status: paymentMethod === "cod" ? "created" : "unpaid",
+        //order retail id, order code, status history = status: paymentMethod === "cod" ? "created" : "unpaid",
+        const currentOrderRetailId = await Order.query()
+          .select('id').where('ordercode', orderCode).first()
+
+        insertedRetailHistory = await RetailHistory.query()
+          .insert({
+            orderretailid: currentOrderRetailId,
+            ordercode: orderCode,
+            statushistory: paymentMethod === "cod" ? "created" : "unpaid"
+          })
       }
 
       for (const product of products) {
@@ -158,7 +175,7 @@ class OrderController {
 
       return res.status(200).send({
         message: "successful",
-        data: { ...newOrder, details: newOrderDetails },
+        data: { ...newOrder, details: newOrderDetails, insertedCampaignHistory: insertedCampaignHistory, insertedRetailHistory: insertedRetailHistory },
       });
     } catch (error) {
       console.log(error);
@@ -749,20 +766,42 @@ class OrderController {
           }
         }
       }
-                    // insert vao order history
-              //tam hình trong chat
-              //query lấy order code từ order id
-              //-	insert orderId, statusHistory như body truyền vô + orderCode query
-              // -	if (status == created) {
-              //   insert retailHistory 3 giá trị
-              //   } else (status = advanced) {
-              //     If (!isAdvanced) {
-              //       Insert campaignHistory 3 giá trị + description = completed payment
-              //   -		} else { 
-              //   insert campaignHistory 3 giá trị
-              //   }
+      // insert vao order history
+      //tam hình trong chat
+      //query lấy order code từ order id
+      //-	insert orderId, statusHistory như body truyền vô + orderCode query +description
+      // -	if (status == created) {
+      //   insert retailHistory 3 giá trị + description
+      //   } else (status = advanced) {
+      //     If (!isAdvanced) {
+      //       Insert campaignHistory 3 giá trị + description = completed payment
+      //   -		} else { 
+      //   insert campaignHistory 3 giá trị
+      //   }
+      let insertedRetailHistory
+      let insertedCampaignHistory
+      const orderCode = await Order.query().select('id', orderId).first();
+      if (status === 'created') {
+        insertedRetailHistory = await RetailHistory.query()
+          .update({
+            orderretailid: orderId,
+            statushistory: status,
+            ordercode: orderCode,
+            description: 'completed payment'
+          })
+      } else if (status === 'advanced') {
+        if (!isAdvanced) {
+          insertedCampaignHistory = await CampaignHistory.query()
+            .update({
+              ordercampaignid: orderId,
+              statushistory: status,
+              ordercode: orderCode,
+              description: 'completed payment'
+            })
+        }
+      }
 
-//-----------------------------------------------------------------
+      //-----------------------------------------------------------------
       // const orderId = req.query.order_id;
 
       // const order = await Order.query().select().where("id", orderId).first();
@@ -828,6 +867,10 @@ class OrderController {
 
       return res.status(200).send({
         message: "successful",
+        data: ({
+          insertedRetailHistory: insertedRetailHistory,
+          insertedCampaignHistory: insertedCampaignHistory
+        })
       });
     } catch (error) {
       console.log(error);
@@ -912,7 +955,7 @@ class OrderController {
     }
   };
 
-  
+
 }
 
 export default new OrderController();
