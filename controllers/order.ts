@@ -70,6 +70,25 @@ class OrderController {
             })
             .where("id", product.productId);
         }
+        //insert into campaign history
+        //order campaign id, order code, status history = notAdvanced
+        const currentOrderRetailId = await CampaignOrder.query()
+          .select("id")
+          .where("ordercode", orderCode)
+          .first();
+
+        await CampaignHistory.query().insert({
+          ordercampaignid: currentOrderRetailId.id,
+          ordercode: orderCode,
+          statushistory: "notAdvanced",
+        });
+
+        transactionController.createTransaction({
+          ordercode: orderCode,
+          iswithdrawable: false,
+          type: "income",
+          supplierid: supplierId,
+        } as Transaction);
 
         return res.status(200).send({
           message: "successful",
@@ -143,18 +162,7 @@ class OrderController {
       let insertedCampaignHistory;
       let insertedRetailHistory;
       if (campaignId) {
-        //insert into campaign history
-        //order campaign id, order code, status history = notAdvanced
-        const currentOrderRetailId = await CampaignOrder.query()
-          .select("id")
-          .where("ordercode", orderCode)
-          .first();
 
-        insertedCampaignHistory = await CampaignHistory.query().insert({
-          ordercampaignid: currentOrderRetailId.id,
-          ordercode: orderCode,
-          statushistory: "notAdvanced",
-        });
       } else {
         //insert vao retail his
         //order retail id, order code, status history = status: paymentMethod === "cod" ? "created" : "unpaid",
@@ -812,12 +820,12 @@ class OrderController {
       //   }
       let insertedRetailHistory;
       let insertedCampaignHistory;
-      const orderCode = await Order.query().select("id", orderId).first();
+      const orderCode = await Order.query().select().where("id", orderId).first();
       if (status === "created") {
         insertedRetailHistory = await RetailHistory.query().update({
           orderretailid: orderId,
           statushistory: status,
-          ordercode: orderCode,
+          ordercode: orderCode.ordercode,
           description: "completed payment",
         });
       } else if (status === "advanced") {
@@ -825,7 +833,7 @@ class OrderController {
           insertedCampaignHistory = await CampaignHistory.query().update({
             ordercampaignid: orderId,
             statushistory: status,
-            ordercode: orderCode,
+            ordercode: orderCode.ordercode,
             description: "completed payment",
           });
         }
