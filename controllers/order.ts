@@ -178,7 +178,7 @@ class OrderController {
       transactionController.createTransaction({
         ordercode: orderCode,
         iswithdrawable: false,
-        type: "",
+        type: "income",
       } as Transaction);
       return res.status(200).send({
         message: "successful",
