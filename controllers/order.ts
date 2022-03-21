@@ -294,9 +294,9 @@ class OrderController {
             .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
             .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
 
-          const maxPercent = condition.reduce((p: any, c: any) =>
+          const maxPercent = condition?.reduce((p: any, c: any) =>
             p.discountpercent > c.discountpercent ? p : c
-          );
+          ) || 0;
 
           await LoyalCustomer.query()
             .update({
