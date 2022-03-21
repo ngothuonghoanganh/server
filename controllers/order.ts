@@ -184,6 +184,7 @@ class OrderController {
         ordercode: orderCode,
         iswithdrawable: false,
         type: "income",
+        supplierid: supplierId,
       } as Transaction);
       return res.status(200).send({
         message: "successful",
