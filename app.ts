@@ -97,7 +97,7 @@ app.use("/api/comment", commentRouter);
 app.use("/api/loyalcustomer", loyalCustomerRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/supplier", supplierRouter);
-app.use("/api/retaihistory", retailOrderRouter);
+app.use("/api/history", retailOrderRouter);
 
 
 

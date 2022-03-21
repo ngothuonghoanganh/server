@@ -18,7 +18,6 @@ router.post(
     '/orderId',
     validator.body(bodyOrderIdSchema),
     RetailHistory.getRetailHistoryByOrderId
-
 )
 
 
