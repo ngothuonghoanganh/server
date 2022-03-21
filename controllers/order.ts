@@ -145,8 +145,13 @@ class OrderController {
       if (campaignId) {
         //insert into campaign history
         //order campaign id, order code, status history = notAdvanced
+        const currentOrderRetailId = await CampaignOrder.query()
+          .select("id")
+          .where("ordercode", orderCode)
+          .first();
+
         insertedCampaignHistory = await CampaignHistory.query().insert({
-          ordercampaignid: campaignId,
+          ordercampaignid: currentOrderRetailId.id,
           ordercode: orderCode,
           statushistory: "notAdvanced",
         });
@@ -159,7 +164,7 @@ class OrderController {
           .first();
 
         insertedRetailHistory = await RetailHistory.query().insert({
-          orderretailid: currentOrderRetailId,
+          orderretailid: currentOrderRetailId.id,
           ordercode: orderCode,
           statushistory: paymentMethod === "cod" ? "created" : "unpaid",
         });
