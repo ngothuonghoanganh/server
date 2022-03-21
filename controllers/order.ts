@@ -319,7 +319,9 @@ class OrderController {
         platformfee:
           ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
         paymentfee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
-        orderValue: order.totalprice - (order.discountprice || 0),
+        ordervalue: order.totalprice - (order.discountprice || 0),
+        iswithdrawable: true,
+        description:'The customer confirms the completed order. Vendor can withdraw money.'
       } as any);
       return res.status(200).send({
         message: "successful",
