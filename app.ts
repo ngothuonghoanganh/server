@@ -28,7 +28,7 @@ import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
 import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
-import retailOrderRouter from "./routes/retailhistory";
+import retailOrderRouter from "./routes/history";
 
 
 
@@ -97,8 +97,7 @@ app.use("/api/comment", commentRouter);
 app.use("/api/loyalcustomer", loyalCustomerRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/supplier", supplierRouter);
-app.use("/api/retaihistory", retailOrderRouter);
-
+app.use("/api/history", retailOrderRouter);
 
 
 
