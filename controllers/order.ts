@@ -162,7 +162,6 @@ class OrderController {
       let insertedCampaignHistory;
       let insertedRetailHistory;
       if (campaignId) {
-
       } else {
         //insert vao retail his
         //order retail id, order code, status history = status: paymentMethod === "cod" ? "created" : "unpaid",
@@ -294,9 +293,12 @@ class OrderController {
             .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
             .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
 
-          const maxPercent = condition?.reduce((p: any, c: any) =>
-            p.discountpercent > c.discountpercent ? p : c
-          ) || 0;
+          const maxPercent =
+            condition.length > 0
+              ? condition.reduce((p: any, c: any) =>
+                  p.discountpercent > c.discountpercent ? p : c
+                )
+              : 0;
 
           await LoyalCustomer.query()
             .update({
@@ -820,7 +822,10 @@ class OrderController {
       //   }
       let insertedRetailHistory;
       let insertedCampaignHistory;
-      const orderCode = await Order.query().select().where("id", orderId).first();
+      const orderCode = await Order.query()
+        .select()
+        .where("id", orderId)
+        .first();
       if (status === "created") {
         insertedRetailHistory = await RetailHistory.query().update({
           orderretailid: orderId,
