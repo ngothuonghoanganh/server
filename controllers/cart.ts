@@ -6,13 +6,12 @@ class CartController {
     try {
       const customerId = req.user.id; //customer id
 
-      let { productId, quantity, inCampaign = false, typeofproduct, campaignId } = req.body;
+      let { productId, quantity, inCampaign = false, campaignId } = req.body;
 
       const newCart: any = await OrderDetail.query().insert({
         customerid: customerId,
         productid: productId,
         quantity: quantity,
-        typeofproduct: typeofproduct,
         incampaign: inCampaign,
         campaignid: campaignId
       });
@@ -29,12 +28,11 @@ class CartController {
   public updateCart = async (req: any, res: any, next: any) => {
     try {
       const { cartId } = req.params;
-      let { productId, quantity, typeofproduct } = req.body;
+      let { productId, quantity } = req.body;
       const updateCart = await OrderDetail.query()
         .update({
           productid: productId,
           quantity: quantity,
-          typeofproduct: typeofproduct,
         })
         .where("id", cartId);
       return res.status(200).send({
