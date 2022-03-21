@@ -34,7 +34,7 @@ class RetailHistoryController {
 
             const retailHistory = await RetailHistory.query()
                 .select()
-                .where('orderretailid', orderId).first()
+                .where('orderretailid', orderId)
 
             const campaignHistory =await CampaignHistory.query()
             .select()

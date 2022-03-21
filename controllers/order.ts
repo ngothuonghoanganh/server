@@ -137,6 +137,14 @@ class OrderController {
           .select()
           .where("ordercode", orderCode);
       }
+      // insert into history
+      if(campaignId){
+        //insert vào campaign history
+        //order campaign id, order code, status history = notAdvanced
+      }else{
+        //insert vao retail his
+        //order campaign id, order code, status history = status: paymentMethod === "cod" ? "created" : "unpaid",
+      }
 
       for (const product of products) {
         await Products.query()
@@ -741,7 +749,20 @@ class OrderController {
           }
         }
       }
+                    // insert vao order history
+              //tam hình trong chat
+              //query lấy order code từ order id
+              //-	insert orderId, statusHistory như body truyền vô + orderCode query
+              // -	if (status == created) {
+              //   insert retailHistory 3 giá trị
+              //   } else (status = advanced) {
+              //     If (!isAdvanced) {
+              //       Insert campaignHistory 3 giá trị + description = completed payment
+              //   -		} else { 
+              //   insert campaignHistory 3 giá trị
+              //   }
 
+//-----------------------------------------------------------------
       // const orderId = req.query.order_id;
 
       // const order = await Order.query().select().where("id", orderId).first();
