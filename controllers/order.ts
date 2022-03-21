@@ -298,7 +298,7 @@ class OrderController {
               ? condition.reduce((p: any, c: any) =>
                   p.discountpercent > c.discountpercent ? p : c
                 )
-              : 0;
+              : { discountpercent: 0 };
 
           await LoyalCustomer.query()
             .update({
