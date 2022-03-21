@@ -97,8 +97,8 @@ router.put(
 
 router.put(
   "/delivery/delivered",
-  Authentication.protected,
-  Authentication.checkRole(["Delivery"]),
+  // Authentication.protected,
+  // Authentication.checkRole(["Delivery"]),
   validator.body(validOrderCodeSchema),
   order.updateStatusFromDeliveringToDeliveredForDelivery
 );
