@@ -9,6 +9,8 @@ import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
 import { LoyalCustomer } from "../models/loyalCustomer";
 import { CampaignOrder } from "../models/campaingorder";
 import { Categories } from "../models/category";
+import transactionController from "./transaction";
+import { Transaction } from "../models/transaction";
 
 class OrderController {
   public createOrder = async (req: any, res: any, next: any) => {
@@ -148,6 +150,11 @@ class OrderController {
           .where("id", product.productId);
       }
 
+      transactionController.createTransaction({
+        ordercode: orderCode,
+        iswithdrawable: false,
+        type: "",
+      } as Transaction);
       return res.status(200).send({
         message: "successful",
         data: { ...newOrder, details: newOrderDetails },
@@ -260,6 +267,14 @@ class OrderController {
           message: "not yet updated",
         });
       }
+
+      transactionController.update({
+        ordercode: order.ordercode,
+        platformfee:
+          ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
+        paymentfee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
+        orderValue: order.totalprice - (order.discountprice || 0),
+      } as any);
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -356,7 +371,7 @@ class OrderController {
           .update({
             status: status,
             reasonforcancel: reasonForCancel,
-            imageproof: imageProof
+            imageproof: imageProof,
           })
           .where("status", "created")
           .orWhere("status", "processing")
@@ -367,7 +382,7 @@ class OrderController {
             .update({
               status: status,
               reasonforcancel: reasonForCancel,
-              imageproof: imageProof
+              imageproof: imageProof,
             })
             .where("status", "created")
             .orWhere("status", "processing")
@@ -469,18 +484,19 @@ class OrderController {
         .select(
           "orders.*",
           // 'orderdetail.notes as orderdetailnotes',
-          Order.raw(`(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`),
-
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.customerid", userId)
         .andWhere("orders.status", status)
-        .groupBy("orders.id")
+        .groupBy("orders.id");
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
           "campaignorder.*",
-          'campaigns.supplierid',
+          "campaigns.supplierid",
           CampaignOrder.raw(
             `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
             array_to_json(array_agg(json_build_object(
@@ -499,7 +515,7 @@ class OrderController {
             )) as details`
           )
         )
-        .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
+        .join("campaigns", "campaigns.id", "campaignorder.campaignid")
         .where("campaignorder.status", status)
         .groupBy("campaignorder.id")
         .groupBy("campaigns.id");
@@ -640,7 +656,7 @@ class OrderController {
           incampaign: true,
           totalprice: orders[0].totalprice,
           productname: orders[0].productname,
-          notes: orders[0].notes
+          notes: orders[0].notes,
         });
       }
 
@@ -732,7 +748,7 @@ class OrderController {
           const getCampaigns = await Campaigns.query()
             .select()
             .where("productid", campaign.productid)
-            .andWhere('status', 'active')
+            .andWhere("status", "active");
 
           if (getCampaigns.length === 0) {
             await Products.query()
@@ -740,6 +756,11 @@ class OrderController {
               .where("id", campaign.productid);
           }
         }
+
+        transactionController.update({
+          ordercode: order.ordercode,
+          advancefee: order.advancefee,
+        } as Transaction);
       }
 
       // const orderId = req.query.order_id;
@@ -841,23 +862,23 @@ class OrderController {
       //   'orders.shippingfee as shippingfee',
       //   'orders.shippingfee as shippingfee',
 
-
       // ]
 
       const orders: any = await Order.query()
         .select(
           "orders.*",
-          Order.raw(`(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`),
-
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.status", status)
-        .groupBy("orders.id")
+        .groupBy("orders.id");
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
           "campaignorder.*",
-          'campaigns.supplierid',
+          "campaigns.supplierid",
           CampaignOrder.raw(
             `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
             array_to_json(array_agg(json_build_object(
@@ -876,7 +897,7 @@ class OrderController {
             )) as details`
           )
         )
-        .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
+        .join("campaigns", "campaigns.id", "campaignorder.campaignid")
         .where("campaignorder.status", status)
         .groupBy("campaignorder.id")
         .groupBy("campaigns.id");
@@ -885,13 +906,11 @@ class OrderController {
       return res.status(200).send({
         message: "successful",
         data: orders,
-      })
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
-
-  
 }
 
 export default new OrderController();
