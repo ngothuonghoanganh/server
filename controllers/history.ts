@@ -27,17 +27,24 @@ class RetailHistoryController {
     };
 
     public getRetailHistoryByOrderId = async (req: any, res: any, next: any) => {
-        console.log('test')
+        // console.log('test')
         try {
+            //order id can from retail history and campaign history
             const orderId = req.body.orderId;
 
-            const data = await RetailHistory.query()
+            const retailHistory = await RetailHistory.query()
                 .select()
                 .where('orderretailid', orderId).first()
 
+            const campaignHistory =await CampaignHistory.query()
+            .select()
+            .where('ordercompaignid', orderId)
             return res.status(200).send({
                 message: 'successful',
-                data: data
+                data: ({
+                    retailHistory: retailHistory,
+                    campaignHistory: campaignHistory
+                })
             })
         } catch (error) {
             console.log(error)
