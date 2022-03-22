@@ -841,7 +841,7 @@ class OrderController {
         });
       } else if (status === "advanced") {
         if (!isAdvanced) {
-          insertedCampaignHistory = await CampaignHistory.query()
+           await CampaignHistory.query()
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
@@ -849,7 +849,7 @@ class OrderController {
               description: 'completed payment'
             })
         }else{
-          insertedCampaignHistory = await CampaignHistory.query()
+           await CampaignHistory.query()
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
@@ -927,7 +927,6 @@ class OrderController {
         message: "successful",
         data: {
           insertedRetailHistory: insertedRetailHistory,
-          insertedCampaignHistory: insertedCampaignHistory,
         },
       });
     } catch (error) {
