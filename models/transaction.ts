@@ -3,7 +3,7 @@ import * as connection from "./db/connection";
 
 Model.knex(connection.knex);
 
-export class SystemProfile extends Model {
+export class Transaction extends Model {
     static get tableName() {
         return "transaction";
     }
@@ -15,7 +15,7 @@ export class SystemProfile extends Model {
     advancefee?: Number;
     ordervalue?: Number;
     paymentvalue?: Number;
-    platform?: Number;
+    platformfee?: Number;
     Penaltyfee?: Number;
     type?: string;
     iswithdrawable?: boolean;
