@@ -836,7 +836,7 @@ class OrderController {
         insertedRetailHistory = await RetailHistory.query().insert({
           orderretailid: orderId,
           statushistory: status,
-          ordercode: orderCode.ordercode,
+          ordercode: orderCode['ordercode'],
           description: "completed payment",
         });
       } else if (status === "advanced") {
@@ -845,7 +845,7 @@ class OrderController {
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
-              ordercode: orderCode,
+              ordercode: orderCode['ordercode'],
               description: 'completed payment'
             })
         }else{
@@ -853,7 +853,7 @@ class OrderController {
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
-              ordercode: orderCode,
+              ordercode: orderCode['ordercode'],
               description: 'completed advanced payment'
             })
         }
