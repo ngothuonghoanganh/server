@@ -833,7 +833,7 @@ class OrderController {
         .where("id", orderId)
         .first();
       if (status === "created") {
-        insertedRetailHistory = await RetailHistory.query().update({
+        insertedRetailHistory = await RetailHistory.query().insert({
           orderretailid: orderId,
           statushistory: status,
           ordercode: orderCode.ordercode,
@@ -842,7 +842,7 @@ class OrderController {
       } else if (status === "advanced") {
         if (!isAdvanced) {
           insertedCampaignHistory = await CampaignHistory.query()
-            .update({
+            .insert({
               ordercampaignid: orderId,
               statushistory: status,
               ordercode: orderCode,
@@ -850,7 +850,7 @@ class OrderController {
             })
         }else{
           insertedCampaignHistory = await CampaignHistory.query()
-            .update({
+            .insert({
               ordercampaignid: orderId,
               statushistory: status,
               ordercode: orderCode,
