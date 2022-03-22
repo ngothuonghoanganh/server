@@ -823,8 +823,8 @@ class OrderController {
       //   } else (status = advanced) {
       //     If (!isAdvanced) {
       //       Insert campaignHistory 3 giá trị + description = completed payment
-      //   -		} else {
-      //   insert campaignHistory 3 giá trị
+      //   -		} else { 
+      //   insert campaignHistory 3 giá trị + description = completed advanced payment 
       //   }
       let insertedRetailHistory;
       let insertedCampaignHistory;
@@ -841,12 +841,21 @@ class OrderController {
         });
       } else if (status === "advanced") {
         if (!isAdvanced) {
-          insertedCampaignHistory = await CampaignHistory.query().update({
-            ordercampaignid: orderId,
-            statushistory: status,
-            ordercode: orderCode.ordercode,
-            description: "completed payment",
-          });
+          insertedCampaignHistory = await CampaignHistory.query()
+            .update({
+              ordercampaignid: orderId,
+              statushistory: status,
+              ordercode: orderCode,
+              description: 'completed payment'
+            })
+        }else{
+          insertedCampaignHistory = await CampaignHistory.query()
+            .update({
+              ordercampaignid: orderId,
+              statushistory: status,
+              ordercode: orderCode,
+              description: 'completed advanced payment'
+            })
         }
       }
 
