@@ -828,11 +828,12 @@ class OrderController {
       //   }
       let insertedRetailHistory;
       let insertedCampaignHistory;
-      const orderCode = await Order.query()
-        .select()
-        .where("id", orderId)
-        .first();
+
       if (status === "created") {
+        const orderCode = await Order.query()
+          .select()
+          .where("id", orderId)
+          .first();
         insertedRetailHistory = await RetailHistory.query().insert({
           orderretailid: orderId,
           statushistory: status,
@@ -840,6 +841,10 @@ class OrderController {
           description: "completed payment",
         });
       } else if (status === "advanced") {
+        const orderCode = await CampaignOrder.query()
+          .select()
+          .where("id", orderId)
+          .first();
         if (!isAdvanced) {
           insertedCampaignHistory = await CampaignHistory.query()
             .insert({
