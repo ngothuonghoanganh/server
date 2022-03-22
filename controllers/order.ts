@@ -296,8 +296,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -836,7 +836,7 @@ class OrderController {
         insertedRetailHistory = await RetailHistory.query().insert({
           orderretailid: orderId,
           statushistory: status,
-          ordercode: orderCode['ordercode'],
+          ordercode: orderCode.ordercode,
           description: "completed payment",
         });
       } else if (status === "advanced") {
@@ -845,15 +845,15 @@ class OrderController {
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
-              ordercode: orderCode['ordercode'],
+              ordercode: orderCode.ordercode,
               description: 'completed payment'
             })
-        }else{
+        } else {
           insertedCampaignHistory = await CampaignHistory.query()
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
-              ordercode: orderCode['ordercode'],
+              ordercode: orderCode.ordercode,
               description: 'completed advanced payment'
             })
         }
