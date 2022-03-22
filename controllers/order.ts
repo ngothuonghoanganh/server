@@ -776,7 +776,7 @@ class OrderController {
       //     If (!isAdvanced) {
       //       Insert campaignHistory 3 giá trị + description = completed payment
       //   -		} else { 
-      //   insert campaignHistory 3 giá trị
+      //   insert campaignHistory 3 giá trị + description = completed advanced payment 
       //   }
       let insertedRetailHistory
       let insertedCampaignHistory
@@ -797,6 +797,14 @@ class OrderController {
               statushistory: status,
               ordercode: orderCode,
               description: 'completed payment'
+            })
+        }else{
+          insertedCampaignHistory = await CampaignHistory.query()
+            .update({
+              ordercampaignid: orderId,
+              statushistory: status,
+              ordercode: orderCode,
+              description: 'completed advanced payment'
             })
         }
       }
