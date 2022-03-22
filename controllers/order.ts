@@ -836,24 +836,24 @@ class OrderController {
         insertedRetailHistory = await RetailHistory.query().insert({
           orderretailid: orderId,
           statushistory: status,
-          ordercode: orderCode.ordercode,
+          ordercode: orderCode['ordercode'],
           description: "completed payment",
         });
       } else if (status === "advanced") {
         if (!isAdvanced) {
-           await CampaignHistory.query()
+          insertedCampaignHistory = await CampaignHistory.query()
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
-              ordercode: orderCode,
+              ordercode: orderCode['ordercode'],
               description: 'completed payment'
             })
         }else{
-           await CampaignHistory.query()
+          insertedCampaignHistory = await CampaignHistory.query()
             .insert({
               ordercampaignid: orderId,
               statushistory: status,
-              ordercode: orderCode,
+              ordercode: orderCode['ordercode'],
               description: 'completed advanced payment'
             })
         }
@@ -927,6 +927,7 @@ class OrderController {
         message: "successful",
         data: {
           insertedRetailHistory: insertedRetailHistory,
+          insertedCampaignHistory: insertedCampaignHistory,
         },
       });
     } catch (error) {
