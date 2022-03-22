@@ -31,14 +31,14 @@ class RetailHistoryController {
         try {
             //order id can from retail history and campaign history
             const orderId = req.body.orderId;
-
+            // console.log(orderId)
             const retailHistory = await RetailHistory.query()
                 .select()
                 .where('orderretailid', orderId)
 
             const campaignHistory =await CampaignHistory.query()
             .select()
-            .where('ordercompaignid', orderId)
+            .where('ordercampaignid', orderId)
             return res.status(200).send({
                 message: 'successful',
                 data: ({
