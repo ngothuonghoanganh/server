@@ -11,5 +11,6 @@ router.post(
   Authentication.protected,
   Transaction.createWithdrawableRequest
 );
+router.get("/", Authentication.protected, Transaction.getTransaction);
 
 export default router;

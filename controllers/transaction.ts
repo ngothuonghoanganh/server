@@ -30,7 +30,7 @@ class TransactionController {
   public createWithdrawableRequest = async (req: any, res: any, next: any) => {
     try {
       const { ewalletsecrect, ewalletcode, id } = req.user;
-      const { ordercodes } = req.body;
+      const { ordercode } = req.body;
 
       const ipAddr =
         req.headers["x-forwarded-for"] ||
@@ -68,8 +68,7 @@ class TransactionController {
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
-        returnUrl +
-        `/transaction/payment?ordercode=${JSON.stringify(ordercodes)}`;
+        returnUrl + `/transaction/payment?ordercode=${ordercode}`;
       vnp_Params["vnp_Amount"] = amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = dateFormat(date, "yyyymmddHHmmss");
@@ -77,7 +76,6 @@ class TransactionController {
         vnp_Params["vnp_BankCode"] = bankCode;
       }
 
-      console.log(vnp_Params["vnp_TxnRef"]);
       vnp_Params = this.sortObject(vnp_Params);
       const signData = QueryString.stringify(vnp_Params, { encode: false });
       let hmac = crypto.createHmac("sha512", secretKey);
@@ -90,8 +88,9 @@ class TransactionController {
           iswithdrawable: false,
           status: "waiting",
         })
-        .whereIn("ordercode", ordercodes)
-        .where("type", "income");
+        .where("ordercode", ordercode)
+        .andWhere("type", "income");
+
       return res.status(200).send({
         data: vnpUrl,
       });
@@ -115,6 +114,31 @@ class TransactionController {
     }
     return sorted;
   }
+
+  public getTransaction = async (req: any, res: any) => {
+    try {
+      const [income, penalty] = await Promise.all([
+        Transaction.query()
+          .select()
+          .where("supplierid", req.user.id)
+          .andWhere("type", "income"),
+        Transaction.query()
+          .select()
+          .where("supplierid", req.user.id)
+          .andWhere("type", "penalty"),
+      ]);
+
+      return res.status(200).send({
+        message: "successful",
+        data: {
+          income,
+          penalty,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 export default new TransactionController();
