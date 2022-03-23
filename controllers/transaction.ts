@@ -20,7 +20,8 @@ class TransactionController {
         .update({
           ...transaction,
         })
-        .where("ordercode", transaction.ordercode);
+        .where("ordercode", transaction.ordercode)
+        .andWhere("type", transaction.type);
     } catch (error) {
       console.log(error);
     }
