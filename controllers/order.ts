@@ -296,8 +296,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -823,30 +823,44 @@ class OrderController {
       //   } else (status = advanced) {
       //     If (!isAdvanced) {
       //       Insert campaignHistory 3 giá trị + description = completed payment
-      //   -		} else {
-      //   insert campaignHistory 3 giá trị
+      //   -		} else { 
+      //   insert campaignHistory 3 giá trị + description = completed advanced payment 
       //   }
       let insertedRetailHistory;
       let insertedCampaignHistory;
-      const orderCode = await Order.query()
-        .select()
-        .where("id", orderId)
-        .first();
+
       if (status === "created") {
-        insertedRetailHistory = await RetailHistory.query().update({
+        const orderCode = await Order.query()
+          .select()
+          .where("id", orderId)
+          .first();
+        insertedRetailHistory = await RetailHistory.query().insert({
           orderretailid: orderId,
           statushistory: status,
           ordercode: orderCode.ordercode,
           description: "completed payment",
         });
       } else if (status === "advanced") {
+        const orderCode = await CampaignOrder.query()
+          .select()
+          .where("id", orderId)
+          .first();
         if (!isAdvanced) {
-          insertedCampaignHistory = await CampaignHistory.query().update({
-            ordercampaignid: orderId,
-            statushistory: status,
-            ordercode: orderCode.ordercode,
-            description: "completed payment",
-          });
+          insertedCampaignHistory = await CampaignHistory.query()
+            .insert({
+              ordercampaignid: orderId,
+              statushistory: status,
+              ordercode: orderCode.ordercode,
+              description: 'completed payment'
+            })
+        } else {
+          insertedCampaignHistory = await CampaignHistory.query()
+            .insert({
+              ordercampaignid: orderId,
+              statushistory: status,
+              ordercode: orderCode.ordercode,
+              description: 'completed advanced payment'
+            })
         }
       }
 
