@@ -29,9 +29,7 @@ import commentRouter from "./routes/comment";
 import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
-
-
-
+import transactionRouter from "./routes/transaction"
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -78,7 +76,7 @@ app.use(cookieParser());
 app.use(cookies_reader);
 app.use(upload.single("file"));
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
 
 // routes config
 app.use("/api", indexRoute);
@@ -98,7 +96,7 @@ app.use("/api/loyalcustomer", loyalCustomerRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/history", retailOrderRouter);
-
+app.use("/api/transaction", transactionRouter);
 
 
 try {
