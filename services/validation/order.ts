@@ -74,11 +74,12 @@ export const validDeliveringToDeliveredSchema = Joi.object({
   image: Joi.array().required(),
 });
 
-export const validOrderForCustomerCancelBodySchema = Joi.object({
+export const validUpdateStatusToCancelCustomerBodySchema = Joi.object({
   orderCode: Joi.string().required(),
-  type: Joi.string().required(),
-  orderId: Joi.string().required(),
-  description: Joi.string().required(),
+});
+
+export const validUpdateStatusToCancelSupplierBodySchema = Joi.object({
+  orderCode: Joi.string().required(),
 });
 
 export const getOrderForDeliveryQuerySchema = Joi.object({
