@@ -87,6 +87,7 @@ class TransactionController {
         .update({
           iswithdrawable: false,
           status: "waiting",
+          paymentlink: vnpUrl
         })
         .where("ordercode", ordercode)
         .andWhere("type", "income");
