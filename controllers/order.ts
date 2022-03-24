@@ -16,7 +16,7 @@ import orderStatusHistoryController from "./orderStatusHistoryController"
 
 
 class OrderController {
-  public createOrder = async (req: any, res: any, next: any) => {
+  public createOrder = async (req: any, res: any) => {
     try {
       let {
         campaignId,
@@ -193,11 +193,9 @@ class OrderController {
     }
   };
 
-  //ham nay chua valid status in body is only completed or returned
   public updateStatusFromDeliveredToCompletedForCustomer = async (
     req: any,
-    res: any,
-    next: any
+    res: any
   ) => {
     try {
       let { status = "completed", orderCode } = req.body;
@@ -217,7 +215,7 @@ class OrderController {
           .where("ordercode", orderCode)
           .andWhere("status", "delivered");
       }
-      // check loyal customer
+
       const order: any =
         (await Order.query()
           .select(
@@ -282,8 +280,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -310,6 +308,7 @@ class OrderController {
           (order.discountprice || 0) -
           (order.advancefee || 0),
         iswithdrawable: true,
+        type: "income",
         description:
           "The order is completed. Vendor is able to withdraw money.",
       } as any);
@@ -322,12 +321,9 @@ class OrderController {
     }
   };
 
-  //trước tien phải để cho customer gửi req muốn trả hàng cho supp, sau đó supp mới nhấn accept mới chuyển status
-  //thêm reasonforcancel
   public updateStatusFromDeliveredToReturnedForCustomer = async (
     req: any,
-    res: any,
-    next: any
+    res: any
   ) => {
     try {
       let { status = "returned", orderCode } = req.body;
@@ -363,8 +359,7 @@ class OrderController {
 
   public updateStatusFromCreatedToProcessingForSupplier = async (
     req: any,
-    res: any,
-    next: any
+    res: any
   ) => {
     try {
       let { status = "processing", orderCode } = req.body;
@@ -399,7 +394,7 @@ class OrderController {
   };
 
   public updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier =
-    async (req: any, res: any, next: any) => {
+    async (req: any, res: any) => {
       try {
         const reasonForCancel = req.body.reasonForCancel;
         const imageProof = req.body.imageProof;
@@ -442,8 +437,7 @@ class OrderController {
 
   public updateStatusFromProcessingToDeliveringForSupplier = async (
     req: any,
-    res: any,
-    next: any
+    res: any
   ) => {
     try {
       let { status = "delivering", orderCode } = req.body;
@@ -479,8 +473,7 @@ class OrderController {
 
   public updateStatusFromDeliveringToDeliveredForDelivery = async (
     req: any,
-    res: any,
-    next: any
+    res: any
   ) => {
     try {
       let { status = "delivered", orderCode } = req.body;
@@ -513,7 +506,7 @@ class OrderController {
     }
   };
 
-  public getOrderForCustomer = async (req: any, res: any, next: any) => {
+  public getOrderForCustomer = async (req: any, res: any) => {
     try {
       const userId = req.user.id;
       const status = req.query.status;
@@ -521,7 +514,7 @@ class OrderController {
       const orders: any = await Order.query()
         .select(
           "orders.*",
-          // 'orderdetail.notes as orderdetailnotes',
+
           Order.raw(
             `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
           )
@@ -568,7 +561,7 @@ class OrderController {
     }
   };
 
-  public getOrderForSupplier = async (req: any, res: any, next: any) => {
+  public getOrderForSupplier = async (req: any, res: any) => {
     try {
       const userId = req.user.id;
 
@@ -620,11 +613,7 @@ class OrderController {
     }
   };
 
-  public getOrderForSupplierAllowCampaign = async (
-    req: any,
-    res: any,
-    next: any
-  ) => {
+  public getOrderForSupplierAllowCampaign = async (req: any, res: any) => {
     try {
       const campaignId = req.params.campaignId;
       const userId = req.user.id;
@@ -665,11 +654,11 @@ class OrderController {
     }
   };
 
-  public getOrderById = async (req: any, res: any, next: any) => {
+  public getOrderById = async (req: any, res: any) => {
     try {
       const userId = req.user.id;
       const { orderId } = req.params;
-      // console.log(orderId)
+
       let orders: any = await Order.query()
         .select(
           "orders.*",
@@ -717,7 +706,7 @@ class OrderController {
     }
   };
 
-  public paymentOrder = async (req: any, res: any, next: any) => {
+  public paymentOrder = async (req: any, res: any) => {
     try {
       const { orderId, status, isAdvanced, amount, vnp_TxnRef, type, orderCode } = req.body;
 
@@ -746,14 +735,11 @@ class OrderController {
           .first();
         const campaignId = order.campaignid;
         const ordersInCampaign = await CampaignOrder.query()
-          .select
-          // "orders.id as orderid",
-          // Order.raw(`sum(orderdetail.quantity) as orderquantity`)
-          ()
-          // .join("orderdetail", "orders.id", "orderdetail.orderid")
+          .select()
+
           .where("campaignid", campaignId)
           .andWhere("status", "advanced");
-        // .groupBy("orders.id");
+
         const currentQuantity = ordersInCampaign.reduce(
           (acc: any, curr: any) => parseInt(acc) + parseInt(curr.quantity),
           0
@@ -798,6 +784,7 @@ class OrderController {
         transactionController.update({
           ordercode: order.ordercode,
           advancefee: order.advancefee,
+          type: "income",
         } as Transaction);
       }
 
@@ -831,70 +818,6 @@ class OrderController {
         }
       }
 
-      //-----------------------------------------------------------------
-      // const orderId = req.query.order_id;
-
-      // const order = await Order.query().select().where("id", orderId).first();
-      // const campaignId = order.campaignid;
-      // await Order.query()
-      //   .update({
-      //     status: "created",
-      //   })
-      //   .where("id", orderId)
-      //   .andWhere("status", "unpaid");
-      // 0;
-      // if (
-      //   campaignId &&
-      //   campaignId !== null &&
-      //   campaignId !== undefined &&
-      //   campaignId !== ""
-      // ) {
-      //   await Order.query()
-      //     .update({
-      //       status: "advanced",
-      //     })
-      //     .where("id", orderId);
-
-      //   const ordersInCampaign = await Order.query()
-      //     .select(
-      //       "orders.id as orderid",
-      //       Order.raw(`sum(orderdetail.quantity) as orderquantity`)
-      //     )
-      //     .join("orderdetail", "orders.id", "orderdetail.orderid")
-      //     .where("orders.campaignid", campaignId)
-      //     .andWhere("status", "advanced")
-      //     .groupBy("orders.id");
-      //   const currentQuantity = ordersInCampaign.reduce(
-      //     (acc: any, curr: any) => parseInt(acc) + parseInt(curr.orderquantity),
-      //     0
-      //   );
-      //   const campaign = await Campaigns.query()
-      //     .select()
-      //     .where("id", campaignId)
-      //     .andWhere("quantity", "<=", currentQuantity)
-      //     .first();
-      //   if (campaign) {
-      //     const orderId = ordersInCampaign.map((item: any) => item.orderid);
-      //     await Promise.all([
-      //       Order.query()
-      //         .update({
-      //           status: "unpaid",
-      //         })
-      //         .whereIn("id", orderId)
-      //         .andWhere("paymentmethod", "online"),
-      //       Order.query()
-      //         .update({
-      //           status: "created",
-      //         })
-      //         .whereIn("id", orderId)
-      //         .andWhere("paymentmethod", "cod"),
-      //     ]);
-      //     await Campaigns.query()
-      //       .update({ status: "done" })
-      //       .where("id", campaignId);
-      // }
-      // }
-
       return res.status(200).send({
         message: "successful",
       });
@@ -903,35 +826,9 @@ class OrderController {
     }
   };
 
-  public getListOrderForDelivery = async (req: any, res: any, next: any) => {
+  public getListOrderForDelivery = async (req: any, res: any) => {
     try {
       const status = req.query.status;
-      // const customerId = req.params.customerId;
-
-      // const listEntity = [
-      //   'orders.customerdiscountcode as customerdiscountcode',
-      //   'orders.status as status',
-      //   'orders.campaignid as campaignid',
-      //   'orders.addressid as addressid',
-      //   'orders.paymentid as paymentid',
-      //   'orders.createdat as createdat',
-      //   'orders.updatedat as updatedat',
-      //   'orders.discountprice as discountprice',
-      //   'orders.ordercode as ordercode',
-      //   'orders.totalprice as totalprice',
-      //   'orders.supplierid as supplierid',
-      //   'orders.address as address',
-      //   'orders.reasonforupdatestatus as reasonforupdatestatus',
-      //   'orders.paymentmethod as paymentmethod',
-      //   'orders.advancedid as advancedid',
-      //   'orders.advancedfee as advancedfee',
-      //   'orders.imageproof as imageproof',
-      //   'orders.customerid as customerid',
-      //   'orders.reasonforcancel as reasonforcancel',
-      //   'orders.shippingfee as shippingfee',
-      //   'orders.shippingfee as shippingfee',
-
-      // ]
 
       const orders: any = await Order.query()
         .select(
