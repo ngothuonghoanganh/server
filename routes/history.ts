@@ -1,9 +1,8 @@
 import * as express from "express";
 import { createValidator } from "express-joi-validation";
 
-import Authentication from "../controllers/authentication";
-import RetailHistory from "../controllers/history";
-import { bodyOrderIdSchema, queryOrderHistoryIdSchema } from "../services/validation/orderhistory";
+import OrderStatusHistory from "../controllers/orderStatusHistoryController";
+import { bodyOrderCodeSchema,queryOrderHistoryIdSchema } from "../services/validation/orderhistory";
 
 const router = express.Router();
 const validator = createValidator();
@@ -11,15 +10,19 @@ const validator = createValidator();
 router.get(
     '/',
     validator.query(queryOrderHistoryIdSchema),
-    RetailHistory.getRetailHistoryById
+    OrderStatusHistory.getRetailHistoryById
 )
 
 router.post(
-    '/orderId',
-    validator.body(bodyOrderIdSchema),
-    RetailHistory.getRetailHistoryByOrderId
+    '/orderCode',
+    validator.body(bodyOrderCodeSchema),
+    OrderStatusHistory.getRetailHistoryByOrderId
 )
 
+router.post(
+    '/test',
+    OrderStatusHistory.test
+)
 
 
 

@@ -3,18 +3,19 @@ import * as connection from "./db/connection";
 
 Model.knex(connection.knex);
 
-export class RetailHistory extends Model {
+export class OrderStatusHistory extends Model {
     static get tableName() {
-        return "retailhistory";
+        return "orderstatushistory";
     }
 
     id?: string;
-    orderretailid?: string;
+    orderid?: string;
     ordercode?: string;
     statushistory?: string;
     images?:boolean;
     description?: string;
     createdat?: Date;
     updatedat?: Date;
+    type?: string;
 
 }

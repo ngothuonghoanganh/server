@@ -11,8 +11,9 @@ import { CampaignOrder } from "../models/campaingorder";
 import { Categories } from "../models/category";
 import transactionController from "./transaction";
 import { Transaction } from "../models/transaction";
-import { CampaignHistory } from "../models/campaignhistory";
-import { RetailHistory } from "../models/retailhistory";
+import { OrderStatusHistory } from "../models/orderstatushistory";
+import orderStatusHistoryController from "./orderStatusHistoryController"
+
 
 class OrderController {
   public createOrder = async (req: any, res: any) => {
@@ -70,18 +71,6 @@ class OrderController {
             })
             .where("id", product.productId);
         }
-
-        const currentOrderRetailId = await CampaignOrder.query()
-          .select("id")
-          .where("ordercode", orderCode)
-          .first();
-
-        await CampaignHistory.query().insert({
-          ordercampaignid: currentOrderRetailId.id,
-          ordercode: orderCode,
-          statushistory: "notAdvanced",
-        });
-
         transactionController.createTransaction({
           ordercode: orderCode,
           iswithdrawable: false,
@@ -157,23 +146,25 @@ class OrderController {
           .select()
           .where("ordercode", orderCode);
       }
-
-      let insertedCampaignHistory;
-      let insertedRetailHistory;
-      if (campaignId) {
-      } else {
-        const currentOrderRetailId = await Order.query()
-          .select("id")
-          .where("ordercode", orderCode)
-          .first();
-
-        insertedRetailHistory = await RetailHistory.query().insert({
-          orderretailid: currentOrderRetailId.id,
-          ordercode: orderCode,
-          statushistory: paymentMethod === "cod" ? "created" : "unpaid",
-        });
+      // insert into history
+      
+      if(paymentMethod==='cod'){
+        orderStatusHistoryController.createHistory({
+          statushistory: "created",
+          type: 'retail',
+          orderid: newOrder.id,
+          ordercode: newOrder.ordercode,
+          description: 'is created',
+        }as OrderStatusHistory);
+      }else if(paymentMethod==='unpaid'){
+        orderStatusHistoryController.createHistory({
+          statushistory: 'unpaid',
+          type: 'retail',
+          orderid: newOrder.id,
+          ordercode: newOrder.ordercode,
+          description: 'requires full payment via VNPAY E-Wallet',
+        }as OrderStatusHistory);
       }
-
       for (const product of products) {
         await Products.query()
           .update({
@@ -195,8 +186,6 @@ class OrderController {
         data: {
           ...newOrder,
           details: newOrderDetails,
-          insertedCampaignHistory: insertedCampaignHistory,
-          insertedRetailHistory: insertedRetailHistory,
         },
       });
     } catch (error) {
@@ -321,7 +310,7 @@ class OrderController {
         iswithdrawable: true,
         type: "income",
         description:
-          "The customer confirms the completed order. Vendor can withdraw money.",
+          "The order is completed. Vendor is able to withdraw money.",
       } as any);
       return res.status(200).send({
         message: "successful",
@@ -719,7 +708,7 @@ class OrderController {
 
   public paymentOrder = async (req: any, res: any) => {
     try {
-      const { orderId, status, isAdvanced, amount, vnp_TxnRef } = req.body;
+      const { orderId, status, isAdvanced, amount, vnp_TxnRef, type, orderCode } = req.body;
 
       if (!isAdvanced) {
         await Order.query()
@@ -799,48 +788,38 @@ class OrderController {
         } as Transaction);
       }
 
-      let insertedRetailHistory;
-      let insertedCampaignHistory;
+      //insert data vào order history
 
       if (status === "created") {
-        const orderCode = await Order.query()
-          .select()
-          .where("id", orderId)
-          .first();
-        insertedRetailHistory = await RetailHistory.query().insert({
-          orderretailid: orderId,
-          statushistory: status,
-          ordercode: orderCode.ordercode,
-          description: "completed payment",
-        });
+        orderStatusHistoryController.update({
+          orderid: orderId,
+          statushistory: 'created',
+          ordercode: orderCode,
+          type: type,
+          description: 'is created'
+        }as OrderStatusHistory);
       } else if (status === "advanced") {
-        const orderCode = await CampaignOrder.query()
-          .select()
-          .where("id", orderId)
-          .first();
-        if (!isAdvanced) {
-          insertedCampaignHistory = await CampaignHistory.query().insert({
-            ordercampaignid: orderId,
-            statushistory: status,
-            ordercode: orderCode.ordercode,
-            description: "completed payment",
-          });
+        if (isAdvanced) {
+          orderStatusHistoryController.update({
+            orderid: orderId,
+            statushistory: 'advanced',
+            ordercode: orderCode,
+            type: 'campaign',
+            description: 'has completed advanced payment via VNPAY E-Wallet'
+          }as OrderStatusHistory);
         } else {
-          insertedCampaignHistory = await CampaignHistory.query().insert({
-            ordercampaignid: orderId,
-            statushistory: status,
-            ordercode: orderCode.ordercode,
-            description: "completed advanced payment",
-          });
+          orderStatusHistoryController.update({
+            orderid: orderId,
+            statushistory: 'advanced',
+            ordercode: orderCode,
+            type: 'campaign',
+            description: 'has completed full payment via VNPAY E-Wallet'
+          }as OrderStatusHistory);
         }
       }
 
       return res.status(200).send({
         message: "successful",
-        data: {
-          insertedRetailHistory: insertedRetailHistory,
-          insertedCampaignHistory: insertedCampaignHistory,
-        },
       });
     } catch (error) {
       console.log(error);
