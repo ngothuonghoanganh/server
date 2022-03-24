@@ -9,10 +9,11 @@ import {
   validDeliveredToCompletedSchema,
   validDeliveredToReturningSchema,
   validDeliveringToDeliveredSchema,
-  validOrderForCustomerCancelBodySchema,
   validProcessingToDeliveringSchema,
   validReturningToReturnedSchema,
   validStatusForCreatedToProcessingForSupplierSchema,
+  validUpdateStatusToCancelCustomerBodySchema,
+  validUpdateStatusToCancelSupplierBodySchema,
 } from "../services/validation/order";
 
 const router = express.Router();
@@ -46,9 +47,9 @@ router.put(
 );
 
 router.put(
-  "/status/customer/returned",
+  "/status/supplier/returned",
   Authentication.protected,
-  // Authentication.checkRole(["Customer"]),
+  Authentication.checkRole(["Supplier"]),
   validator.body(validReturningToReturnedSchema),
   order.updateStatusFromReturningToReturned
 );
@@ -91,11 +92,19 @@ router.put(
 );
 
 router.put(
-  "/status/supplier/cancel",
+  "/status/customer/cancel",
   Authentication.protected,
   Authentication.checkRole(["Customer"]),
-  validator.body(validOrderForCustomerCancelBodySchema),
-  order.updateStatusFromCreatedOrProcessingToCancelledForCustomer
+  validator.body(validUpdateStatusToCancelCustomerBodySchema),
+  order.updateStatusToCancelledForCustomer
+);
+
+router.put(
+  "/status/supplier/cancel",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  validator.body(validUpdateStatusToCancelSupplierBodySchema),
+  order.updateStatusToCancelledForSupplier
 );
 
 // router.put(

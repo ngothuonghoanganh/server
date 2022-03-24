@@ -285,8 +285,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -426,33 +426,71 @@ class OrderController {
     }
   };
 
-  public updateStatusFromCreatedOrProcessingToCancelledForCustomer = async (
+  public updateStatusToCancelledForCustomer = async (
     req: any,
     res: any
   ) => {
     try {
-      const reasonForCancel = req.body.reasonForCancel;
-      const imageProof = req.body.imageProof;
 
       let { status = "cancelled", orderCode } = req.body;
       let update = await Order.query()
         .update({
           status: status,
-          reasonforcancel: reasonForCancel,
-          imageproof: imageProof,
         })
         .where("status", "created")
-        .orWhere("status", "processing")
-        .andWhere("ordercode", orderCode);
+        .orWhere("status", "unpaid")
+        .orWhere("status", "advanced")
+        .andWhere("ordercode", orderCode)
       if (update === 0) {
         console.log("update campaign order");
         update = await CampaignOrder.query()
           .update({
             status: status,
-            reasonforcancel: reasonForCancel,
-            imageproof: imageProof,
           })
           .where("status", "created")
+          .orWhere("status", "unpaid")
+          .orWhere("status", "advanced")
+          .andWhere("ordercode", orderCode);
+      }
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated",
+        });
+      }
+      return res.status(200).send({
+        message: "updated successful",
+        data: update,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public updateStatusToCancelledForSupplier = async (
+    req: any,
+    res: any
+  ) => {
+    try {
+
+      let { status = "cancelled", orderCode } = req.body;
+      let update = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("status", "created")
+        .orWhere("status", "unpaid")
+        .orWhere("status", "advanced")
+        .orWhere("status", "processing")
+        .andWhere("ordercode", orderCode)
+      if (update === 0) {
+        console.log("update campaign order");
+        update = await CampaignOrder.query()
+          .update({
+            status: status,
+          })
+          .where("status", "created")
+          .orWhere("status", "unpaid")
+          .orWhere("status", "advanced")
           .orWhere("status", "processing")
           .andWhere("ordercode", orderCode);
       }
@@ -835,7 +873,7 @@ class OrderController {
         .groupBy("orders.id");
       if (orders.length === 0) {
         orders = await CampaignOrder.query().select().where("id", orderId);
-      // console.log(orders)
+        // console.log(orders)
 
         orders[0].details = [];
         orders[0].details.push({
