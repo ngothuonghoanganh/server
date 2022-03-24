@@ -3,7 +3,6 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 import CampaignController from "../controllers/campaign";
 import {
-  bodySchema,
   paramsSchema,
   querySchema,
 } from "../services/validation/campaign";

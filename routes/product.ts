@@ -1,17 +1,12 @@
 import * as express from "express";
 import { createValidator } from "express-joi-validation";
-import { val, Validator } from "objection";
 
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
-import { updateParamSchema } from "../services/validation/category";
 import {
-  bodyProductIdsSchema,
   createBodyProductSchema,
   listCatesIdBodySchema,
   paramProductIdSchema,
-  querySupplierIdSchema,
-  supplierIdSchema,
   updateBodyProductSchema,
 } from "../services/validation/product";
 

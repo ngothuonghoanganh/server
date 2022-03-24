@@ -1,5 +1,4 @@
 import * as Joi from "joi";
-import { type } from "os";
 
 export const createOrderBodySchema = Joi.object({
   campaignId: Joi.string().allow(null).allow(""),
@@ -72,7 +71,7 @@ export const validDeliveringToDeliveredSchema = Joi.object({
   type: Joi.string().required(),
   orderId: Joi.string().required(),
   description: Joi.string().required(),
-  image: Joi.string().required(),
+  image: Joi.array().required(),
 });
 
 export const validOrderForCustomerCancelBodySchema = Joi.object({
