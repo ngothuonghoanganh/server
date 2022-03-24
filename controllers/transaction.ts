@@ -148,7 +148,7 @@ class TransactionController {
       const transaction = await Transaction.query()
         .update({
           iswithdrawable: false,
-          status: "waiting",
+          status: "done",
         })
         .where("ordercode", ordercode)
         .andWhere("type", type);
