@@ -108,7 +108,7 @@ router.put(
 
 router.put(
   "/status/delivery/delivered",
-  Authentication.protected,
+  // Authentication.protected,
   // Authentication.checkRole(["Delivery"]),
   validator.body(validDeliveringToDeliveredSchema),
   order.updateStatusFromDeliveringToDeliveredForDelivery
