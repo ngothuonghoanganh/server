@@ -147,23 +147,23 @@ class OrderController {
           .where("ordercode", orderCode);
       }
       // insert into history
-      
-      if(paymentMethod==='cod'){
+
+      if (paymentMethod === 'cod') {
         orderStatusHistoryController.createHistory({
           statushistory: "created",
           type: 'retail',
           orderid: newOrder.id,
           ordercode: newOrder.ordercode,
           description: 'is created',
-        }as OrderStatusHistory);
-      }else if(paymentMethod==='unpaid'){
+        } as OrderStatusHistory);
+      } else {
         orderStatusHistoryController.createHistory({
           statushistory: 'unpaid',
           type: 'retail',
           orderid: newOrder.id,
           ordercode: newOrder.ordercode,
           description: 'requires full payment via VNPAY E-Wallet',
-        }as OrderStatusHistory);
+        } as OrderStatusHistory);
       }
       for (const product of products) {
         await Products.query()
@@ -280,8 +280,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -797,7 +797,7 @@ class OrderController {
           ordercode: orderCode,
           type: type,
           description: 'is created'
-        }as OrderStatusHistory);
+        } as OrderStatusHistory);
       } else if (status === "advanced") {
         if (isAdvanced) {
           orderStatusHistoryController.createHistory({
@@ -806,7 +806,7 @@ class OrderController {
             ordercode: orderCode,
             type: 'campaign',
             description: 'has completed advanced payment via VNPAY E-Wallet'
-          }as OrderStatusHistory);
+          } as OrderStatusHistory);
         } else {
           orderStatusHistoryController.createHistory({
             orderid: orderId,
@@ -814,7 +814,7 @@ class OrderController {
             ordercode: orderCode,
             type: 'campaign',
             description: 'has completed full payment via VNPAY E-Wallet'
-          }as OrderStatusHistory);
+          } as OrderStatusHistory);
         }
       }
 
