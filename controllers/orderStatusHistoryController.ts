@@ -14,6 +14,7 @@ class OrderHistoryController {
         }
     };
 
+    //no use
     public update = async (orderStatusHistory: OrderStatusHistory) => {
         try {
           await OrderStatusHistory.query()

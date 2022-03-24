@@ -6,10 +6,13 @@ import order from "../controllers/order";
 import {
   getOrderByIdSchema,
   getOrderForDeliveryQuerySchema,
-  validOrderCodeSchema,
-  validOrderForSuppAndInsCancelBodySchema,
-  validStatusForCreatedOrAdvancedToProcessingForSupplierSchema,
-  validStatusForDeleveredSchema,
+  validDeliveredToCompletedSchema,
+  validDeliveredToReturningSchema,
+  validDeliveringToDeliveredSchema,
+  validOrderForCustomerCancelBodySchema,
+  validProcessingToDeliveringSchema,
+  validReturningToReturnedSchema,
+  validStatusForCreatedToProcessingForSupplierSchema,
 } from "../services/validation/order";
 
 const router = express.Router();
@@ -27,19 +30,27 @@ router.post(
 router.post("/payment", order.paymentOrder);
 
 router.put(
-  "/customer",
+  "/status/customer/completed",
   Authentication.protected,
   Authentication.checkRole(["Customer"]),
-  validator.body(validOrderCodeSchema),
+  validator.body(validDeliveredToCompletedSchema),
   order.updateStatusFromDeliveredToCompletedForCustomer
 );
 
 router.put(
-  "/customer/returned",
+  "/status/customer/returning",
   Authentication.protected,
   Authentication.checkRole(["Customer"]),
-  validator.body(validOrderCodeSchema),
-  order.updateStatusFromDeliveredToReturnedForCustomer
+  validator.body(validDeliveredToReturningSchema),
+  order.updateStatusFromDeliveredToReturningForCustomer
+);
+
+router.put(
+  "/status/customer/returned",
+  Authentication.protected,
+  // Authentication.checkRole(["Customer"]),
+  validator.body(validReturningToReturnedSchema),
+  order.updateStatusFromReturningToReturned
 );
 
 router.get(
@@ -64,47 +75,47 @@ router.get(
 );
 
 router.put(
-  "/supplier/delivering",
+  "/status/supplier/delivering",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.body(validStatusForDeleveredSchema),
+  validator.body(validProcessingToDeliveringSchema),
   order.updateStatusFromProcessingToDeliveringForSupplier
 );
 
 router.put(
-  "/supplier",
+  "/status/supplier/processing",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.body(validStatusForCreatedOrAdvancedToProcessingForSupplierSchema),
+  validator.body(validStatusForCreatedToProcessingForSupplierSchema),
   order.updateStatusFromCreatedToProcessingForSupplier
 );
 
 router.put(
-  "/supplier/cancel",
+  "/status/supplier/cancel",
   Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
-  validator.body(validOrderForSuppAndInsCancelBodySchema),
-  order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
+  Authentication.checkRole(["Customer"]),
+  validator.body(validOrderForCustomerCancelBodySchema),
+  order.updateStatusFromCreatedOrProcessingToCancelledForCustomer
 );
 
-router.put(
-  "/inspector",
-  Authentication.protected,
-  Authentication.checkRole(["Inspector"]),
-  validator.body(validOrderForSuppAndInsCancelBodySchema),
-  order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
-);
+// router.put(
+//   "/inspector",
+//   Authentication.protected,
+//   Authentication.checkRole(["Customer", "Supplier"]),
+//   validator.body(validOrderForSuppAndInsCancelBodySchema),
+//   order.updateStatusFromCreatedOrProcessingToCancelledForSupplier
+// );
 
 router.put(
-  "/delivery/delivered",
-  // Authentication.protected,
+  "/status/delivery/delivered",
+  Authentication.protected,
   // Authentication.checkRole(["Delivery"]),
-  validator.body(validOrderCodeSchema),
+  validator.body(validDeliveringToDeliveredSchema),
   order.updateStatusFromDeliveringToDeliveredForDelivery
 );
 
 router.get(
-  "/customer/:orderId",
+  "/customer/:orderCode",
   Authentication.protected,
   Authentication.checkRole(["Customer"]),
   validator.params(getOrderByIdSchema),

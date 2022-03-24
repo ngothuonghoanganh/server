@@ -4,18 +4,18 @@ import * as connection from "./db/connection";
 Model.knex(connection.knex);
 
 export class OrderStatusHistory extends Model {
-    static get tableName() {
-        return "orderstatushistory";
-    }
+  static get tableName() {
+    return "orderstatushistory";
+  }
 
-    id?: string;
-    orderid?: string;
-    ordercode?: string;
-    statushistory?: string;
-    images?:boolean;
-    description?: string;
-    createdat?: Date;
-    updatedat?: Date;
-    type?: string;
-
+  id?: string;
+  retailorderid?: string;
+  campaignorderid?: string;
+  ordercode?: string;
+  statushistory?: string;
+  image?: string;
+  description?: string;
+  createdat?: Date;
+  updatedat?: Date;
+  type?: string;
 }
