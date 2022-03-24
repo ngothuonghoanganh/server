@@ -791,7 +791,7 @@ class OrderController {
       //insert data vào order history
 
       if (status === "created") {
-        orderStatusHistoryController.update({
+        orderStatusHistoryController.createHistory({
           orderid: orderId,
           statushistory: 'created',
           ordercode: orderCode,
@@ -800,7 +800,7 @@ class OrderController {
         }as OrderStatusHistory);
       } else if (status === "advanced") {
         if (isAdvanced) {
-          orderStatusHistoryController.update({
+          orderStatusHistoryController.createHistory({
             orderid: orderId,
             statushistory: 'advanced',
             ordercode: orderCode,
@@ -808,7 +808,7 @@ class OrderController {
             description: 'has completed advanced payment via VNPAY E-Wallet'
           }as OrderStatusHistory);
         } else {
-          orderStatusHistoryController.update({
+          orderStatusHistoryController.createHistory({
             orderid: orderId,
             statushistory: 'advanced',
             ordercode: orderCode,
