@@ -835,6 +835,8 @@ class OrderController {
         .groupBy("orders.id");
       if (orders.length === 0) {
         orders = await CampaignOrder.query().select().where("id", orderId);
+      // console.log(orders)
+
         orders[0].details = [];
         orders[0].details.push({
           id: "",
@@ -851,6 +853,7 @@ class OrderController {
           notes: orders[0].notes,
         });
       }
+
 
       const productId = orders[0].details[0].productid;
 
