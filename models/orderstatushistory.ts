@@ -12,7 +12,7 @@ export class OrderStatusHistory extends Model {
     orderid?: string;
     ordercode?: string;
     statushistory?: string;
-    images?:boolean;
+    image?:string;
     description?: string;
     createdat?: Date;
     updatedat?: Date;

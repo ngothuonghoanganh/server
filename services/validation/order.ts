@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { type } from "os";
 
 export const createOrderBodySchema = Joi.object({
   campaignId: Joi.string().allow(null).allow(""),
@@ -14,8 +15,36 @@ export const changeStatusToCancelledSchema = Joi.object({
   orderCode: Joi.string().required(),
 });
 
-export const validStatusForDeleveredSchema = Joi.object({
+export const validProcessingToDeliveringSchema = Joi.object({
   orderCode: Joi.string().required(),
+  orderId: Joi.string().required(),
+  type: Joi.string().required(),
+  description: Joi.string().required(),
+  image: Joi.array().required(),
+});
+
+export const validDeliveredToReturningSchema = Joi.object({
+  orderCode: Joi.string().required(),
+  orderId: Joi.string().required(),
+  type: Joi.string().required(),
+  description: Joi.string().required(),
+  image: Joi.array().required(),
+});
+
+export const validDeliveredToCompletedSchema = Joi.object({
+  orderCode: Joi.string().required(),
+  orderId: Joi.string().required(),
+  type: Joi.string().required(),
+  description: Joi.string().required(),
+  // image: Joi.array().required(),
+});
+
+export const validReturningToReturnedSchema = Joi.object({
+  orderCode: Joi.string().required(),
+  orderId: Joi.string().required(),
+  type: Joi.string().required(),
+  description: Joi.string().required(),
+  // image: Joi.array().required(),
 });
 
 export const changeStatusToProcessingSchema = Joi.object({
@@ -27,22 +56,30 @@ export const validStatusForDeliverydSchema = Joi.object({
   status: Joi.string().required(),
 });
 
-export const validStatusForCreatedOrAdvancedToProcessingForSupplierSchema = Joi.object({
+export const validStatusForCreatedToProcessingForSupplierSchema = Joi.object({
   orderCode: Joi.string().required(),
+  orderId: Joi.string().required(),
+  type: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
 export const getOrderByIdSchema = Joi.object({
   orderId: Joi.string().required(),
 });
 
-export const validOrderCodeSchema = Joi.object({
+export const validDeliveringToDeliveredSchema = Joi.object({
   orderCode: Joi.string().required(),
+  type: Joi.string().required(),
+  orderId: Joi.string().required(),
+  description: Joi.string().required(),
+  image: Joi.string().required(),
 });
 
-export const validOrderForSuppAndInsCancelBodySchema = Joi.object({
+export const validOrderForCustomerCancelBodySchema = Joi.object({
   orderCode: Joi.string().required(),
-  reasonForCancel: Joi.string().required(),
-  imageProof: Joi.string().allow(null).allow(""),
+  type: Joi.string().required(),
+  orderId: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
 export const getOrderForDeliveryQuerySchema = Joi.object({

@@ -15,6 +15,7 @@ import { OrderStatusHistory } from "../models/orderstatushistory";
 import orderStatusHistoryController from "./orderStatusHistoryController"
 
 
+
 class OrderController {
   public createOrder = async (req: any, res: any) => {
     try {
@@ -198,7 +199,7 @@ class OrderController {
     res: any
   ) => {
     try {
-      let { status = "completed", orderCode } = req.body;
+      let { status = "completed", orderCode, orderId, type, description } = req.body;
 
       let update = await Order.query()
         .update({
@@ -312,6 +313,14 @@ class OrderController {
         description:
           "The order is completed. Vendor is able to withdraw money.",
       } as any);
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        orderid: orderId,
+        // image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description
+      } as OrderStatusHistory);
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -321,79 +330,90 @@ class OrderController {
     }
   };
 
-  public updateStatusFromDeliveredToReturnedForCustomer = async (
-    req: any,
-    res: any
-  ) => {
-    try {
-      let { status = "returned", orderCode } = req.body;
+  // public updateStatusFromDeliveredToReturnedForCustomer = async (
+  //   req: any,
+  //   res: any
+  // ) => {
+  //   try {
+  //     let { status = "returned", orderCode } = req.body;
 
-      let update = await Order.query()
-        .update({
-          status: status,
-        })
-        .where("ordercode", orderCode)
-        .andWhere("status", "completed");
-      if (update === 0) {
-        console.log("update campaign order");
-        update = await CampaignOrder.query()
-          .update({
-            status: status,
-          })
-          .where("ordercode", orderCode)
-          .andWhere("status", "completed");
-      }
-      if (update === 0) {
-        return res.status(200).send({
-          message: "not yet updated",
-        });
-      }
-      return res.status(200).send({
-        message: "successful",
-        data: update,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     let update = await Order.query()
+  //       .update({
+  //         status: status,
+  //       })
+  //       .where("ordercode", orderCode)
+  //       .andWhere("status", "completed");
+  //     if (update === 0) {
+  //       console.log("update campaign order");
+  //       update = await CampaignOrder.query()
+  //         .update({
+  //           status: status,
+  //         })
+  //         .where("ordercode", orderCode)
+  //         .andWhere("status", "completed");
+  //     }
+  //     if (update === 0) {
+  //       return res.status(200).send({
+  //         message: "not yet updated",
+  //       });
+  //     }
+  //     return res.status(200).send({
+  //       message: "successful",
+  //       data: update,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   public updateStatusFromCreatedToProcessingForSupplier = async (
     req: any,
     res: any
   ) => {
     try {
-      let { status = "processing", orderCode } = req.body;
+      let { status = "processing", orderId, orderCode, type, description /*, image*/ } = req.body;
 
-      let update = await Order.query()
+      let updateStatus = await Order.query()
         .update({
           status: status,
         })
         .where("ordercode", orderCode)
         .andWhere("status", "created");
-      if (update === 0) {
+      if (updateStatus === 0) {
         console.log("update campaign order");
-        update = await CampaignOrder.query()
+        updateStatus = await CampaignOrder.query()
           .update({
             status: status,
           })
           .where("ordercode", orderCode)
           .andWhere("status", "created");
       }
-      if (update === 0) {
+      if (updateStatus === 0) {
         return res.status(200).send({
           message: "not yet updated",
         });
       }
+
+      //insert status for order status history
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        orderid: orderId,
+        // image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description
+      } as OrderStatusHistory);
+
       return res.status(200).send({
         message: "successful",
-        data: update,
+        data: updateStatus,
       });
     } catch (error) {
       console.log(error);
     }
   };
 
-  public updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier =
+  public updateStatusFromCreatedOrProcessingToCancelledForCustomer=
     async (req: any, res: any) => {
       try {
         const reasonForCancel = req.body.reasonForCancel;
@@ -440,7 +460,7 @@ class OrderController {
     res: any
   ) => {
     try {
-      let { status = "delivering", orderCode } = req.body;
+      let { status = "delivering", orderCode, type, orderId, description, image } = req.body;
 
       let update: any = await Order.query()
         .update({
@@ -462,6 +482,14 @@ class OrderController {
           message: "not yet updated",
         });
       }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        orderid: orderId,
+        image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description
+      } as OrderStatusHistory);
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -476,7 +504,7 @@ class OrderController {
     res: any
   ) => {
     try {
-      let { status = "delivered", orderCode } = req.body;
+      let { status = "delivered", orderCode, type, orderId, description, image } = req.body;
       let update: any = await Order.query()
         .update({
           status: status,
@@ -497,6 +525,100 @@ class OrderController {
           message: "not yet updated",
         });
       }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        orderid: orderId,
+        image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description
+      } as OrderStatusHistory);
+      return res.status(200).send({
+        message: "successful",
+        data: update,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public updateStatusFromDeliveredToReturningForCustomer = async (
+    req: any,
+    res: any
+  ) => {
+    try {
+      let { status = "returning", orderCode, type, orderId, image, description } = req.body;
+      let update: any = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("ordercode", orderCode)
+        .andWhere("status", "delivered");
+      if (update === 0) {
+        console.log("update campaign order");
+        update = await CampaignOrder.query()
+          .update({
+            status: status,
+          })
+          .where("ordercode", orderCode)
+          .andWhere("status", "delivered");
+      }
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated",
+        });
+      }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        orderid: orderId,
+        image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description
+      } as OrderStatusHistory);
+      return res.status(200).send({
+        message: "successful",
+        data: update,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public updateStatusFromReturningToReturned = async (
+    req: any,
+    res: any
+  ) => {
+    try {
+      let { status = "returned", orderCode, type, orderId,/* image,*/ description } = req.body;
+      let update: any = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("ordercode", orderCode)
+        .andWhere("status", "returning");
+      if (update === 0) {
+        console.log("update campaign order");
+        update = await CampaignOrder.query()
+          .update({
+            status: status,
+          })
+          .where("ordercode", orderCode)
+          .andWhere("status", "returning");
+      }
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated",
+        });
+      }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        orderid: orderId,
+        // image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description
+      } as OrderStatusHistory);
       return res.status(200).send({
         message: "successful",
         data: update,
