@@ -14,7 +14,6 @@ router.post(
 router.get("/", Authentication.protected, Transaction.getTransaction);
 router.get(
   "/payment",
-  Authentication.protected,
   Transaction.confirmTransactionRequest
 );
 
