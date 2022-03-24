@@ -43,7 +43,7 @@ class TransactionController {
       let vnpUrl = process.env.vnp_Url;
       const returnUrl = process.env.vnp_ReturnUrl;
 
-      const amount = req.body.amount;
+      const amount = req.body.amount * 100;
       const bankCode = req.body.bankCode;
 
       const orderInfo = req.body.orderDescription;
@@ -68,7 +68,7 @@ class TransactionController {
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
-        returnUrl + `/transaction/payment?ordercode=${ordercode}`;
+        returnUrl + `/transaction/payment?ordercode=${ordercode}&type=income`;
       vnp_Params["vnp_Amount"] = amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = dateFormat(date, "yyyymmddHHmmss");
@@ -134,6 +134,26 @@ class TransactionController {
           income,
           penalty,
         },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public confirmTransactionRequest = async (req: any, res: any) => {
+    try {
+      const { ordercode, type } = req.query;
+
+      const transaction = await Transaction.query()
+        .update({
+          iswithdrawable: false,
+          status: "waiting",
+        })
+        .where("ordercode", ordercode)
+        .andWhere("type", type);
+      return res.status(200).send({
+        message: "success",
+        data: transaction,
       });
     } catch (error) {
       console.log(error);
