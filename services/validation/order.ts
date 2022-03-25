@@ -84,5 +84,6 @@ export const validUpdateStatusToCancelSupplierBodySchema = Joi.object({
 
 export const getOrderForDeliveryQuerySchema = Joi.object({
   status: Joi.string().required(),
+  supplierIds:Joi.array().required(),
 });
 
