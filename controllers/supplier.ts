@@ -113,12 +113,23 @@ class Supplier {
         message: "successful",
         data: data,
       });
-      return res.status(200).send({
-        message: "successful",
-        data: data,
-      });
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  public getSuppInforByListSuppId=async(req: any, res: any, next: any)=>{
+    try {
+      const supplierIds=req.body.supplierIds
+      const supllierData= await Suppliers.query().select()
+            .whereIn('id', supplierIds)
+
+        return res.status(200).send({
+          message: 'successful',
+          data: supllierData
+        })
+    } catch (error) {
+      console.log(error)
     }
   };
 }
