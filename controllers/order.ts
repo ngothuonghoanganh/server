@@ -287,8 +287,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -428,12 +428,8 @@ class OrderController {
     }
   };
 
-  public updateStatusToCancelledForCustomer = async (
-    req: any,
-    res: any
-  ) => {
+  public updateStatusToCancelledForCustomer = async (req: any, res: any) => {
     try {
-
       let { status = "cancelled", orderCode } = req.body;
       let update = await Order.query()
         .update({
@@ -442,7 +438,7 @@ class OrderController {
         .where("status", "created")
         .orWhere("status", "unpaid")
         .orWhere("status", "advanced")
-        .andWhere("ordercode", orderCode)
+        .andWhere("ordercode", orderCode);
       if (update === 0) {
         console.log("update campaign order");
         update = await CampaignOrder.query()
@@ -468,12 +464,8 @@ class OrderController {
     }
   };
 
-  public updateStatusToCancelledForSupplier = async (
-    req: any,
-    res: any
-  ) => {
+  public updateStatusToCancelledForSupplier = async (req: any, res: any) => {
     try {
-
       let { status = "cancelled", orderCode } = req.body;
       let update = await Order.query()
         .update({
@@ -483,7 +475,7 @@ class OrderController {
         .orWhere("status", "unpaid")
         .orWhere("status", "advanced")
         .orWhere("status", "processing")
-        .andWhere("ordercode", orderCode)
+        .andWhere("ordercode", orderCode);
       if (update === 0) {
         console.log("update campaign order");
         update = await CampaignOrder.query()
@@ -818,6 +810,61 @@ class OrderController {
     }
   };
 
+  public getOrderForSupplierByStatus = async (req: any, res: any) => {
+    try {
+      const userId = req.user.id;
+      const status = req.query.status;
+
+      const orders: any = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(`(select customers.firstname as customerfirstname from customers where customers.id = orders.customerid),
+           (select customers.lastname as customerlastname from customers where customers.id = orders.customerid),
+            json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.supplierid", userId)
+        .andWhere("orders.status", status)
+        .groupBy("orders.id");
+
+      const ordersInCampaign = await CampaignOrder.query()
+        .select(
+          "campaignorder.*",
+          CampaignOrder.raw(
+            `(select customers.firstname as customerfirstname from customers where customers.id = campaignorder.customerid),
+            (select customers.lastname as customerlastname from customers where customers.id = campaignorder.customerid),
+            array_to_json(array_agg(json_build_object(
+            'id','',
+            'image', image,
+            'price', campaignorder.price,
+            'quantity', campaignorder.quantity,
+            'ordercode', ordercode,
+            'productid', campaignorder.productid,
+            'campaignid', campaignid,
+            'incampaign', true,
+            'customerid', customerid,
+            'totalprice', totalprice,
+            'productname', campaignorder.productname,
+            'notes', campaignorder.notes)
+            )) as details`
+          )
+        )
+        .join("campaigns", "campaigns.id", "campaignorder.campaignid")
+        .where("campaigns.supplierid", userId)
+        .andWhere("campaignorder.status", status)
+        .groupBy("campaignorder.id");
+
+      orders.push(...ordersInCampaign);
+
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   public getOrderForSupplierAllowCampaign = async (req: any, res: any) => {
     try {
       const campaignId = req.params.campaignId;
@@ -893,7 +940,6 @@ class OrderController {
           notes: orders[0].notes,
         });
       }
-
 
       const productId = orders[0].details[0].productid;
 
@@ -1048,7 +1094,7 @@ class OrderController {
   public getListOrderForDelivery = async (req: any, res: any) => {
     try {
       const status = req.body.status;
-      const supplierIds=req.body.supplierIds
+      const supplierIds = req.body.supplierIds;
       const orders: any = await Order.query()
         .select(
           "orders.*",
@@ -1060,8 +1106,9 @@ class OrderController {
         .where("orders.status", status)
         .groupBy("orders.id");
 
-        const supllierData= await Suppliers.query().select()
-            .whereIn('id', supplierIds)
+      const supllierData = await Suppliers.query()
+        .select()
+        .whereIn("id", supplierIds);
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
@@ -1093,7 +1140,7 @@ class OrderController {
       orders.push(...ordersInCampaign);
       return res.status(200).send({
         message: "successful",
-        data:({orders: orders, supllierData: supllierData})
+        data: { orders: orders, supllierData: supllierData },
       });
     } catch (error) {
       console.log(error);

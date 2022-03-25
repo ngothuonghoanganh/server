@@ -69,6 +69,13 @@ router.get(
 );
 
 router.get(
+  "/supplier/status",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  order.getOrderForSupplierByStatus
+);
+
+router.get(
   "/supplier/campaign/:campaignId",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
@@ -132,9 +139,9 @@ router.get(
 );
 
 router.post(
-  '/delivery/getListOrderForDelivery',
+  "/delivery/getListOrderForDelivery",
   validator.body(getOrderForDeliveryQuerySchema),
   order.getListOrderForDelivery
-)
+);
 
 export default router;
