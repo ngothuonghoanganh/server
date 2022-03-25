@@ -121,8 +121,9 @@ class Supplier {
   public getSuppInforByListSuppId=async(req: any, res: any, next: any)=>{
     try {
       const supplierIds=req.body.supplierIds
-      const supllierData= await Suppliers.query().select()
-            .whereIn('id', supplierIds)
+      const supllierData= await Suppliers.query().select('suppliers.*', 'accounts.phone')
+            .join('accounts','accounts.id', 'suppliers.accountid')
+            .whereIn('suppliers.id', supplierIds)
 
         return res.status(200).send({
           message: 'successful',
