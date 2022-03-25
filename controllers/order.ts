@@ -1093,8 +1093,8 @@ class OrderController {
 
   public getListOrderForDelivery = async (req: any, res: any) => {
     try {
-      const status = req.body.status;
-      const supplierIds = req.body.supplierIds;
+      const status = req.query.status;
+      console.log(status);
       const orders: any = await Order.query()
         .select(
           "orders.*",
@@ -1105,10 +1105,6 @@ class OrderController {
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.status", status)
         .groupBy("orders.id");
-
-      const supllierData = await Suppliers.query()
-        .select()
-        .whereIn("id", supplierIds);
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
@@ -1140,7 +1136,7 @@ class OrderController {
       orders.push(...ordersInCampaign);
       return res.status(200).send({
         message: "successful",
-        data: { orders: orders, supllierData: supllierData },
+        data: { orders: orders },
       });
     } catch (error) {
       console.log(error);

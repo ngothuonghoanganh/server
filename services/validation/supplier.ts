@@ -10,3 +10,7 @@ export const bodyUpdateEwalletSchema = Joi.object({
 export const checkExistEmailQuerySchema = Joi.object({
     email: Joi.string().required(),
   });
+
+  export const validSuppIdsBodySchema = Joi.object({
+    supplierIds: Joi.array().required(),
+  });

@@ -110,7 +110,7 @@ class OrderHistoryController {
         } catch (error) {
             console.log(error)
         }
-    }
+    };
 
 }
 
