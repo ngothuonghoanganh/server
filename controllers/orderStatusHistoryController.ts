@@ -1,4 +1,5 @@
 
+import { AnySchema } from "joi";
 import { CampaignOrder } from "../models/campaingorder";
 import { OrderStatusHistory } from "../models/orderstatushistory";
 
@@ -60,16 +61,36 @@ class OrderHistoryController {
         }
     };
 
-    public test = async (req: any, res: any, next: any) => {
+    public insertOrderHistoryForReturning = async(req: any, res: any, next: any)=>{
         try {
-            const retailOrderId = await CampaignOrder.query()
-                .select('*',
-                    CampaignOrder.raw(`ORDER BY 'createdat' DESC LIMIT 1`)
-                )
-                return res.status(200).send({
-                    message: 'ok',
-                    data: retailOrderId
+            //no role required
+            //no login
+
+            //status tùy từng loại mà insert
+            let {orderId, orderCode, type, description, image, status}=req.body;
+            let insertData
+            if(type==='retail'){
+                insertData=await OrderStatusHistory.query().insert({
+                    type: 'retail',
+                    retailorderid: orderId,
+                    image: JSON.stringify(image),
+                    ordercode: orderCode,
+                    description: description
                 })
+            }else{
+                insertData=await OrderStatusHistory.query().insert({
+                    type: 'campaign',
+                    campaignorderid: orderId,
+                    image: JSON.stringify(image),
+                    ordercode: orderCode,
+                    description: description
+                })
+            };
+
+            return res.status(200).send({
+                message: 'successful',
+                data: insertData
+            })
         } catch (error) {
             console.log(error)
         }
