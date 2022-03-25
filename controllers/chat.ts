@@ -4,23 +4,32 @@ import { database } from "../models/firebase/firebase";
 class ChatController {
   public run = async () => {
     try {
-      // return database.ref("chat-message").on("value", async (snapshot) => {
-      //   console.log(snapshot.val());
-      //   if (snapshot.val()) {
-      //     await Chat.query().insert({ ...snapshot.val(), status: "unread" });
-      //     const chatmessages = await Chat.query()
-      //       .select()
-      //       .where("to", snapshot.val().to);
-      //     // console.log(chatmessages);
-
-      //     const result = chatmessages.reduce((r, a: any) => {
-      //       r[a.from] = r[a.from] || [];
-      //       r[a.from].push(a);
-      //       return r;
-      //     }, Object.create({}));
-      //     await database.ref("message/" + snapshot.val().to).set(result);
-      //   }
-      // });
+      return database.ref("chat-message").on("value", async (snapshot) => {
+        // console.log(snapshot.val());
+        if (snapshot.val()) {
+          await Chat.query().insert({ ...snapshot.val(), status: "unread" });
+          let [chatmessagesTo, chatmessagesFrom] = await Promise.all([
+            Chat.query()
+              .select()
+              .where("to", snapshot.val().to)
+              .andWhere("from", snapshot.val().from),
+            Chat.query()
+              .select()
+              .where("from", snapshot.val().to)
+              .andWhere("to", snapshot.val().from),
+          ]);
+          chatmessagesTo.push(...chatmessagesFrom);
+          chatmessagesTo = chatmessagesTo.sort(
+            (a: any, b: any) => a.createdat - b.createdat
+          );
+          await database
+            .ref("message/" + snapshot.val().from + "/" + snapshot.val().to)
+            .set(chatmessagesTo);
+          await database
+            .ref("message/" + snapshot.val().to + "/" + snapshot.val().from)
+            .set({ ...chatmessagesTo });
+        }
+      });
     } catch (error) {
       console.log(error);
     }
@@ -33,19 +42,23 @@ class ChatController {
 
       const chatData = await Chat.query()
         .select()
-        .where('from', customerId)
-        .orWhere('to', customerId)
+        .where("from", customerId)
+        .orWhere("to", customerId);
 
       return res.status(200).send({
-        message: 'successful',
-        data: chatData
-      })
+        message: "successful",
+        data: chatData,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
-  public getChatMessageBySenderOrReceiver = async (req: any, res: any, next: any) => {
+  public getChatMessageBySenderOrReceiver = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
       // const from = req.user.accountid;
       const from = req.body.from;
@@ -53,15 +66,15 @@ class ChatController {
 
       const data = await Chat.query()
         .select()
-        .where('from', from)
-        .andWhere('to', to)
+        .where("from", from)
+        .andWhere("to", to);
 
       return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
+        message: "successful",
+        data: data,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -69,23 +82,23 @@ class ChatController {
     try {
       const from = req.body.from;
       const to = req.body.to;
-      const status = 'read';
+      const status = "read";
 
       const data = await Chat.query()
         .update({
-          status: status
+          status: status,
         })
-        .where('from', from)
-        .andWhere('to', to)
+        .where("from", from)
+        .andWhere("to", to);
 
       return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
+        message: "successful",
+        data: data,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 }
 
 export default new ChatController();
