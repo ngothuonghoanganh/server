@@ -13,6 +13,8 @@ import transactionController from "./transaction";
 import { Transaction } from "../models/transaction";
 import { OrderStatusHistory } from "../models/orderstatushistory";
 import orderStatusHistoryController from "./orderStatusHistoryController";
+import supplier from "./supplier";
+import { Suppliers } from "../models/suppliers";
 
 class OrderController {
   public createOrder = async (req: any, res: any) => {
@@ -1045,18 +1047,21 @@ class OrderController {
 
   public getListOrderForDelivery = async (req: any, res: any) => {
     try {
-      const status = req.query.status;
-
+      const status = req.body.status;
+      const supplierIds=req.body.supplierIds
       const orders: any = await Order.query()
         .select(
           "orders.*",
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), (select suppliers.address as address from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
           )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .where("orders.status", status)
         .groupBy("orders.id");
+
+        const supllierData= await Suppliers.query().select()
+            .whereIn('id', supplierIds)
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
@@ -1088,7 +1093,7 @@ class OrderController {
       orders.push(...ordersInCampaign);
       return res.status(200).send({
         message: "successful",
-        data: orders,
+        data:({orders: orders, supllierData: supllierData})
       });
     } catch (error) {
       console.log(error);

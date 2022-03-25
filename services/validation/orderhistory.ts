@@ -8,3 +8,7 @@ export const queryOrderHistoryIdSchema = Joi.object({
   export const bodyOrderCodeSchema = Joi.object({
     orderCode: Joi.string().required(),
   });
+
+  export const bodyOrderCodeListSchema = Joi.object({
+    orderCodes: Joi.array().required(),
+  });

@@ -18,15 +18,15 @@ class OrderHistoryController {
     //no use
     public update = async (orderStatusHistory: OrderStatusHistory) => {
         try {
-          await OrderStatusHistory.query()
-            .update({
-              ...orderStatusHistory,
-            })
-            .where("ordercode", orderStatusHistory.ordercode);
+            await OrderStatusHistory.query()
+                .update({
+                    ...orderStatusHistory,
+                })
+                .where("ordercode", orderStatusHistory.ordercode);
         } catch (error) {
-          console.log(error);
+            console.log(error);
         }
-      };
+    };
 
     public getRetailHistoryById = async (req: any, res: any, next: any) => {
         try {
@@ -61,24 +61,24 @@ class OrderHistoryController {
         }
     };
 
-    public insertOrderHistoryForReturning = async(req: any, res: any, next: any)=>{
+    public insertOrderHistoryForReturning = async (req: any, res: any, next: any) => {
         try {
             //no role required
             //no login
 
             //status tùy từng loại mà insert
-            let {orderId, orderCode, type, description, image, status}=req.body;
+            let { orderId, orderCode, type, description, image, status } = req.body;
             let insertData
-            if(type==='retail'){
-                insertData=await OrderStatusHistory.query().insert({
+            if (type === 'retail') {
+                insertData = await OrderStatusHistory.query().insert({
                     type: 'retail',
                     retailorderid: orderId,
                     image: JSON.stringify(image),
                     ordercode: orderCode,
                     description: description
                 })
-            }else{
-                insertData=await OrderStatusHistory.query().insert({
+            } else {
+                insertData = await OrderStatusHistory.query().insert({
                     type: 'campaign',
                     campaignorderid: orderId,
                     image: JSON.stringify(image),
@@ -90,6 +90,22 @@ class OrderHistoryController {
             return res.status(200).send({
                 message: 'successful',
                 data: insertData
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    public getOrderHistoryByOrderCodeList = async (req: any, res: any, next: any) => {
+        try {
+            const orderCodes = req.body.orderCodes;
+            // console.log(orderCodes)
+            const data = await OrderStatusHistory.query().select()
+                .whereIn('ordercode', orderCodes)
+            console.log(data)
+            return res.status(200).send({
+                message: 'successful',
+                data: data
             })
         } catch (error) {
             console.log(error)
