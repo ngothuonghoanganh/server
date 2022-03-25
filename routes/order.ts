@@ -131,9 +131,9 @@ router.get(
   order.getOrderById
 );
 
-router.post(
+router.get(
   '/delivery/getListOrderForDelivery',
-  validator.body(getOrderForDeliveryQuerySchema),
+  // validator.params(getOrderForDeliveryQuerySchema),
   order.getListOrderForDelivery
 )
 
