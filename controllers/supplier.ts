@@ -113,10 +113,6 @@ class Supplier {
         message: "successful",
         data: data,
       });
-      return res.status(200).send({
-        message: "successful",
-        data: data,
-      });
     } catch (error) {
       console.log(error);
     }
