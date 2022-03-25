@@ -19,10 +19,7 @@ router.post(
     OrderStatusHistory.getRetailHistoryByOrderId
 )
 
-router.post(
-    '/test',
-    OrderStatusHistory.test
-)
+
 
 
 
