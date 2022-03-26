@@ -1,5 +1,7 @@
 import { Chat } from "../models/chat";
+import { Customers } from "../models/customers";
 import { database } from "../models/firebase/firebase";
+import { Suppliers } from "../models/suppliers";
 
 class ChatController {
   public run = async () => {
@@ -22,12 +24,50 @@ class ChatController {
           chatmessagesTo = chatmessagesTo.sort(
             (a: any, b: any) => a.createdat - b.createdat
           );
+
+          const fromInfo =
+            (await Customers.query()
+              .select(
+                "id as id",
+                " firstname as firstname",
+                "lastname as lastname",
+                " avt as avt"
+              )
+              .where("accountid", snapshot.val().from)
+              .andWhere("isdeleted", false)
+              .first()) ||
+            (await Suppliers.query()
+              .select("id as id", "name as name", " avt as avt")
+              .where("accountid", snapshot.val().from)
+              .andWhere("isdeleted", false)
+              .first());
+
+          const toInfo =
+            (await Customers.query()
+              .select(
+                "id as id",
+                " firstname as firstname",
+                "lastname as lastname",
+                " avt as avt"
+              )
+              .where("accountid", snapshot.val().to)
+              .andWhere("isdeleted", false)
+              .first()) ||
+            (await Suppliers.query()
+              .select("id as id", "name as name", " avt as avt")
+              .where("accountid", snapshot.val().to)
+              .andWhere("isdeleted", false)
+              .first());
+
           await database
             .ref("message/" + snapshot.val().from + "/" + snapshot.val().to)
-            .set(chatmessagesTo);
+            .set({
+              data: chatmessagesTo,
+              userinfo: toInfo,
+            });
           await database
             .ref("message/" + snapshot.val().to + "/" + snapshot.val().from)
-            .set({ ...chatmessagesTo });
+            .set({ data: chatmessagesTo, userinfo: fromInfo });
         }
       });
     } catch (error) {

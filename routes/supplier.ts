@@ -56,11 +56,5 @@ router.post(
   supplier.getSuppInforByListSuppId
 );
 
-router.post(
-  '/getUserById',
-  validator.body(getUserByIdBodySchema),
-  supplier.getUserById
-);
-
 
 export default router;
