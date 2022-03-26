@@ -29,7 +29,8 @@ import commentRouter from "./routes/comment";
 import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
-import transactionRouter from "./routes/transaction"
+import transactionRouter from "./routes/transaction";
+import notifRouter from "./services/realtime/notification";
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -97,6 +98,8 @@ app.use("/api/chat", chatRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/history", retailOrderRouter);
 app.use("/api/transaction", transactionRouter);
+// app.use("/api/notif", notifRouter);
+
 
 
 try {
