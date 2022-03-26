@@ -133,6 +133,42 @@ class Supplier {
       console.log(error)
     }
   };
+
+  public getUserById = async (req: any, res: any, next: any) => {
+    try {
+      const  userId  = req.body.userId;
+      
+      const supplier = await Suppliers.query()
+        .select("accounts.*", 'suppliers.*')
+        .join("accounts", "accounts.id", "suppliers.accountid")
+        // .join("roles", "roles.id", "accounts.roleid")
+        
+        // .join("role", "role.id", "users.roleid")
+        // .where("users.isdeleted", false)
+        .where("suppliers.id", userId)
+        .andWhere('accounts.isdeleted', false)
+        .first();
+
+      const customer=await Customers.query()
+        .select("accounts.*","suppliers.*")
+        .join("accounts", "accounts.id", "suppliers.accountid")
+        // .join("roles", "roles.id", "accounts.roleid")
+        
+        .where('customers.id', userId)
+        .andWhere('accounts.isdeleted', false)
+        .first()
+
+      return res.status(200).send({
+        message: 'successful',
+        data: ({
+          supplier: supplier,
+          customer: customer
+        })
+      })
+    } catch (error) {
+      console.error(error);
+    }
+  };
 }
 
 export default new Supplier();

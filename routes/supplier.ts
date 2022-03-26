@@ -5,6 +5,7 @@ import supplier from "../controllers/supplier";
 import {
   bodyUpdateEwalletSchema,
   checkExistEmailQuerySchema,
+  getUserByIdBodySchema,
   validSuppIdsBodySchema,
 } from "../services/validation/supplier";
 
@@ -54,4 +55,12 @@ router.post(
   validator.body(validSuppIdsBodySchema),
   supplier.getSuppInforByListSuppId
 );
+
+router.post(
+  '/getUserById',
+  validator.body(getUserByIdBodySchema),
+  supplier.getUserById
+);
+
+
 export default router;
