@@ -30,7 +30,7 @@ import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
 import transactionRouter from "./routes/transaction";
-import notifRouter from "./services/realtime/notification";
+// import notifRouter from "./services/realtime/notification";
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
