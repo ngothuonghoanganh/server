@@ -1,14 +1,8 @@
-// import { Users } from "../models/user";
-// import bcrypt from "bcrypt";
-// import console from "console";
-// import { rmSync } from "fs";
-
-
 import { Accounts } from "../models/accounts";
 import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
 import bcrypt from "bcrypt";
-import {Notification} from "../models/notification";
+import { Notification } from "../models/notification";
 
 class User {
   public async listSupplier(req: any, res: any, next: any) {
@@ -52,7 +46,6 @@ class User {
     }
   };
 
-  //do not use
   public updateSupplierAccount = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.params.supplierId;
@@ -79,8 +72,6 @@ class User {
   public deactivateSupplierAccount = async (req: any, res: any, next: any) => {
     try {
       const supplierId = req.params.supplierId;
-      // console.log(req.user.id);
-      // console.log(supplierId);
 
       const isDeleted = true;
       const isDeactivate: any = await Suppliers.query()
@@ -133,234 +124,160 @@ class User {
       const { phone } = req.params;
       const account: any = await Accounts.query()
         .select()
-        .where('phone', phone)
-      
-      // const supplier:any=await Suppliers.query().select().where('phone', phone)
-      // account.password.delete
-      
-      // notification.sendNotiForWeb({
-      //   userId: "abct",
-      //   link: "test link",
-      //   message: "test"
-      // })
+        .where("phone", phone);
+
       return res.status(200).send({
-        message: 'list user by phone',
-        data: account
-      })
+        message: "list user by phone",
+        data: account,
+      });
     } catch (error) {
       console.log(error);
     }
   };
 
-  public updateCustomerAccountByCustomerId = async(req: any, res: any, next: any)=>{
-    try{
-      const customerid= req.user.id
+  public updateCustomerAccountByCustomerId = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      const customerid = req.user.id;
       let {
-        firstName="",
-        lastName="",
-        email, 
-        avt="",
+        firstName = "",
+        lastName = "",
+        email,
+        avt = "",
         phone,
-        ewalletaccount="",
-        ewalletprovider="",
-      }=req.body
+        ewalletaccount = "",
+        ewalletprovider = "",
+      } = req.body;
 
-      // console.log(phone)
-      const update=await Customers.query().update({
-        firstname: firstName,
-        lastname: lastName,
-        email: email,
-        avt: avt,
-        ewalletaccount: ewalletaccount,
-        ewalletprovider: ewalletprovider
-      })
-      .where('id', customerid)
+      const update = await Customers.query()
+        .update({
+          firstname: firstName,
+          lastname: lastName,
+          email: email,
+          avt: avt,
+          ewalletaccount: ewalletaccount,
+          ewalletprovider: ewalletprovider,
+        })
+        .where("id", customerid);
 
-      const accountId = await Customers.query().select('accountid').where('id', customerid).first()
-    // console.log(accountId)
+      const accountId = await Customers.query()
+        .select("accountid")
+        .where("id", customerid)
+        .first();
+
       const updatePhone = await Accounts.query()
-      .update({
-        phone: phone
-      })
-      .where('id', accountId['accountid'])
+        .update({
+          phone: phone,
+        })
+        .where("id", accountId["accountid"]);
 
       return res.status(200).send({
-        message: 'successful',
-        data: ({information: update, phone: phone})
-      })
-    }catch(error){
-      console.log(error)
+        message: "successful",
+        data: { information: update, phone: phone },
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  public resetPassword = async(req: any,  res: any,  next: any)=>{
-    try{
-      const accountId=req.body.accountId;
-      // console.log(accountId)
-      let{
-        password
-      }= req.body;
+  public resetPassword = async (req: any, res: any, next: any) => {
+    try {
+      const accountId = req.body.accountId;
+
+      let { password } = req.body;
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-      // console.log(password)
+
       const update = await Accounts.query()
-      .update({
-        password: password
-      })
-      .where('id', accountId);
-      if(update===0){
-        return res.status(200).message('not yet updated')
+        .update({
+          password: password,
+        })
+        .where("id", accountId);
+      if (update === 0) {
+        return res.status(200).message("not yet updated");
       }
       return res.status(200).send({
-        message: 'updated password',
-        data: update
-      })
-    }catch(error){
-      console.log(error)
+        message: "updated password",
+        data: update,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  public getNotiByUserId = async(req: any, res: any, next: any)=>{
-    try{
-      const userId=req.user.id;
-      const data = await Notification.query()
-      .select()
-      .where('userid', userId)
-      
-      return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
-    }catch(error){
-      console.log(error)
-    }
-  };
-
-  public getListSupplierIdByListAccountId = async (req: any , res: any, next: any)=>{
+  public getNotiByUserId = async (req: any, res: any, next: any) => {
     try {
-      const listAccountIds=  req.body.listAccountIds;
-      console.log(listAccountIds)
+      const userId = req.user.id;
+      const data = await Notification.query().select().where("userid", userId);
+
+      return res.status(200).send({
+        message: "successful",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public getListSupplierIdByListAccountId = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      const listAccountIds = req.body.listAccountIds;
+      console.log(listAccountIds);
       const data = await Suppliers.query()
         .select()
-        .whereIn('accountid', listAccountIds)
-        .andWhere('isdeleted', false)
+        .whereIn("accountid", listAccountIds)
+        .andWhere("isdeleted", false);
 
-        return res.status(200).send({
-          message: 'successful',
-          data: data
-        })
+      return res.status(200).send({
+        message: "successful",
+        data: data,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
-  public getCustomerInforByListCustomerId = async (req: any, res: any, next: any) => {
+  public getCustomerInforByListCustomerId = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
-      const listCustomerIds=req.body.listCustomerIds;
+      const listCustomerIds = req.body.listCustomerIds;
       const customerEntity = [
-        'customers.id as customerid',
-        'customers.accountid as accountid',
-        'customers.firstname as fistname',
-        'customers.lastname as lastname',
-        'customers.email as email',
-        'customers.avt as avt',
-        'customers.lastname as isdeleted',
-        'customers.createdat as createdat',
-        'customers.updatedat as updatedat',
-        'accounts.username as username',
-        'accounts.phone as phone'
-      ]
-      // const customerRoleId = Role.query().select('id').where('roles', 'Customer')
+        "customers.id as customerid",
+        "customers.accountid as accountid",
+        "customers.firstname as fistname",
+        "customers.lastname as lastname",
+        "customers.email as email",
+        "customers.avt as avt",
+        "customers.lastname as isdeleted",
+        "customers.createdat as createdat",
+        "customers.updatedat as updatedat",
+        "accounts.username as username",
+        "accounts.phone as phone",
+      ];
+
       const customerId = req.params.customerId;
       const data = await Customers.query()
         .select(...customerEntity)
-        .join('accounts', 'accounts.id', 'customers.accountid')
-        .whereIn('customers.id', listCustomerIds)
+        .join("accounts", "accounts.id", "customers.accountid")
+        .whereIn("customers.id", listCustomerIds);
       return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
+        message: "successful",
+        data: data,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
 }
 export default new User();
-
-// class UsersController {
-//   //do not use
-//   
-
-//   public listUser = async (req: any, res: any, next: any) => {
-//     try {
-//       const List = await Users.query().select();
-//       return res.send(List);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   public updateUser = async (req: any, res: any, next: any) => {
-//     try {
-//       const { userId } = req.params;
-
-//       let {
-//         password,
-//         firstName = "",
-//         lastName = "",
-//         email = "",
-//         avt = "",
-//       } = req.body;
-//       if (!userId || userId === "") {
-//         return res.status(400).send("Id is not empty");
-//       }
-//       // if (!userName || userName === "") {
-//       //   return res.status(400).send("username is not empty");
-//       // }
-//       if (password) {
-//         const salt = await bcrypt.genSalt(10);
-//         password = await bcrypt.hash(password, salt);
-//         await Users.query()
-//           .update({
-//             password: password,
-//           })
-//           .where("id", userId)
-//           .andWhere("isdeleted", false);
-//       }
-//       await Users.query()
-//         .update({
-//           firstname: firstName,
-//           lastname: lastName,
-//           email: email,
-//           avt: avt,
-//         })
-//         .where("id", userId)
-//         .andWhere("isdeleted", false);
-//       return res.send("Update successful");
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   public deleteUser = async (req: any, res: any, next: any) => {
-//     try {
-//       const { userId } = req.params;
-//       if (!userId || userId === "") {
-//         return res.send("Id is not empty");
-//       }
-//       await Users.query()
-//         .update({
-//           isdeleted: true,
-//         })
-//         .where("id", userId)
-//         .andWhere("isdeleted", false);
-//       return res.send("Delete successful");
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-  
-
-// export const UserController = new UsersController();
