@@ -290,37 +290,7 @@ export default new User();
 
 // class UsersController {
 //   //do not use
-//   public getUser = async (req: any, res: any, next: any) => {
-//     try {
-//       const { userId = "" } = req.params;
-//       if (userId === null || userId === undefined || userId === "" || !userId) {
-//         return res.status(400).send("Id is not empty");
-//       }
-//       const listEntity = [
-//         "users.id",
-//         "users.username",
-//         "users.firstname",
-//         "users.lastname",
-//         "users.email",
-//         "users.phone",
-//         "users.roleid",
-//         "users.createdat",
-//         "users.avt",
-//         "role.rolename",
-//       ];
-//       let currentUser = await Users.query()
-//         .select(...listEntity)
-//         .join("role", "role.id", "users.roleid")
-//         .where("users.isdeleted", false)
-//         .andWhereNot("users.id", req.user.Id)
-//         .andWhere("users.id", userId)
-//         .first();
-
-//       return res.send(currentUser);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
+//   
 
 //   public listUser = async (req: any, res: any, next: any) => {
 //     try {

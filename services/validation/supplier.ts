@@ -14,3 +14,8 @@ export const checkExistEmailQuerySchema = Joi.object({
   export const validSuppIdsBodySchema = Joi.object({
     supplierIds: Joi.array().required(),
   });
+
+  
+export const getUserByIdBodySchema = Joi.object({
+    userId: Joi.string().required(),
+  });
