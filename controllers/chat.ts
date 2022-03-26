@@ -48,7 +48,7 @@ class ChatController {
                 "accountid as id",
                 "firstname as firstname",
                 "lastname as lastname",
-                " avt as avt"
+                "avt as avt"
               )
               .where("accountid", snapshot.val().to)
               .andWhere("isdeleted", false)

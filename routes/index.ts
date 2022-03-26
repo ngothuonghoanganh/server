@@ -23,11 +23,11 @@ router.get(
       //   helloword: "hellos",
       // });
 
-      notification.sendNotiForWeb({
-        userid: "abc123",
-        link: "",
-        message: "hello world",
-      });
+      // notification.sendNotiForWeb({
+      //   userid: "abc123",
+      //   link: "",
+      //   message: "hello world",
+      // });
       return res.status(200).send("successful");
     } catch (error) {
       console.log(error);
