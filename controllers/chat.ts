@@ -28,8 +28,8 @@ class ChatController {
           const fromInfo =
             (await Customers.query()
               .select(
-                "id as id",
-                " firstname as firstname",
+                "accountid as id",
+                "firstname as firstname",
                 "lastname as lastname",
                 " avt as avt"
               )
@@ -37,7 +37,7 @@ class ChatController {
               .andWhere("isdeleted", false)
               .first()) ||
             (await Suppliers.query()
-              .select("id as id", "name as name", " avt as avt")
+              .select("accountid as id", "name as name", " avt as avt")
               .where("accountid", snapshot.val().from)
               .andWhere("isdeleted", false)
               .first());
@@ -45,16 +45,16 @@ class ChatController {
           const toInfo =
             (await Customers.query()
               .select(
-                "id as id",
-                " firstname as firstname",
+                "accountid as id",
+                "firstname as firstname",
                 "lastname as lastname",
-                " avt as avt"
+                "avt as avt"
               )
               .where("accountid", snapshot.val().to)
               .andWhere("isdeleted", false)
               .first()) ||
             (await Suppliers.query()
-              .select("id as id", "name as name", " avt as avt")
+              .select("accountid as id", "name as name", " avt as avt")
               .where("accountid", snapshot.val().to)
               .andWhere("isdeleted", false)
               .first());
