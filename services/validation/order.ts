@@ -66,6 +66,10 @@ export const getOrderByIdSchema = Joi.object({
   orderId: Joi.string().required(),
 });
 
+export const getByOrderCodeQuerySchema = Joi.object({
+  orderCode: Joi.string().required(),
+});
+
 export const validDeliveringToDeliveredSchema = Joi.object({
   orderCode: Joi.string().required(),
   type: Joi.string().required(),
