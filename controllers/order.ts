@@ -1148,27 +1148,48 @@ class OrderController {
 
   public getOrderByCode = async (req: any, res: any, next: any) => {
     try {
-      // const accountEntityList = [
-      //   "accounts.id as accountid",
-      //   "accounts.roleid as roleid",
-      //   "accounts.username as username",
-      //   "accounts.phone as phone",
-      //   "accounts.googleid as googleid",
-      //   "accounts.isdeleted as isdeleted",
-      // ]
       let customerId;
       let supplierId;
       const orderCode = req.query.orderCode;
 
       const orderRetail: any = await Order.query()
-        .select()
-        .where("ordercode", orderCode)
+        .select(
+          "orders.*",
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.ordercode", orderCode)
+        .groupBy("orders.id")
         .first();
       // console.log(orderRetail.customerid)
       const orderCampaign: any = await CampaignOrder.query()
-        .select("campaignorder.*", "campaigns.supplierid")
+        .select(
+          "campaignorder.*",
+          "campaigns.supplierid",
+          CampaignOrder.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+          array_to_json(array_agg(json_build_object(
+          'id','',
+          'image', image,
+          'price', campaignorder.price,
+          'quantity', campaignorder.quantity,
+          'ordercode', ordercode,
+          'productid', campaignorder.productid,
+          'campaignid', campaignid,
+          'incampaign', true,
+          'customerid', customerid,
+          'totalprice', totalprice,
+          'productname', campaignorder.productname,
+          'notes', campaignorder.notes)
+          )) as details`
+          )
+        )
         .join("campaigns", "campaigns.id", "campaignorder.campaignid")
-        .where("ordercode", orderCode)
+        .where("campaignorder.ordercode", orderCode)
+        .groupBy("campaignorder.id")
+        .groupBy("campaigns.id")
         .first();
       // console.log(orderCampaign)
       if (orderRetail) {
@@ -1194,8 +1215,8 @@ class OrderController {
         message: "successful",
         data: {
           order: orderRetail || orderCampaign,
-          customerId: customerId,
-          supplierId: supplierId,
+          customerId: { ...customerId },
+          supplierId: { ...supplierId },
         },
       });
     } catch (error) {
