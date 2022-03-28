@@ -29,16 +29,29 @@ class Supplier {
   };
 
   public checkExistedEmail = async (req: any, res: any, next: any) => {
-    console.log("email");
+    // console.log("email");
     try {
+      const accountEntity = [
+        "accounts.id as accountid",
+        "accounts.roleid as roleid",
+        "accounts.username as username",
+        "accounts.googleid as googleid",
+        "accounts.phone as phone",
+        "accounts.isdeleted as isdeleted",
+
+      ]
       const email = req.query.email;
-      console.log(email);
-      const suppEmail = await Suppliers.query().select().where("email", email);
-      const cusEmail = await Customers.query().select().where("email", email);
-      console.log(suppEmail.toString());
+      // console.log(email);
+      const suppData = await Suppliers.query().select('suppliers.*', ...accountEntity)
+        .join('accounts', 'accounts.id', 'suppliers.accountid')
+        .where("suppliers.email", email);
+      const cusData = await Customers.query().select('customers.*', ...accountEntity)
+        .join('accounts', 'accounts.id', 'customers.accountid')
+        .where("customers.email", email);
+      // console.log(suppData.toString());
       return res.status(200).send({
         message: "successful",
-        data: { suppEmai: suppEmail, cusEmail: cusEmail },
+        data: { suppData: suppData, cusData: cusData },
       });
     } catch (error) {
       console.log(error);
@@ -118,17 +131,17 @@ class Supplier {
     }
   };
 
-  public getSuppInforByListSuppId=async(req: any, res: any, next: any)=>{
+  public getSuppInforByListSuppId = async (req: any, res: any, next: any) => {
     try {
-      const supplierIds=req.body.supplierIds
-      const supllierData= await Suppliers.query().select('suppliers.*', 'accounts.phone')
-            .join('accounts','accounts.id', 'suppliers.accountid')
-            .whereIn('suppliers.id', supplierIds)
+      const supplierIds = req.body.supplierIds
+      const supllierData = await Suppliers.query().select('suppliers.*', 'accounts.phone')
+        .join('accounts', 'accounts.id', 'suppliers.accountid')
+        .whereIn('suppliers.id', supplierIds)
 
-        return res.status(200).send({
-          message: 'successful',
-          data: supllierData
-        })
+      return res.status(200).send({
+        message: 'successful',
+        data: supllierData
+      })
     } catch (error) {
       console.log(error)
     }
@@ -136,24 +149,24 @@ class Supplier {
 
   public getUserById = async (req: any, res: any, next: any) => {
     try {
-      const  userId  = req.body.userId;
-      
+      const userId = req.body.userId;
+
       const supplier = await Suppliers.query()
         .select("accounts.*", 'suppliers.*')
         .join("accounts", "accounts.id", "suppliers.accountid")
         // .join("roles", "roles.id", "accounts.roleid")
-        
+
         // .join("role", "role.id", "users.roleid")
         // .where("users.isdeleted", false)
         .where("suppliers.id", userId)
         .andWhere('accounts.isdeleted', false)
         .first();
 
-      const customer=await Customers.query()
-        .select("accounts.*","suppliers.*")
+      const customer = await Customers.query()
+        .select("accounts.*", "suppliers.*")
         .join("accounts", "accounts.id", "suppliers.accountid")
         // .join("roles", "roles.id", "accounts.roleid")
-        
+
         .where('customers.id', userId)
         .andWhere('accounts.isdeleted', false)
         .first()
