@@ -689,6 +689,55 @@ class OrderController {
     }
   };
 
+  public updateStatusFromReturningToDeliveredForRejectReturn = async(req: any, res: any, next: any)=>{
+    try {
+      let {
+        status = "Delivered",
+        orderCode,
+        type,
+        orderId,
+        description,
+        image,
+      } = req.body;
+
+      let update: any = await Order.query()
+        .update({
+          status: status,
+        })
+        .where("ordercode", orderCode)
+        .andWhere("status", "returning");
+      if (update === 0) {
+        console.log("update campaign order");
+        update = await CampaignOrder.query()
+          .update({
+            status: status,
+          })
+          .where("ordercode", orderCode)
+          .andWhere("status", "returning");
+      }
+      if (update === 0) {
+        return res.status(200).send({
+          message: "not yet updated",
+        });
+      }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        retailorderid: type === "retail" ? orderId : null,
+        campaignorderid: type === "campaign" ? orderId : null,
+        image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description,
+      } as OrderStatusHistory);
+      return res.status(200).send({
+        message: "successful",
+        data: update,
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
   public updateStatusFromDeliveredToReturningForCustomer = async (
     req: any,
     res: any

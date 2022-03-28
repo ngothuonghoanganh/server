@@ -7,6 +7,7 @@ import {
   getByOrderCodeQuerySchema,
   getOrderByIdSchema,
   updateStatusFromDeliveringToCancelledForDelivery,
+  updateStatusFromReturningToDeliveredForRejectReturn,
   validDeliveredToCompletedSchema,
   validDeliveredToReturningSchema,
   validDeliveringToDeliveredSchema,
@@ -137,6 +138,14 @@ router.put(
   // Authentication.checkRole(["Delivery"]),
   validator.body(updateStatusFromDeliveringToCancelledForDelivery),
   order.updateStatusFromDeliveringToCancelledForDelivery
+);
+
+router.put(
+  "/status/supplier/delivered",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  validator.body(updateStatusFromReturningToDeliveredForRejectReturn),
+  order.updateStatusFromReturningToDeliveredForRejectReturn
 );
 
 router.get(
