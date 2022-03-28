@@ -1,5 +1,6 @@
 import { LoyalCustomer } from "../models/loyalCustomer";
 import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
+import { Suppliers } from "../models/suppliers";
 
 class LoyalcustomerController {
   public create = async (req: any, res: any, next: any) => {
@@ -163,11 +164,15 @@ class LoyalcustomerController {
       // console.log('testtttttttttt')
 
       const data = await LoyalCustomer.query().select()
-        .where('customerid', customerId);
+        .where('customerid', customerId).first();
+
+      console.log(data.supplierid)
+
+      const supplierInfor = await Suppliers.query().select().where('id', data.supplierid);
 
       return res.status(200).send({
         message: 'successful',
-        data: data
+        data: ({ loyalCustomer: data, supplierInfor: supplierInfor })
       })
     } catch (error) {
       console.log(error)
