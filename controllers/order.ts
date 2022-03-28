@@ -823,9 +823,10 @@ class OrderController {
           "orders.*",
           Order.raw(`(select customers.firstname as customerfirstname from customers where customers.id = orders.customerid),
            (select customers.lastname as customerlastname from customers where customers.id = orders.customerid),
-            json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+            json_agg(to_jsonb(orderdetail) - 'orderid') as details, json_agg(to_jsonb(orderstatushistory) - 'retailorderid') as orderstatushistory`)
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .join('orderstatushistory', 'orderstatushistory.retailorderid', 'campaignorder.id')
         .where("orders.supplierid", userId)
         .andWhere("orders.status", status)
         .groupBy("orders.id");
@@ -849,10 +850,11 @@ class OrderController {
             'totalprice', totalprice,
             'productname', campaignorder.productname,
             'notes', campaignorder.notes)
-            )) as details`
+            )) as details, json_agg(to_jsonb(orderstatushistory) - 'campaignorderid') as orderstatushistory`
           )
         )
         .join("campaigns", "campaigns.id", "campaignorder.campaignid")
+        .join('orderstatushistory', 'orderstatushistory.campaignorderid', 'campaignorder.id')
         .where("campaigns.supplierid", userId)
         .andWhere("campaignorder.status", status)
         .groupBy("campaignorder.id");
