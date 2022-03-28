@@ -156,6 +156,23 @@ class LoyalcustomerController {
       console.log(error)
     }
   };
+
+  public getLoyalCustomerByLoginCustomer = async (req: any, res: any, next: any) => {
+    try {
+      const customerId = req.user.id;
+      // console.log('testtttttttttt')
+
+      const data = await LoyalCustomer.query().select()
+        .where('customerid', customerId);
+
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
 }
 
 export default new LoyalcustomerController();

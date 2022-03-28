@@ -2,8 +2,11 @@ import * as express from "express";
 import authentication from "../controllers/authentication";
 import loyalCustomerController from "../controllers/loyalCustomer";
 import Authentication from "../controllers/authentication";
+import { createValidator } from "express-joi-validation";
+
 
 const router = express.Router();
+const validator = createValidator();
 
 router.post("/", authentication.protected, loyalCustomerController.create);
 router.get("/", authentication.protected, loyalCustomerController.getAll);
@@ -11,6 +14,13 @@ router.get(
   "/customer",
   authentication.protected,
   loyalCustomerController.getAllCustoner
+);
+
+router.get(
+  "/getLoyalCustomerByLoginCustomer",
+  authentication.protected,
+  Authentication.checkRole(["Customer"]),
+  loyalCustomerController.getLoyalCustomerByLoginCustomer
 );
 
 router.post(
@@ -42,4 +52,6 @@ router.get(
   authentication.protected,
   loyalCustomerController.getOne
 );
+
+
 export default router;
