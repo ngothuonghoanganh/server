@@ -75,7 +75,8 @@ class OrderHistoryController {
                     retailorderid: orderId,
                     image: JSON.stringify(image),
                     ordercode: orderCode,
-                    description: description
+                    description: description,
+                    statushistory: status,
                 })
             } else {
                 insertData = await OrderStatusHistory.query().insert({
@@ -83,7 +84,8 @@ class OrderHistoryController {
                     campaignorderid: orderId,
                     image: JSON.stringify(image),
                     ordercode: orderCode,
-                    description: description
+                    description: description,
+                    statushistory: status,
                 })
             };
 

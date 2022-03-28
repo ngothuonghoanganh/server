@@ -290,8 +290,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -433,7 +433,12 @@ class OrderController {
 
   public updateStatusToCancelledForCustomer = async (req: any, res: any) => {
     try {
-      let { status = "cancelled", orderCode } = req.body;
+      let { status = "cancelled",
+        orderCode,
+        type,
+        orderId,
+        image,
+        description, } = req.body;
       let update = await Order.query()
         .update({
           status: status,
@@ -442,6 +447,7 @@ class OrderController {
         .orWhere("status", "unpaid")
         .orWhere("status", "advanced")
         .andWhere("ordercode", orderCode);
+
       if (update === 0) {
         console.log("update campaign order");
         update = await CampaignOrder.query()
@@ -453,6 +459,15 @@ class OrderController {
           .orWhere("status", "advanced")
           .andWhere("ordercode", orderCode);
       }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        retailorderid: type === "retail" ? orderId : null,
+        campaignorderid: type === "campaign" ? orderId : null,
+        image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description,
+      } as OrderStatusHistory);
       if (update === 0) {
         return res.status(200).send({
           message: "not yet updated",
@@ -469,7 +484,12 @@ class OrderController {
 
   public updateStatusToCancelledForSupplier = async (req: any, res: any) => {
     try {
-      let { status = "cancelled", orderCode } = req.body;
+      let { status = "cancelled",
+        orderCode,
+        type,
+        orderId,
+        image,
+        description } = req.body;
       let update = await Order.query()
         .update({
           status: status,
@@ -479,6 +499,7 @@ class OrderController {
         .orWhere("status", "advanced")
         .orWhere("status", "processing")
         .andWhere("ordercode", orderCode);
+
       if (update === 0) {
         console.log("update campaign order");
         update = await CampaignOrder.query()
@@ -491,6 +512,15 @@ class OrderController {
           .orWhere("status", "processing")
           .andWhere("ordercode", orderCode);
       }
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        retailorderid: type === "retail" ? orderId : null,
+        campaignorderid: type === "campaign" ? orderId : null,
+        image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description,
+      } as OrderStatusHistory);
       if (update === 0) {
         return res.status(200).send({
           message: "not yet updated",
