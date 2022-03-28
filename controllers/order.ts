@@ -290,8 +290,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -1150,48 +1150,81 @@ class OrderController {
 
   public getOrderByCode = async (req: any, res: any, next: any) => {
     try {
-      // const accountEntityList = [
-      //   "accounts.id as accountid",
-      //   "accounts.roleid as roleid",
-      //   "accounts.username as username",
-      //   "accounts.phone as phone",
-      //   "accounts.googleid as googleid",
-      //   "accounts.isdeleted as isdeleted",
-      // ]
       let customerId;
       let supplierId;
       const orderCode = req.query.orderCode;
 
-      const orderRetail: any = await Order.query().select()
-        .where('ordercode', orderCode).first();
-        // console.log(orderRetail.customerid)
-      const orderCampaign: any = await CampaignOrder.query().select('campaignorder.*', 'campaigns.supplierid')
-      .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
-      .where('ordercode', orderCode).first();
+      const orderRetail: any = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .where("orders.ordercode", orderCode)
+        .groupBy("orders.id")
+        .first();
+      // console.log(orderRetail.customerid)
+      const orderCampaign: any = await CampaignOrder.query()
+        .select(
+          "campaignorder.*",
+          "campaigns.supplierid",
+          CampaignOrder.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+          array_to_json(array_agg(json_build_object(
+          'id','',
+          'image', image,
+          'price', campaignorder.price,
+          'quantity', campaignorder.quantity,
+          'ordercode', ordercode,
+          'productid', campaignorder.productid,
+          'campaignid', campaignid,
+          'incampaign', true,
+          'customerid', customerid,
+          'totalprice', totalprice,
+          'productname', campaignorder.productname,
+          'notes', campaignorder.notes)
+          )) as details`
+          )
+        )
+        .join("campaigns", "campaigns.id", "campaignorder.campaignid")
+        .where("campaignorder.ordercode", orderCode)
+        .groupBy("campaignorder.id")
+        .groupBy("campaigns.id")
+        .first();
       // console.log(orderCampaign)
       if (orderRetail) {
-        customerId = await Customers.query().select('accountid')
-          .where('id', orderRetail.customerid);
-        supplierId = await Suppliers.query().select('accountid').where('id', orderRetail.supplierid)
+        customerId = await Customers.query()
+          .select("accountid")
+          .where("id", orderRetail.customerid)
+          .first();
+        supplierId = await Suppliers.query()
+          .select("accountid")
+          .where("id", orderRetail.supplierid)
+          .first();
       } else {
-        customerId = await Customers.query().select('accountid')
-          .where('id', orderCampaign.customerid);
-        supplierId = await Suppliers.query().select('accountid').where('id', orderCampaign.supplierid)
+        customerId = await Customers.query()
+          .select("accountid")
+          .where("id", orderCampaign.customerid)
+          .first();
+        supplierId = await Suppliers.query()
+          .select("accountid")
+          .where("id", orderCampaign.supplierid)
+          .first();
       }
       return res.status(200).send({
-        message: 'successful',
-        data: ({
-          orderRetail: orderRetail,
-          orderCampaign: orderCampaign,
-          customerId: customerId,
-          supplierId: supplierId,
-        })
-      })
-
+        message: "successful",
+        data: {
+          order: orderRetail || orderCampaign,
+          customerId: { ...customerId },
+          supplierId: { ...supplierId },
+        },
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 }
 
 export default new OrderController();

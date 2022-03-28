@@ -50,7 +50,7 @@ class OrderHistoryController {
             // console.log(orderId)
             const history = await OrderStatusHistory.query()
                 .select()
-                .where('ordercode', orderCode)
+                .where('ordercode', orderCode).orderBy('createdat', 'asc')
             return res.status(200).send({
                 message: 'successful',
                 data: history
