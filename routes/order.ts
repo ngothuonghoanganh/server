@@ -6,6 +6,7 @@ import order from "../controllers/order";
 import {
   getByOrderCodeQuerySchema,
   getOrderByIdSchema,
+  updateStatusFromDeliveringToCancelledForDelivery,
   validDeliveredToCompletedSchema,
   validDeliveredToReturningSchema,
   validDeliveringToDeliveredSchema,
@@ -128,6 +129,14 @@ router.put(
   // Authentication.checkRole(["Delivery"]),
   validator.body(validDeliveringToDeliveredSchema),
   order.updateStatusFromDeliveringToDeliveredForDelivery
+);
+
+router.put(
+  "/status/delivery/cancelled",
+  Authentication.protected,
+  // Authentication.checkRole(["Delivery"]),
+  validator.body(updateStatusFromDeliveringToCancelledForDelivery),
+  order.updateStatusFromDeliveringToCancelledForDelivery
 );
 
 router.get(
