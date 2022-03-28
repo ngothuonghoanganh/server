@@ -907,7 +907,7 @@ class OrderController {
             json_agg(to_jsonb(orderdetail) - 'orderid') as details, json_agg(to_jsonb(orderstatushistory) - 'retailorderid') as orderstatushistory`)
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
-        .join('orderstatushistory', 'orderstatushistory.retailorderid', 'campaignorder.id')
+        .join('orderstatushistory', 'orderstatushistory.retailorderid', 'orders.id')
         .where("orders.supplierid", userId)
         .andWhere("orders.status", status)
         .groupBy("orders.id");
@@ -920,15 +920,15 @@ class OrderController {
             (select customers.lastname as customerlastname from customers where customers.id = campaignorder.customerid),
             array_to_json(array_agg(json_build_object(
             'id','',
-            'image', image,
+            'image', campaignorder.image,
             'price', campaignorder.price,
             'quantity', campaignorder.quantity,
-            'ordercode', ordercode,
+            'ordercode', campaignorder.ordercode,
             'productid', campaignorder.productid,
-            'campaignid', campaignid,
+            'campaignid', campaignorder.campaignid,
             'incampaign', true,
-            'customerid', customerid,
-            'totalprice', totalprice,
+            'customerid', campaignorder.customerid,
+            'totalprice', campaignorder.totalprice,
             'productname', campaignorder.productname,
             'notes', campaignorder.notes)
             )) as details, json_agg(to_jsonb(orderstatushistory) - 'campaignorderid') as orderstatushistory`
