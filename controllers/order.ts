@@ -387,7 +387,7 @@ class OrderController {
         orderId,
         orderCode,
         type,
-        description /*, image*/,
+        // description /*, image*/,
       } = req.body;
 
       let updateStatus = await Order.query()
@@ -419,7 +419,7 @@ class OrderController {
         campaignorderid: type === "campaign" ? orderId : null,
         // image: JSON.stringify(image),
         ordercode: orderCode,
-        description: description,
+        description: "is being processed",
       } as OrderStatusHistory);
 
       return res.status(200).send({
@@ -545,7 +545,7 @@ class OrderController {
         orderCode,
         type,
         orderId,
-        description,
+        // description,
         image,
       } = req.body;
 
@@ -576,7 +576,7 @@ class OrderController {
         campaignorderid: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
         ordercode: orderCode,
-        description: description,
+        description: 'is being delivered',
       } as OrderStatusHistory);
       return res.status(200).send({
         message: "successful",

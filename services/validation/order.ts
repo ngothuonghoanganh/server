@@ -18,7 +18,7 @@ export const validProcessingToDeliveringSchema = Joi.object({
   orderCode: Joi.string().required(),
   orderId: Joi.string().required(),
   type: Joi.string().required(),
-  description: Joi.string().required(),
+  // description: Joi.string().required(),
   image: Joi.array().required(),
 });
 
@@ -59,7 +59,6 @@ export const validStatusForCreatedToProcessingForSupplierSchema = Joi.object({
   orderCode: Joi.string().required(),
   orderId: Joi.string().required(),
   type: Joi.string().required(),
-  description: Joi.string().required(),
 });
 
 export const getOrderByIdSchema = Joi.object({
