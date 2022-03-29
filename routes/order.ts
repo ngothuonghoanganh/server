@@ -143,7 +143,7 @@ router.put(
 router.put(
   "/status/supplier/delivered",
   Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
+  Authentication.checkRole(["Supplier", "CustomerService"]),
   validator.body(updateStatusFromReturningToDeliveredForRejectReturn),
   order.updateStatusFromReturningToDeliveredForRejectReturn
 );
