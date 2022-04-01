@@ -38,4 +38,4 @@ class Notif {
     }
 }
 
-export default Notif;
+export default new Notif();

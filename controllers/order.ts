@@ -18,6 +18,7 @@ import { Suppliers } from "../models/suppliers";
 import { Accounts } from "../models/accounts";
 import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { Customers } from "../models/customers";
+import notif from "../services/realtime/notification";
 
 class OrderController {
   public createOrder = async (req: any, res: any) => {
@@ -689,7 +690,7 @@ class OrderController {
     }
   };
 
-  public updateStatusFromReturningToDeliveredForRejectReturn = async(req: any, res: any, next: any)=>{
+  public updateStatusFromReturningToDeliveredForRejectReturn = async (req: any, res: any, next: any) => {
     try {
       let {
         status = "Delivered",
@@ -721,7 +722,7 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        statushistory: 'requestRejected',
         type: type,
         retailorderid: type === "retail" ? orderId : null,
         campaignorderid: type === "campaign" ? orderId : null,
@@ -827,6 +828,10 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+
+      notif.sendNotiForWeb({
+
+      })
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -1131,6 +1136,7 @@ class OrderController {
           .where("id", orderId)
           .first();
         const campaignId = order.campaignid;
+
         const ordersInCampaign = await CampaignOrder.query()
           .select()
 
@@ -1175,6 +1181,15 @@ class OrderController {
             await Products.query()
               .update({ status: "active" })
               .where("id", campaign.productid);
+          }
+          for (const item of ordersInCampaign) {
+            orderStatusHistoryController.createHistory({
+              statushistory: item.paymentmethod === 'online' ? "unpaid" : "created",
+              type: 'campaign',
+              campaignorderid: item.id,
+              ordercode: item.ordercode,
+              description: item.paymentmethod === 'online' ? "requires full payment via VNPAY E-Wallet" : "is created",
+            } as OrderStatusHistory);
           }
         }
 
