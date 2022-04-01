@@ -1,10 +1,10 @@
 import QueryString from "qs";
 import crypto from "crypto";
-import dateFormat from "dateformat";
 import { Order } from "../models/orders";
 
 class Payment {
   public createPayment = async (req: any, res: any) => {
+    const dateFormat = require("dateformat/lib/dateformat.js");
     try {
       const ipAddr =
         req.headers["x-forwarded-for"] ||
