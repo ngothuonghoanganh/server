@@ -917,7 +917,7 @@ class OrderController {
       //query order history theo order code va status = returning
       // === 0 ->>> notif to customer
       // === 1 ->>> notif cus + supp
-      const requestReturnTime = await OrderStatusHistory.query().select('id').where('ordercode');
+      const requestReturnTime = await OrderStatusHistory.query().select('id').where('ordercode').andWhere('status', 'returning');
       //send notif to customer
       if (requestReturnTime.length === 0) {
         let customerObj;
