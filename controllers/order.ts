@@ -42,6 +42,11 @@ class OrderController {
         .where("id", addressId)
         .first();
 
+      const supplierData = await Suppliers.query()
+        .select("accountid")
+        .where("id", supplierId)
+        .first();
+
       let orderCode = crypto.randomBytes(5).toString("hex") + `-${Date.now()}`;
 
       if (campaignId) {
@@ -82,6 +87,21 @@ class OrderController {
           type: "income",
           supplierid: supplierId,
         } as Transaction);
+
+        orderStatusHistoryController.createHistory({
+          statushistory: "created",
+          type: "retail",
+          retailorderid: newOrder.id,
+          ordercode: newOrder.ordercode,
+          description: "is created",
+        } as OrderStatusHistory);
+
+        notif.sendNotiForWeb({
+          userid: supplierData.accountid,
+          link: newOrder.ordercode,
+          message: "changed to " + "created", // statushistory = created
+          status: "unread",
+        });
 
         return res.status(200).send({
           message: "successful",
@@ -161,6 +181,12 @@ class OrderController {
           ordercode: newOrder.ordercode,
           description: "is created",
         } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: supplierData.accountid,
+          link: newOrder.ordercode,
+          message: "changed to " + "created",
+          status: "unread",
+        });
       } else {
         orderStatusHistoryController.createHistory({
           statushistory: "unpaid",
@@ -169,6 +195,12 @@ class OrderController {
           ordercode: newOrder.ordercode,
           description: "requires full payment via VNPAY E-Wallet",
         } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: supplierData.accountid,
+          link: newOrder.ordercode,
+          message: "changed to " + "unpaid",
+          status: "unread",
+        });
       }
       for (const product of products) {
         await Products.query()
@@ -333,6 +365,37 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+
+      //send notif for supplier
+      let supplierDataForRetail;
+      let supplierDataForCampaign;
+      let accountIdSupp;
+      if (type === "retail") {
+        supplierDataForRetail = await Order.query()
+          .select("supplierid")
+          .where("id", orderId)
+          .first();
+        accountIdSupp = await Suppliers.query()
+          .select("accountid")
+          .where("id", supplierDataForRetail.supplierid)
+          .first();
+      } else {
+        supplierDataForCampaign = await Products.query()
+          .select("products.supplierid")
+          .join("campaignorder", "campaignorder.productid", "products.id")
+          .where("campaignorder.id", orderId)
+          .first();
+        accountIdSupp = await Suppliers.query()
+          .select("accountid")
+          .where("id", supplierDataForCampaign.supplierid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdSupp.id,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -422,7 +485,34 @@ class OrderController {
         ordercode: orderCode,
         description: "is being processed",
       } as OrderStatusHistory);
-
+      //send notif for customer
+      let customerObj;
+      let accountIdCus;
+      if (type === "retail") {
+        customerObj = await Order.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      } else {
+        customerObj = await CampaignOrder.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdCus,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
       return res.status(200).send({
         message: "successful",
         data: updateStatus,
@@ -471,6 +561,7 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+
       if (update === 0) {
         return res.status(200).send({
           message: "not yet updated",
@@ -526,6 +617,34 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+      //send notif for customer
+      let customerObj;
+      let accountIdCus;
+      if (type === "retail") {
+        customerObj = await Order.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      } else {
+        customerObj = await CampaignOrder.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdCus,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
       if (update === 0) {
         return res.status(200).send({
           message: "not yet updated",
@@ -583,6 +702,34 @@ class OrderController {
         ordercode: orderCode,
         description: "is being delivered",
       } as OrderStatusHistory);
+      //send notif for customer
+      let customerObj;
+      let accountIdCus;
+      if (type === "retail") {
+        customerObj = await Order.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      } else {
+        customerObj = await CampaignOrder.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdCus,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -634,6 +781,71 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+      //send notif for customer
+      let customerObj;
+      let accountIdCus;
+      if (type === "retail") {
+        customerObj = await Order.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      } else {
+        customerObj = await CampaignOrder.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdCus,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
+
+      //send notif for supp
+      if (type === "retail") {
+        let suppId = await Order.query()
+          .select("supplierid")
+          .where("id", orderId)
+          .first();
+        let accountIdSupp = await Suppliers.query()
+          .select("accountid")
+          .where("id", suppId.supplierid)
+          .first();
+
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      } else {
+        let supplierDataForCampaign = await Products.query()
+          .select("products.supplierid")
+          .join("campaignorder", "campaignorder.productid", "products.id")
+          .where("campaignorder.id", orderId)
+          .first();
+        let supp = await Suppliers.query()
+          .select("accountid")
+          .where("id", supplierDataForCampaign.supplierid)
+          .first();
+
+        notif.sendNotiForWeb({
+          userid: supp.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      }
+
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -685,6 +897,69 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+      //send notif for customer
+      let customerObj;
+      let accountIdCus;
+      if (type === "retail") {
+        customerObj = await Order.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      } else {
+        customerObj = await CampaignOrder.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdCus,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
+
+      //send notif for supp
+      if (type === "retail") {
+        let suppId = await Order.query()
+          .select("supplierid")
+          .where("id", orderId)
+          .first();
+        let accountIdSupp = await Suppliers.query()
+          .select("accountid")
+          .where("id", suppId.supplierid)
+          .first();
+
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      } else {
+        let supplierDataForCampaign = await Products.query()
+          .select("products.supplierid")
+          .join("campaignorder", "campaignorder.productid", "products.id")
+          .where("campaignorder.id", orderId)
+          .first();
+        let supp = await Suppliers.query()
+          .select("accountid")
+          .where("id", supplierDataForCampaign.supplierid)
+          .first();
+        notif.sendNotiForWeb({
+          userid: supp.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      }
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -738,6 +1013,108 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+      //query order history theo order code va status = returning
+      // === 0 ->>> notif to customer
+      // === 1 ->>> notif cus + supp
+      const requestReturnTime = await OrderStatusHistory.query()
+        .select("id")
+        .where("ordercode")
+        .andWhere("status", "returning");
+      //send notif to customer
+      if (requestReturnTime.length === 0) {
+        let customerObj;
+        let accountIdCus;
+        if (type === "retail") {
+          customerObj = await Order.query()
+            .select("customerid")
+            .where("id", orderId)
+            .first();
+          accountIdCus = await Customers.query()
+            .select("accountid")
+            .where("id", customerObj.customerid)
+            .first();
+        } else {
+          customerObj = await CampaignOrder.query()
+            .select("customerid")
+            .where("id", orderId)
+            .first();
+          accountIdCus = await Customers.query()
+            .select("accountid")
+            .where("id", customerObj.customerid)
+            .first();
+        }
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      } else {
+        //send notif for customer
+        let customerObj;
+        let accountIdCus;
+        if (type === "retail") {
+          customerObj = await Order.query()
+            .select("customerid")
+            .where("id", orderId)
+            .first();
+          accountIdCus = await Customers.query()
+            .select("accountid")
+            .where("id", customerObj.customerid)
+            .first();
+        } else {
+          customerObj = await CampaignOrder.query()
+            .select("customerid")
+            .where("id", orderId)
+            .first();
+          accountIdCus = await Customers.query()
+            .select("accountid")
+            .where("id", customerObj.customerid)
+            .first();
+        }
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+
+        //send notif for supp
+        if (type === "retail") {
+          let suppId = await Order.query()
+            .select("supplierid")
+            .where("id", orderId)
+            .first();
+          let accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", suppId.supplierid)
+            .first();
+
+          notif.sendNotiForWeb({
+            userid: accountIdSupp.accountid,
+            link: orderCode,
+            message: "changed to " + status,
+            status: "unread",
+          });
+        } else {
+          let supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId)
+            .first();
+          let supp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForCampaign.supplierid)
+            .first();
+          notif.sendNotiForWeb({
+            userid: supp.accountid,
+            link: orderCode,
+            message: "changed to " + status,
+            status: "unread",
+          });
+        }
+      }
+
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -789,6 +1166,41 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
+      //send notif for supp
+      if (type === "retail") {
+        let suppId = await Order.query()
+          .select("supplierid")
+          .where("id", orderId)
+          .first();
+        let accountIdSupp = await Suppliers.query()
+          .select("accountid")
+          .where("id", suppId.supplierid)
+          .first();
+
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      } else {
+        let supplierDataForCampaign = await Products.query()
+          .select("products.supplierid")
+          .join("campaignorder", "campaignorder.productid", "products.id")
+          .where("campaignorder.id", orderId)
+          .first();
+        let supp = await Suppliers.query()
+          .select("accountid")
+          .where("id", supplierDataForCampaign.supplierid)
+          .first();
+        notif.sendNotiForWeb({
+          userid: supp.accountid,
+          link: orderCode,
+          message: "changed to " + status,
+          status: "unread",
+        });
+      }
+
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -836,8 +1248,34 @@ class OrderController {
         ordercode: orderCode,
         description: description,
       } as OrderStatusHistory);
-
-      notif.sendNotiForWeb({});
+      //send notif for customer
+      let customerObj;
+      let accountIdCus;
+      if (type === "retail") {
+        customerObj = await Order.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      } else {
+        customerObj = await CampaignOrder.query()
+          .select("customerid")
+          .where("id", orderId)
+          .first();
+        accountIdCus = await Customers.query()
+          .select("accountid")
+          .where("id", customerObj.customerid)
+          .first();
+      }
+      notif.sendNotiForWeb({
+        userid: accountIdCus.accountid,
+        link: orderCode,
+        message: "changed to " + status,
+        status: "unread",
+      });
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -1197,6 +1635,7 @@ class OrderController {
               .update({ status: "active" })
               .where("id", campaign.productid);
           }
+
           for (const item of ordersInCampaign) {
             orderStatusHistoryController.createHistory({
               statushistory:
@@ -1209,7 +1648,19 @@ class OrderController {
                   ? "requires full payment via VNPAY E-Wallet"
                   : "is created",
             } as OrderStatusHistory);
+            //type =campaign
           }
+          let supplierId;
+          supplierId = await Suppliers.query()
+            .select()
+            .where("id", campaign.supplierid)
+            .first();
+          notif.sendNotiForWeb({
+            userid: supplierId,
+            link: null,
+            message: `campaign with code: ${campaign.code} is done`,
+            status: "unread",
+          });
         }
 
         transactionController.update({
@@ -1220,7 +1671,6 @@ class OrderController {
       }
 
       //insert data vào order history
-
       if (status === "created") {
         orderStatusHistoryController.createHistory({
           retailorderid: type === "retail" ? orderId : null,
@@ -1230,6 +1680,36 @@ class OrderController {
           type: type,
           description: "is created",
         } as OrderStatusHistory);
+
+        let supplierDataForRetail;
+        let supplierDataForCampaign;
+        let accountIdSupp;
+        if (type === "retail") {
+          supplierDataForRetail = await Order.query()
+            .select("supplierid")
+            .where("id", orderId)
+            .first();
+          accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForRetail.supplierid)
+            .first();
+        } else {
+          supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId)
+            .first();
+          accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForCampaign.supplierid)
+            .first();
+        }
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.id,
+          link: orderCode,
+          message: "changed to " + "created",
+          status: "unread",
+        });
       } else if (status === "advanced") {
         if (isAdvanced) {
           orderStatusHistoryController.createHistory({
@@ -1240,6 +1720,23 @@ class OrderController {
             type: "campaign",
             description: "has completed advanced payment via VNPAY E-Wallet",
           } as OrderStatusHistory);
+          // TODO
+          //type = campaign
+          let supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId)
+            .first();
+          let accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForCampaign.supplierid)
+            .first();
+          notif.sendNotiForWeb({
+            userid: accountIdSupp.accountid,
+            link: orderCode,
+            message: "changed to " + "advanced",
+            status: "unread",
+          });
         } else {
           orderStatusHistoryController.createHistory({
             retailorderid: type === "retail" ? orderId : null,
@@ -1249,6 +1746,23 @@ class OrderController {
             type: "campaign",
             description: "has completed full payment via VNPAY E-Wallet",
           } as OrderStatusHistory);
+
+          //insert send notif
+          let supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId)
+            .first();
+          let accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForCampaign.supplierid)
+            .first();
+          notif.sendNotiForWeb({
+            userid: accountIdSupp.accountid,
+            link: orderCode,
+            message: "changed to " + "advanced",
+            status: "unread",
+          });
         }
       }
 

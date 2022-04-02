@@ -1,5 +1,11 @@
 
+import { CampaignOrder } from "../models/campaingorder";
+import { Customers } from "../models/customers";
+import { Order } from "../models/orders";
 import { OrderStatusHistory } from "../models/orderstatushistory";
+import { Products } from "../models/products";
+import { Suppliers } from "../models/suppliers";
+import notif from "../services/realtime/notification";
 
 
 class OrderHistoryController {
@@ -86,7 +92,105 @@ class OrderHistoryController {
                     statushistory: status,
                 })
             };
+            //if status = finishReturning -> send notif for customer + supplier
+            if (status === 'finishReturning' || status === 'returningInProgress') {
+                //send notif for customer
+                let customerObj;
+                let accountIdCus;
+                if (type === 'retail') {
+                    customerObj = await Order.query().select('customerid').where('id', orderId).first();
+                    accountIdCus = await Customers.query().select('accountid').where('id', customerObj.customerid).first();
+                } else {
+                    customerObj = await CampaignOrder.query().select('customerid').where('id', orderId).first();
+                    accountIdCus = await Customers.query().select('accountid').where('id', customerObj.customerid).first();
+                }
+                notif.sendNotiForWeb({
+                    userid: accountIdCus.accountid,
+                    link: orderCode,
+                    message: "changed to " + status,
+                    status: "unread"
+                })
+                //send notif for supplier
+                let supplierDataForRetail;
+                let supplierDataForCampaign;
+                let accountIdSupp;
+                if (type === 'retail') {
+                    supplierDataForRetail = await Order.query().select('supplierid').where('id', orderId).first();
+                    accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForRetail.supplierid).first();
+                } else {
+                    supplierDataForCampaign = await Products.query()
+                        .select("products.supplierid")
+                        .join("campaignorder", "campaignorder.productid", "products.id")
+                        .where("campaignorder.id", orderId).first();
+                    accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForCampaign.supplierid).first();
+                }
+                notif.sendNotiForWeb({
+                    userid: accountIdSupp.id,
+                    link: orderCode,
+                    message: "changed to " + status,
+                    status: "unread"
+                })
+            } else if (status === 'requestAccepted') {
+                //request lan 1 -> send notif for customer
+                const requestReturnTime = await OrderStatusHistory.query().select('id').where('ordercode');
+                if (requestReturnTime.length === 0) {
+                    let customerObj;
+                    let accountIdCus;
+                    if (type === 'retail') {
+                        customerObj = await Order.query().select('customerid').where('id', orderId).first();
+                        accountIdCus = await Customers.query().select('accountid').where('id', customerObj.customerid).first();
+                    } else {
+                        customerObj = await CampaignOrder.query().select('customerid').where('id', orderId).first();
+                        accountIdCus = await Customers.query().select('accountid').where('id', customerObj.customerid).first();
+                    }
+                    notif.sendNotiForWeb({
+                        userid: accountIdCus.accountid,
+                        link: orderCode,
+                        message: "changed to " + status,
+                        status: "unread"
+                    })
+                } else {
+                    //request lan 2 -> send notif for customer + supp
 
+                    //customer
+                    let customerObj;
+                    let accountIdCus;
+                    if (type === 'retail') {
+                        customerObj = await Order.query().select('customerid').where('id', orderId).first();
+                        accountIdCus = await Customers.query().select('accountid').where('id', customerObj.customerid).first();
+                    } else {
+                        customerObj = await CampaignOrder.query().select('customerid').where('id', orderId).first();
+                        accountIdCus = await Customers.query().select('accountid').where('id', customerObj.customerid).first();
+                    }
+                    notif.sendNotiForWeb({
+                        userid: accountIdCus.accountid,
+                        link: orderCode,
+                        message: "changed to " + status,
+                        status: "unread"
+                    });
+
+                    //supp
+                    let supplierDataForRetail;
+                    let supplierDataForCampaign;
+                    let accountIdSupp;
+                    if (type === 'retail') {
+                        supplierDataForRetail = await Order.query().select('supplierid').where('id', orderId).first();
+                        accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForRetail.supplierid).first();
+                    } else {
+                        supplierDataForCampaign = await Products.query()
+                            .select("products.supplierid")
+                            .join("campaignorder", "campaignorder.productid", "products.id")
+                            .where("campaignorder.id", orderId).first();
+                        accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForCampaign.supplierid).first();
+                    }
+                    notif.sendNotiForWeb({
+                        userid: accountIdSupp.id,
+                        link: orderCode,
+                        message: "changed to " + status,
+                        status: "unread"
+                    })
+                }
+            }
             return res.status(200).send({
                 message: 'successful',
                 data: insertData

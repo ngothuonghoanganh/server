@@ -1,6 +1,8 @@
 import { Suppliers } from "../models/suppliers";
 import { Customers } from "../models/customers";
 import { Accounts } from "../models/accounts";
+import { CampaignOrder } from "../models/campaingorder";
+import { Products } from "../models/products";
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
@@ -180,6 +182,20 @@ class Supplier {
       })
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  public test = async (req: any, res: any) => {
+    try {
+      const accountIdCus = await Customers.query().select('accountid').where('id','44b18efd-14d7-45c1-8a11-ae0320cf8378').first();
+
+      console.log(accountIdCus.accountid)
+      return res.status(200).send({
+        message: "ok",
+        data: accountIdCus
+      })
+    } catch (error) {
+      console.log(error)
     }
   };
 }
