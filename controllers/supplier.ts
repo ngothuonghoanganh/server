@@ -1,6 +1,8 @@
 import { Suppliers } from "../models/suppliers";
 import { Customers } from "../models/customers";
 import { Accounts } from "../models/accounts";
+import { CampaignOrder } from "../models/campaingorder";
+import { Products } from "../models/products";
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
@@ -180,6 +182,22 @@ class Supplier {
       })
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  public test = async (req: any, res: any) => {
+    try {
+      const supplierDataForCampaign = await Products.query()
+        .select("products.supplierid")
+        .join("campaignorder", "campaignorder.productid", "products.id")
+        .where("campaignorder.id", "666be32e-0d6d-4cb6-8929-7b6002784ae4").first();
+      console.log(supplierDataForCampaign.supplierid)
+      return res.status(200).send({
+        message: "ok",
+        data: supplierDataForCampaign
+      })
+    } catch (error) {
+      console.log(error)
     }
   };
 }

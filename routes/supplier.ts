@@ -56,5 +56,10 @@ router.post(
   supplier.getSuppInforByListSuppId
 );
 
+router.get(
+  '/test',
+  supplier.test
+)
+
 
 export default router;
