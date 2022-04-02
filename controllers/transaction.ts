@@ -1,5 +1,4 @@
 import { Transaction } from "../models/transaction";
-import dateFormat from "dateformat";
 import QueryString from "qs";
 import crypto from "crypto";
 
@@ -28,6 +27,7 @@ class TransactionController {
   };
 
   public createWithdrawableRequest = async (req: any, res: any, next: any) => {
+    const dateFormat = require("dateformat/lib/dateformat.js");
     try {
       const { ewalletsecrect, ewalletcode, id } = req.user;
       const { ordercode } = req.body;
