@@ -291,8 +291,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -434,12 +434,14 @@ class OrderController {
 
   public updateStatusToCancelledForCustomer = async (req: any, res: any) => {
     try {
-      let { status = "cancelled",
+      let {
+        status = "cancelled",
         orderCode,
         type,
         orderId,
         image,
-        description, } = req.body;
+        description,
+      } = req.body;
       let update = await Order.query()
         .update({
           status: status,
@@ -485,12 +487,14 @@ class OrderController {
 
   public updateStatusToCancelledForSupplier = async (req: any, res: any) => {
     try {
-      let { status = "cancelled",
+      let {
+        status = "cancelled",
         orderCode,
         type,
         orderId,
         image,
-        description } = req.body;
+        description,
+      } = req.body;
       let update = await Order.query()
         .update({
           status: status,
@@ -577,7 +581,7 @@ class OrderController {
         campaignorderid: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
         ordercode: orderCode,
-        description: 'is being delivered',
+        description: "is being delivered",
       } as OrderStatusHistory);
       return res.status(200).send({
         message: "successful",
@@ -690,7 +694,11 @@ class OrderController {
     }
   };
 
-  public updateStatusFromReturningToDeliveredForRejectReturn = async (req: any, res: any, next: any) => {
+  public updateStatusFromReturningToDeliveredForRejectReturn = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
       let {
         status = "Delivered",
@@ -722,7 +730,7 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: 'requestRejected',
+        statushistory: "requestRejected",
         type: type,
         retailorderid: type === "retail" ? orderId : null,
         campaignorderid: type === "campaign" ? orderId : null,
@@ -735,7 +743,7 @@ class OrderController {
         data: update,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -829,9 +837,7 @@ class OrderController {
         description: description,
       } as OrderStatusHistory);
 
-      notif.sendNotiForWeb({
-
-      })
+      notif.sendNotiForWeb({});
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -883,6 +889,7 @@ class OrderController {
         )
         .join("campaigns", "campaigns.id", "campaignorder.campaignid")
         .where("campaignorder.status", status)
+        .andWhere("campaignorder.customerid", userId)
         .groupBy("campaignorder.id")
         .groupBy("campaigns.id");
 
@@ -961,7 +968,11 @@ class OrderController {
             json_agg(to_jsonb(orderdetail) - 'orderid') as details, json_agg(to_jsonb(orderstatushistory) - 'retailorderid') as orderstatushistory`)
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
-        .join('orderstatushistory', 'orderstatushistory.retailorderid', 'orders.id')
+        .join(
+          "orderstatushistory",
+          "orderstatushistory.retailorderid",
+          "orders.id"
+        )
         .where("orders.supplierid", userId)
         .andWhere("orders.status", status)
         .groupBy("orders.id");
@@ -989,7 +1000,11 @@ class OrderController {
           )
         )
         .join("campaigns", "campaigns.id", "campaignorder.campaignid")
-        .join('orderstatushistory', 'orderstatushistory.campaignorderid', 'campaignorder.id')
+        .join(
+          "orderstatushistory",
+          "orderstatushistory.campaignorderid",
+          "campaignorder.id"
+        )
         .where("campaigns.supplierid", userId)
         .andWhere("campaignorder.status", status)
         .groupBy("campaignorder.id");
@@ -1184,11 +1199,15 @@ class OrderController {
           }
           for (const item of ordersInCampaign) {
             orderStatusHistoryController.createHistory({
-              statushistory: item.paymentmethod === 'online' ? "unpaid" : "created",
-              type: 'campaign',
+              statushistory:
+                item.paymentmethod === "online" ? "unpaid" : "created",
+              type: "campaign",
               campaignorderid: item.id,
               ordercode: item.ordercode,
-              description: item.paymentmethod === 'online' ? "requires full payment via VNPAY E-Wallet" : "is created",
+              description:
+                item.paymentmethod === "online"
+                  ? "requires full payment via VNPAY E-Wallet"
+                  : "is created",
             } as OrderStatusHistory);
           }
         }

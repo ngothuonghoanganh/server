@@ -30,7 +30,7 @@ import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
 import transactionRouter from "./routes/transaction";
-// import notifRouter from "./services/realtime/notification";
+import systemRouter from "./routes/system";
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -43,10 +43,8 @@ const port = 3000;
 
 const server: http.Server = http.createServer(app);
 
-// cronjob config
 cronjob.run();
 
-// logger config
 const stream: StreamOptions = {
   write: (message) => Logger.http(message),
 };
@@ -63,7 +61,6 @@ const morganMiddleware = morgan(
 
 chat.run();
 
-// server config
 app.use(morganMiddleware);
 app.use(bodyParser.json());
 app.use(helmet());
@@ -77,9 +74,7 @@ app.use(cookieParser());
 app.use(cookies_reader);
 app.use(upload.single("file"));
 app.use(express.urlencoded({ extended: false }));
-// app.use(express.static(path.join(__dirname, "public")));
 
-// routes config
 app.use("/api", indexRoute);
 app.use("/api/users", userRoute);
 app.use("/api/files", fileRoute);
@@ -98,9 +93,7 @@ app.use("/api/chat", chatRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/history", retailOrderRouter);
 app.use("/api/transaction", transactionRouter);
-// app.use("/api/notif", notifRouter);
-
-
+app.use("/api/system", systemRouter);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {
