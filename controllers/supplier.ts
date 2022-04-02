@@ -187,14 +187,12 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      const supplierDataForCampaign = await Products.query()
-        .select("products.supplierid")
-        .join("campaignorder", "campaignorder.productid", "products.id")
-        .where("campaignorder.id", "666be32e-0d6d-4cb6-8929-7b6002784ae4").first();
-      console.log(supplierDataForCampaign.supplierid)
+      const accountIdCus = await Customers.query().select('accountid').where('id','44b18efd-14d7-45c1-8a11-ae0320cf8378').first();
+
+      console.log(accountIdCus.accountid)
       return res.status(200).send({
         message: "ok",
-        data: supplierDataForCampaign
+        data: accountIdCus
       })
     } catch (error) {
       console.log(error)
