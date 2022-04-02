@@ -42,6 +42,8 @@ class OrderController {
         .where("id", addressId)
         .first();
 
+      const supplierData = await Suppliers.query().select('accountid').where('id', supplierId).first();
+
       let orderCode = crypto.randomBytes(5).toString("hex") + `-${Date.now()}`;
 
       if (campaignId) {
@@ -82,6 +84,22 @@ class OrderController {
           type: "income",
           supplierid: supplierId,
         } as Transaction);
+
+        orderStatusHistoryController.createHistory({
+          statushistory: "created",
+          type: "retail",
+          retailorderid: newOrder.id,
+          ordercode: newOrder.ordercode,
+          description: "is created",
+        } as OrderStatusHistory);
+
+
+        notif.sendNotiForWeb({
+          userid: supplierData.accountid,
+          link: newOrder.ordercode,
+          message: "changed to " + "created", // statushistory = created
+          status: "unread"
+        })
 
         return res.status(200).send({
           message: "successful",
@@ -161,6 +179,13 @@ class OrderController {
           ordercode: newOrder.ordercode,
           description: "is created",
         } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: supplierData.accountid,
+          link: newOrder.ordercode,
+          message: "changed to " + "created",
+          status: "unread"
+        })
+
       } else {
         orderStatusHistoryController.createHistory({
           statushistory: "unpaid",
@@ -169,6 +194,12 @@ class OrderController {
           ordercode: newOrder.ordercode,
           description: "requires full payment via VNPAY E-Wallet",
         } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: supplierData.accountid,
+          link: newOrder.ordercode,
+          message: "changed to " + "unpaid",
+          status: "unread"
+        })
       }
       for (const product of products) {
         await Products.query()
@@ -1112,6 +1143,7 @@ class OrderController {
         orderCode,
       } = req.body;
 
+
       if (!isAdvanced) {
         await Order.query()
           .update({
@@ -1190,6 +1222,21 @@ class OrderController {
               ordercode: item.ordercode,
               description: item.paymentmethod === 'online' ? "requires full payment via VNPAY E-Wallet" : "is created",
             } as OrderStatusHistory);
+            // type = campaign
+            let supplierDataForCampaign;
+            let accountIdSupp;
+            supplierDataForCampaign = await Products.query()
+              .select("products.supplierid")
+              .join("campaignorder", "campaignorder.productid", "products.id")
+              .where("campaignorder.id", orderId).first();
+            accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForCampaign.supplierid).first();
+
+            notif.sendNotiForWeb({
+              userid: accountIdSupp.id,
+              link: orderCode,
+              message: "changed to " + "created",
+              status: "unread"
+            })
           }
         }
 
@@ -1200,8 +1247,15 @@ class OrderController {
         } as Transaction);
       }
 
-      //insert data vào order history
 
+      // if (!supplierData) {
+      //   supplierData = await CampaignOrder.query()
+      //     .select("products.supplierid")
+      //     .join("products", "campaignorder.productid", "products.id")
+      //     .where("campaignorder.id", orderId).first();
+      // }
+
+      //insert data vào order history
       if (status === "created") {
         orderStatusHistoryController.createHistory({
           retailorderid: type === "retail" ? orderId : null,
@@ -1211,6 +1265,26 @@ class OrderController {
           type: type,
           description: "is created",
         } as OrderStatusHistory);
+
+        let supplierDataForRetail;
+        let supplierDataForCampaign;
+        let accountIdSupp;
+        if (type === 'retail') {
+          supplierDataForRetail = await Order.query().select('supplierid').where('id', orderId).first();
+          accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForRetail.supplierid).first();
+        } else {
+          supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId).first();
+          accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForCampaign.supplierid).first();
+        }
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.id,
+          link: orderCode,
+          message: "changed to " + "created",
+          status: "unread"
+        })
       } else if (status === "advanced") {
         if (isAdvanced) {
           orderStatusHistoryController.createHistory({
@@ -1221,6 +1295,14 @@ class OrderController {
             type: "campaign",
             description: "has completed advanced payment via VNPAY E-Wallet",
           } as OrderStatusHistory);
+          // TODO
+
+          // notif.sendNotiForWeb({
+          //   userid: supplierData.accountid,
+          //   link: newOrder.ordercode,
+          //   message: "changed to " + "created", // statushistory = created
+          //   status: "unread"
+          // })
         } else {
           orderStatusHistoryController.createHistory({
             retailorderid: type === "retail" ? orderId : null,
@@ -1230,6 +1312,14 @@ class OrderController {
             type: "campaign",
             description: "has completed full payment via VNPAY E-Wallet",
           } as OrderStatusHistory);
+
+          // TODO
+          // notif.sendNotiForWeb({
+          //   userid: supplierData.accountid,
+          //   link: newOrder.ordercode,
+          //   message: "changed to " + "created", // statushistory = created
+          //   status: "unread"
+          // })
         }
       }
 

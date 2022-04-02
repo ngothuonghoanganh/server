@@ -138,7 +138,8 @@ class ProductsController {
         "categories.id as categoryid",
       ];
       let prods = await Products.query()
-        .select(...listEntity)
+        .select(...listEntity, 'campaigns.maxquantity')
+        .join('campaigns', 'campaigns.productid', 'products.id')
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
         .where("products.status", "<>", "deactivated")
         .andWhere("categories.supplierid", req.user.id);
