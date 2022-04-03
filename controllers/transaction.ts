@@ -64,7 +64,7 @@ class TransactionController {
       // vnp_Params['vnp_Merchant'] = ''
       vnp_Params["vnp_Locale"] = locale;
       vnp_Params["vnp_CurrCode"] = currCode;
-      vnp_Params["vnp_TxnRef"] = moment(date).format("HHMmmss");
+      vnp_Params["vnp_TxnRef"] = moment(date).format("HHmmss");
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
