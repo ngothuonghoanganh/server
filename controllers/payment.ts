@@ -30,7 +30,7 @@ class Payment {
       }
 
       const order = await Order.query().select().where("id", orderId).first();
-
+      console.log(moment(date).format("yyyyMMDDHHmmss"))
       let currCode = "VND";
       let vnp_Params: any = {};
       vnp_Params["vnp_Version"] = "2.1.0";
@@ -39,14 +39,14 @@ class Payment {
       // vnp_Params['vnp_Merchant'] = ''
       vnp_Params["vnp_Locale"] = locale;
       vnp_Params["vnp_CurrCode"] = currCode;
-      vnp_Params["vnp_TxnRef"] = moment(date).format("HHMmmss");
+      vnp_Params["vnp_TxnRef"] = moment(date).format("HHmmss");
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
         returnUrl + `/order/payment?order_id=${orderId}`;
       vnp_Params["vnp_Amount"] = req.body.amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
-      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyymmDDHHmmss");
+      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss");
       if (bankCode !== null && bankCode !== "") {
         vnp_Params["vnp_BankCode"] = bankCode;
       }

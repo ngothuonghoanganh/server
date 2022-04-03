@@ -2,6 +2,7 @@ import { Campaigns } from "../models/campaigns";
 import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import { Order } from "../models/orders";
+import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
 
 class System {
@@ -126,6 +127,87 @@ class System {
       return res.status(200).send({
         message: "successful",
         data: customers,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public disableSupplier = async (req: any, res: any, next: any) => {
+    try {
+      const { supplierId, supplierAccountId } = req.body;
+
+      let prods = await Products.query()
+        .select(
+          "products.id as productid",
+          "categories.id as categoryid",
+          "campaigns.id as campaignid"
+        )
+        .join("campaigns", "campaigns.productid", "products.id")
+        .leftOuterJoin("categories", "categories.id", "products.categoryid")
+        .where("products.status", "<>", "deactivated")
+        .andWhere("categories.supplierid", supplierId);
+
+      const productIds = prods.map((item: any) => item.productid);
+      const categoryIds = prods.map((item: any) => item.categoryid);
+      const campaignIds = prods.map((item: any) => item.campaignid);
+      // console.log(prods);
+      // console.log(productIds);
+      // console.log(categoryIds);
+      // console.log(campaignIds);
+
+      const orders: any = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .whereIn("orderdetail.productid", productIds)
+        .andWhere((cd) => {
+          cd.where("orders.status", "processing")
+            .orWhere("orders.status", "created")
+            .orWhere("orders.status", "unpaid")
+            .orWhere("orders.status", "advanced");
+        })
+        .groupBy("orders.id");
+
+      const ordersInCampaign = await CampaignOrder.query()
+        .select(
+          "campaignorder.*",
+          CampaignOrder.raw(
+            `array_to_json(array_agg(json_build_object(
+            'id','',
+            'image', image,
+            'price', campaignorder.price,
+            'quantity', campaignorder.quantity,
+            'ordercode', ordercode,
+            'productid', campaignorder.productid,
+            'campaignid', campaignid,
+            'incampaign', true,
+            'customerid', customerid,
+            'totalprice', totalprice,
+            'productname', campaignorder.productname,
+            'notes', campaignorder.notes)
+            )) as details`
+          )
+        )
+        .whereIn("campaignorder.productid", productIds)
+        .andWhere((cd) => {
+          cd.where("campaignorder.status", "processing")
+            .orWhere("campaignorder.status", "created")
+            .orWhere("campaignorder.status", "unpaid")
+            .orWhere("campaignorder.status", "advanced");
+        })
+        .groupBy("campaignorder.id");
+      // const customerIds = orders.map((order: any) => order.customerid);
+      // customerIds.push(
+      //   ...ordersInCampaign.map((order: any) => order.customerid)
+      // );
+
+      return res.status(200).send({
+        // customerIds,
       });
     } catch (error) {
       console.log(error);
