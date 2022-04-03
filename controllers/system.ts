@@ -2,6 +2,7 @@ import { Campaigns } from "../models/campaigns";
 import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import { Order } from "../models/orders";
+import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
 
 class System {
@@ -126,6 +127,31 @@ class System {
       return res.status(200).send({
         message: "successful",
         data: customers,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public disableSupplier = async (req: any, res: any, next: any) => {
+    try {
+      const { supplierId, supplierAccountId } = req.body;
+
+      let prods = await Products.query()
+        .select(
+          "products.id as productid",
+          "categories.id as categoryid",
+          "campaigns.id as campaignid"
+        )
+        .join("campaigns", "campaigns.productid", "products.id")
+        .leftOuterJoin("categories", "categories.id", "products.categoryid")
+        .where("products.status", "<>", "deactivated")
+        .andWhere("categories.supplierid", supplierId);
+
+      console.log(prods);
+
+      return res.status(200).send({
+        prods,
       });
     } catch (error) {
       console.log(error);
