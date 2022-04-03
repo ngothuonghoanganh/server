@@ -323,8 +323,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -391,7 +391,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdSupp.id,
+        userid: accountIdSupp.accountid,
         link: orderCode,
         message: "changed to " + status,
         status: "unread",
@@ -508,7 +508,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus,
+        userid: accountIdCus.accountid,
         link: orderCode,
         message: "changed to " + status,
         status: "unread",
@@ -640,7 +640,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus,
+        userid: accountIdCus.accountid,
         link: orderCode,
         message: "changed to " + status,
         status: "unread",
@@ -725,7 +725,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus,
+        userid: accountIdCus.accountid,
         link: orderCode,
         message: "changed to " + status,
         status: "unread",
@@ -804,7 +804,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus,
+        userid: accountIdCus.accountid,
         link: orderCode,
         message: "changed to " + status,
         status: "unread",
@@ -920,7 +920,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus,
+        userid: accountIdCus.accountid,
         link: orderCode,
         message: "changed to " + status,
         status: "unread",
@@ -990,6 +990,7 @@ class OrderController {
         })
         .where("ordercode", orderCode)
         .andWhere("status", "returning");
+      // console.log(update)
       if (update === 0) {
         console.log("update campaign order");
         update = await CampaignOrder.query()
@@ -1017,11 +1018,12 @@ class OrderController {
       // === 0 ->>> notif to customer
       // === 1 ->>> notif cus + supp
       const requestReturnTime = await OrderStatusHistory.query()
-        .select("id")
-        .where("ordercode")
-        .andWhere("status", "returning");
+        .select()
+        .where("ordercode", orderCode)
+        .andWhere("statushistory", "returning");
+      console.log(requestReturnTime)
       //send notif to customer
-      if (requestReturnTime.length === 0) {
+      if (requestReturnTime.length === 1) {
         let customerObj;
         let accountIdCus;
         if (type === "retail") {
@@ -1046,7 +1048,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "changed to " + "requestRejected",
           status: "unread",
         });
       } else {
@@ -1075,7 +1077,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "changed to " + "requestRejected",
           status: "unread",
         });
 
@@ -1093,7 +1095,7 @@ class OrderController {
           notif.sendNotiForWeb({
             userid: accountIdSupp.accountid,
             link: orderCode,
-            message: "changed to " + status,
+            message: "changed to " + "requestRejected",
             status: "unread",
           });
         } else {
@@ -1109,7 +1111,7 @@ class OrderController {
           notif.sendNotiForWeb({
             userid: supp.accountid,
             link: orderCode,
-            message: "changed to " + status,
+            message: "changed to " + "requestRejected",
             status: "unread",
           });
         }
@@ -1656,7 +1658,7 @@ class OrderController {
             .where("id", campaign.supplierid)
             .first();
           notif.sendNotiForWeb({
-            userid: supplierId,
+            userid: supplierId.accountid,
             link: null,
             message: `campaign with code: ${campaign.code} is done`,
             status: "unread",
@@ -1705,7 +1707,7 @@ class OrderController {
             .first();
         }
         notif.sendNotiForWeb({
-          userid: accountIdSupp.id,
+          userid: accountIdSupp.accountid,
           link: orderCode,
           message: "changed to " + "created",
           status: "unread",
