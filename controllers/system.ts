@@ -148,10 +148,66 @@ class System {
         .where("products.status", "<>", "deactivated")
         .andWhere("categories.supplierid", supplierId);
 
-      console.log(prods);
+      const productIds = prods.map((item: any) => item.productid);
+      const categoryIds = prods.map((item: any) => item.categoryid);
+      const campaignIds = prods.map((item: any) => item.campaignid);
+      // console.log(prods);
+      // console.log(productIds);
+      // console.log(categoryIds);
+      // console.log(campaignIds);
+
+      const orders: any = await Order.query()
+        .select(
+          "orders.*",
+          Order.raw(
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+          )
+        )
+        .join("orderdetail", "orders.id", "orderdetail.orderid")
+        .whereIn("orderdetail.productid", productIds)
+        .andWhere((cd) => {
+          cd.where("orders.status", "processing")
+            .orWhere("orders.status", "created")
+            .orWhere("orders.status", "unpaid")
+            .orWhere("orders.status", "advanced");
+        })
+        .groupBy("orders.id");
+
+      const ordersInCampaign = await CampaignOrder.query()
+        .select(
+          "campaignorder.*",
+          CampaignOrder.raw(
+            `array_to_json(array_agg(json_build_object(
+            'id','',
+            'image', image,
+            'price', campaignorder.price,
+            'quantity', campaignorder.quantity,
+            'ordercode', ordercode,
+            'productid', campaignorder.productid,
+            'campaignid', campaignid,
+            'incampaign', true,
+            'customerid', customerid,
+            'totalprice', totalprice,
+            'productname', campaignorder.productname,
+            'notes', campaignorder.notes)
+            )) as details`
+          )
+        )
+        .whereIn("campaignorder.productid", productIds)
+        .andWhere((cd) => {
+          cd.where("campaignorder.status", "processing")
+            .orWhere("campaignorder.status", "created")
+            .orWhere("campaignorder.status", "unpaid")
+            .orWhere("campaignorder.status", "advanced");
+        })
+        .groupBy("campaignorder.id");
+      // const customerIds = orders.map((order: any) => order.customerid);
+      // customerIds.push(
+      //   ...ordersInCampaign.map((order: any) => order.customerid)
+      // );
 
       return res.status(200).send({
-        prods,
+        // customerIds,
       });
     } catch (error) {
       console.log(error);
