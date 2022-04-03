@@ -323,8 +323,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -590,10 +590,12 @@ class OrderController {
         .update({
           status: status,
         })
-        .where("status", "created")
-        .orWhere("status", "unpaid")
-        .orWhere("status", "advanced")
-        .orWhere("status", "processing")
+        .where((cd) => {
+          cd.where("status", "created")
+            .orWhere("status", "unpaid")
+            .orWhere("status", "advanced")
+            .orWhere("status", "processing");
+        })
         .andWhere("ordercode", orderCode);
 
       if (update === 0) {
@@ -602,10 +604,12 @@ class OrderController {
           .update({
             status: status,
           })
-          .where("status", "created")
-          .orWhere("status", "unpaid")
-          .orWhere("status", "advanced")
-          .orWhere("status", "processing")
+          .where((cd) => {
+            cd.where("status", "created")
+              .orWhere("status", "unpaid")
+              .orWhere("status", "advanced")
+              .orWhere("status", "processing");
+          })
           .andWhere("ordercode", orderCode);
       }
       orderStatusHistoryController.createHistory({
@@ -1021,7 +1025,7 @@ class OrderController {
         .select()
         .where("ordercode", orderCode)
         .andWhere("statushistory", "returning");
-      console.log(requestReturnTime)
+      console.log(requestReturnTime);
       //send notif to customer
       if (requestReturnTime.length === 1) {
         let customerObj;
