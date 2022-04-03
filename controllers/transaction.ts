@@ -71,7 +71,7 @@ class TransactionController {
         returnUrl + `/transaction/payment?ordercode=${ordercode}&type=income`;
       vnp_Params["vnp_Amount"] = amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
-      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyymmDDHHmmss")
+      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss")
       if (bankCode !== null && bankCode !== "") {
         vnp_Params["vnp_BankCode"] = bankCode;
       }

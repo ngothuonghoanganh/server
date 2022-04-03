@@ -13,4 +13,6 @@ router.get("/suppliers", systemControllers.getAllSupplier);
 
 router.get("/customers", systemControllers.getAllCustomer);
 
+router.post("/suppliers/disable", systemControllers.disableSupplier);
+
 export default router;
