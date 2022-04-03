@@ -125,15 +125,15 @@ class OrderHistoryController {
                     accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForCampaign.supplierid).first();
                 }
                 notif.sendNotiForWeb({
-                    userid: accountIdSupp.id,
+                    userid: accountIdSupp.accountid,
                     link: orderCode,
                     message: "changed to " + status,
                     status: "unread"
                 })
             } else if (status === 'requestAccepted') {
                 //request lan 1 -> send notif for customer
-                const requestReturnTime = await OrderStatusHistory.query().select('id').where('ordercode');
-                if (requestReturnTime.length === 0) {
+                const requestReturnTime = await OrderStatusHistory.query().select('id').where('ordercode', orderCode).andWhere("statushistory", "returning");
+                if (requestReturnTime.length === 1) {
                     let customerObj;
                     let accountIdCus;
                     if (type === 'retail') {
@@ -184,7 +184,7 @@ class OrderHistoryController {
                         accountIdSupp = await Suppliers.query().select('accountid').where('id', supplierDataForCampaign.supplierid).first();
                     }
                     notif.sendNotiForWeb({
-                        userid: accountIdSupp.id,
+                        userid: accountIdSupp.accountid,
                         link: orderCode,
                         message: "changed to " + status,
                         status: "unread"
