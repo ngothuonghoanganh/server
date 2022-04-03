@@ -976,7 +976,7 @@ class OrderController {
   ) => {
     try {
       let {
-        status = "Delivered",
+        status = "delivered",
         orderCode,
         type,
         orderId,
