@@ -1,10 +1,10 @@
 import QueryString from "qs";
 import crypto from "crypto";
 import { Order } from "../models/orders";
+import moment from "moment";
 
 class Payment {
   public createPayment = async (req: any, res: any) => {
-    const dateFormat = require("dateformat/lib/dateformat.js");
     try {
       const ipAddr =
         req.headers["x-forwarded-for"] ||
@@ -39,15 +39,14 @@ class Payment {
       // vnp_Params['vnp_Merchant'] = ''
       vnp_Params["vnp_Locale"] = locale;
       vnp_Params["vnp_CurrCode"] = currCode;
-      vnp_Params["vnp_TxnRef"] = dateFormat(date, "HHmmss");
+      vnp_Params["vnp_TxnRef"] = moment(date).format("HHMmmss");
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
         returnUrl + `/order/payment?order_id=${orderId}`;
-      vnp_Params["vnp_Amount"] =
-        req.body.amount;
+      vnp_Params["vnp_Amount"] = req.body.amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
-      vnp_Params["vnp_CreateDate"] = dateFormat(date, "yyyymmddHHmmss");
+      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyymmDDHHmmss");
       if (bankCode !== null && bankCode !== "") {
         vnp_Params["vnp_BankCode"] = bankCode;
       }
