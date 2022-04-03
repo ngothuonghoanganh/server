@@ -63,7 +63,7 @@ router.post(
 router.get(
   "/All",
   Authentication.protected,
-  // Authentication.checkRole(["Supplier"]),
+  Authentication.checkRole(["Supplier"]),
   Product.getAllProductsAndCates
 );
 
