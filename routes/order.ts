@@ -134,7 +134,7 @@ router.put(
 
 router.put(
   "/status/delivery/cancelled",
-  Authentication.protected,
+  // Authentication.protected,
   // Authentication.checkRole(["Delivery"]),
   validator.body(updateStatusFromDeliveringToCancelledForDelivery),
   order.updateStatusFromDeliveringToCancelledForDelivery
