@@ -3,6 +3,7 @@ import { Customers } from "../models/customers";
 import { Accounts } from "../models/accounts";
 import { CampaignOrder } from "../models/campaingorder";
 import { Products } from "../models/products";
+import notif from "../services/realtime/notification";
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
@@ -187,9 +188,16 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      const accountIdCus = await Customers.query().select('accountid').where('id','44b18efd-14d7-45c1-8a11-ae0320cf8378').first();
+      // const accountIdCus = await Customers.query().select('accountid').where('id','44b18efd-14d7-45c1-8a11-ae0320cf8378').first();
 
-      console.log(accountIdCus.accountid)
+      // console.log(accountIdCus.accountid)
+      const accountIdCus = notif.sendNotiForWeb({
+        userid: '53c07267-74b6-486f-bed0-ab7ae7ef2bb7',
+        link: 'abc123',
+        message: 'ok',
+        status: "unread",
+        
+      })
       return res.status(200).send({
         message: "ok",
         data: accountIdCus

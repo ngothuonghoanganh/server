@@ -144,13 +144,13 @@ class ProductsController {
         .where("products.status", "<>", "deactivated")
         .andWhere("categories.supplierid", req.user.id);
 
-      prods = prods.map((prod: any) => {
-        if (prod.image) {
-          console.log(prod.image);
-          // prod.image = JSON.parse(prod.image);
-        }
-        return prod;
-      });
+      // prods = prods.map((prod: any) => {
+      //   if (prod.image) {
+      //     console.log(prod.image);
+      //     // prod.image = JSON.parse(prod.image);
+      //   }
+      //   return prod;
+      // });
       return res.status(200).send({
         message: "get success",
         data: prods,
