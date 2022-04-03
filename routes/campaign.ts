@@ -35,7 +35,7 @@ router.get(
 router.get(
   "/:campaignId",
   validator.params(paramsSchema),
-  CampaignController.getOneCompaignByCampaignId
+  CampaignController.getOneCampaignByCampaignId
 );
 
 router.delete(
@@ -43,7 +43,7 @@ router.delete(
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
   validator.params(paramsSchema),
-  CampaignController.deleteCompaign
+  CampaignController.deleteCampaign
 );
 
 router.put(
@@ -52,7 +52,7 @@ router.put(
   Authentication.checkRole(["Supplier"]),
   // validator.params(paramsSchema),
   // validator.body(bodySchema),
-  CampaignController.updateCompaign
+  CampaignController.updateCampaign
 );
 
 
