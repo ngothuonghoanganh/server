@@ -13,6 +13,7 @@ export class Accounts extends Model {
     roleid?: string;
     username?: string;
     password?: string;
-    googleid?: string
+    googleid?: string;
+    isdeleted?: Boolean;
 
 }

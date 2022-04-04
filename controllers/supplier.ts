@@ -4,6 +4,7 @@ import { Accounts } from "../models/accounts";
 import { CampaignOrder } from "../models/campaingorder";
 import { Products } from "../models/products";
 import notif from "../services/realtime/notification";
+import { Order } from "../models/orders";
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
@@ -191,16 +192,27 @@ class Supplier {
       // const accountIdCus = await Customers.query().select('accountid').where('id','44b18efd-14d7-45c1-8a11-ae0320cf8378').first();
 
       // console.log(accountIdCus.accountid)
-      const accountIdCus = notif.sendNotiForWeb({
-        userid: '53c07267-74b6-486f-bed0-ab7ae7ef2bb7',
-        link: 'abc123',
-        message: 'ok',
-        status: "unread",
+      // const accountIdCus = notif.sendNotiForWeb({
+      //   userid: '53c07267-74b6-486f-bed0-ab7ae7ef2bb7',
+      //   link: 'abc123',
+      //   message: 'ok',
+      //   status: "unread",
+
+      // })
+      let update = await Order.query()
+        .select()
+        .where((cd) => {
+          cd.where("status", "created")
+            .orWhere("status", "unpaid")
+            .orWhere("status", "advanced")
+            .orWhere("status", "processing");
+        })
+        .andWhere("ordercode", '5598674083-1648966735388');
+
         
-      })
       return res.status(200).send({
         message: "ok",
-        data: accountIdCus
+        data: update
       })
     } catch (error) {
       console.log(error)
