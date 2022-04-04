@@ -19,74 +19,18 @@ jobs:
         node-version: [14.x]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          cache: 'npm'
 
-      - name: Install app dependencies
-        run: npm i
-
-      - name: Build production app
-        run: npm run build
-
-      - name: CD - API Deployment
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzrP --delete
-          path: ./build/
-          remote_path: /home/ubuntu/server-production/
-          remote_host: 52.74.6.90
-          remote_user: ubuntu
-          remote_key: "${{ secrets.EC2_PRIVATE_KEY }}"
-      - name: CD - Fetch Firebase enviroment file
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzrP
-          path: ./models/firebase/serviceAccountKey.json
-          remote_path: /home/ubuntu/server-production/models/firebase/serviceAccountKey.json
-          remote_host: 52.74.6.90
-          remote_user: ubuntu
-          remote_key: "${{ secrets.EC2_PRIVATE_KEY }}"
-      - name: CD - Fetch API Environment file
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzrP
-          path: ./.env
-          remote_path: /home/ubuntu/server-production/.env
-          remote_host: 52.74.6.90
-          remote_user: ubuntu
-          remote_key: "${{ secrets.EC2_PRIVATE_KEY }}"
-      - name: CD - Fetch package.json API
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzrP
-          path: ./package.json
-          remote_path: /home/ubuntu/server-production/package.json
-          remote_host: 52.74.6.90
-          remote_user: ubuntu
-          remote_key: "${{ secrets.EC2_PRIVATE_KEY }}"
-      - name: CD - Fetch package-lock.json API
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzrP
-          path: ./package-lock.json
-          remote_path: /home/ubuntu/server-production/package-lock.json
-          remote_host: 52.74.6.90
-          remote_user: ubuntu
-          remote_key: "${{ secrets.EC2_PRIVATE_KEY }}"
-      - name: CD - Install production dependencies
+      - name: CD - Pull source code
         uses: appleboy/ssh-action@master
         with:
-          host: 52.74.6.90
+          host: 13.215.133.39
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: cd /home/ubuntu/server-production && npm install
-      - name: CD - Start API Production
+          script: cd /home/ubuntu/server && git pull
+      - name: CD - Install dependencies
         uses: appleboy/ssh-action@master
         with:
-          host: 52.74.6.90
+          host: 13.215.133.39
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: cd /home/ubuntu/server-production && pm2 -i max -f start app.js --name server
+          script: cd /home/ubuntu/server && npm install
