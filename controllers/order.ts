@@ -80,6 +80,7 @@ class OrderController {
             `),
             })
             .where("id", product.productId);
+          await OrderDetail.query().delete().where("id", product.cartId);
         }
         transactionController.createTransaction({
           ordercode: orderCode,
@@ -1658,6 +1659,19 @@ class OrderController {
                   ? "requires full payment via VNPAY E-Wallet"
                   : "is created",
             } as OrderStatusHistory);
+
+            const customer = await Customers.query()
+              .select()
+              .where("id", item.customerid)
+              .first();
+
+            notif.sendNotiForWeb({
+              userid: customer.accountid,
+              link: item.ordercode,
+              message: `campaign with code: ${campaign.code} is done`,
+              status: "unread",
+            });
+
             //type =campaign
           }
           let supplierId;
