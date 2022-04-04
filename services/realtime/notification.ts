@@ -18,7 +18,7 @@ class Notif {
                 status: "unread",
 
             })
-        console.log(insertNoti)
+        // console.log(insertNoti)
 
     };
 

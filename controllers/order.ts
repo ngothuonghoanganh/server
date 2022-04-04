@@ -88,20 +88,20 @@ class OrderController {
           supplierid: supplierId,
         } as Transaction);
 
-        orderStatusHistoryController.createHistory({
-          statushistory: "created",
-          type: "retail",
-          retailorderid: newOrder.id,
-          ordercode: newOrder.ordercode,
-          description: "is created",
-        } as OrderStatusHistory);
+        // orderStatusHistoryController.createHistory({
+        //   statushistory: "created",
+        //   type: "retail",
+        //   retailorderid: newOrder.id,
+        //   ordercode: newOrder.ordercode,
+        //   description: "is created",
+        // } as OrderStatusHistory);
 
-        notif.sendNotiForWeb({
-          userid: supplierData.accountid,
-          link: newOrder.ordercode,
-          message: "changed to " + "created", // statushistory = created
-          status: "unread",
-        });
+        // notif.sendNotiForWeb({
+        //   userid: supplierData.accountid,
+        //   link: newOrder.ordercode,
+        //   message: "changed to " + "created", // statushistory = created
+        //   status: "unread",
+        // });
 
         return res.status(200).send({
           message: "successful",
@@ -323,8 +323,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -976,18 +976,25 @@ class OrderController {
   public updateStatusFromReturningToDeliveredForRejectReturn = async (
     req: any,
     res: any,
-    next: any
   ) => {
     try {
       let {
-        status = "delivered",
         orderCode,
         type,
         orderId,
         description,
         image,
       } = req.body;
-
+      const requestReturnTime = await OrderStatusHistory.query()
+        .select()
+        .where("ordercode", orderCode)
+        .andWhere("statushistory", "returning");
+      let status;
+      if (requestReturnTime.length === 1) {
+        status = 'delivered'
+      } else {
+        status = 'completed'
+      }
       let update: any = await Order.query()
         .update({
           status: status,
@@ -1021,10 +1028,7 @@ class OrderController {
       //query order history theo order code va status = returning
       // === 0 ->>> notif to customer
       // === 1 ->>> notif cus + supp
-      const requestReturnTime = await OrderStatusHistory.query()
-        .select()
-        .where("ordercode", orderCode)
-        .andWhere("statushistory", "returning");
+
       console.log(requestReturnTime);
       //send notif to customer
       if (requestReturnTime.length === 1) {
