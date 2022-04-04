@@ -25,6 +25,7 @@ class ProductsController {
         name: name,
         retailprice: retailPrice,
         quantity: quantity,
+        supplierid: supplierId,
         description: description,
         image: JSON.stringify(image),
         categoryid: categoryId,
@@ -138,8 +139,8 @@ class ProductsController {
         "categories.id as categoryid",
       ];
       let prods = await Products.query()
-        .select(...listEntity, 'campaigns.maxquantity')
-        .join('campaigns', 'campaigns.productid', 'products.id')
+        .select(...listEntity)
+        // .join('campaigns', 'campaigns.productid', 'products.id')
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
         .where("products.status", "<>", "deactivated")
         .andWhere("categories.supplierid", req.user.id);
