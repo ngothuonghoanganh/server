@@ -25,6 +25,7 @@ class ProductsController {
         name: name,
         retailprice: retailPrice,
         quantity: quantity,
+        supplierid: supplierId,
         description: description,
         image: JSON.stringify(image),
         categoryid: categoryId,
