@@ -1,9 +1,14 @@
+import { Accounts } from "../models/accounts";
 import { Campaigns } from "../models/campaigns";
 import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import { Order } from "../models/orders";
+import { OrderStatusHistory } from "../models/orderstatushistory";
 import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
+import notif from "../services/realtime/notification";
+import orderStatusHistoryController from "./orderStatusHistoryController";
+
 
 class System {
   public getAllOrders = async (req: any, res: any, next: any) => {
@@ -201,13 +206,87 @@ class System {
             .orWhere("campaignorder.status", "advanced");
         })
         .groupBy("campaignorder.id");
-      // const customerIds = orders.map((order: any) => order.customerid);
-      // customerIds.push(
-      //   ...ordersInCampaign.map((order: any) => order.customerid)
-      // );
+      // 1. xoa order -> forof từng order và campaign order rồi cancel toàn bộ order của acc
+      const statusCancelOrder = 'cancelled';
+      for (const item of orders) {
+        await Order.query().update({
+          status: statusCancelOrder
+        })
+          .where('id', item.id);
+        const customer = await Customers.query().select().where('id', item.customerid).first();
+        notif.sendNotiForWeb({
+          userid: customer.accountid,
+          link: item.ordercode,
+          message: "changed to " + 'cancelled',
+          status: "cancelled",
+        });
+        //type= retail
+        orderStatusHistoryController.createHistory({
+          statushistory: "cancelled",
+          type: "retail",
+          retailorderid: item.id,
+          ordercode: item.ordercode,
+          description: "has been cancelled by System for: System's account has been disabled",
+        } as OrderStatusHistory);
+      }
+
+      for (const item of ordersInCampaign) {
+        await CampaignOrder.query().update({
+          status: statusCancelOrder
+        })
+          .where('id', item.id);
+        const customer = await Customers.query().select().where('id', item.customerid).first();
+        notif.sendNotiForWeb({
+          userid: customer.accountid,
+          link: item.ordercode,
+          message: "changed to " + 'cancelled',
+          status: "cancelled",
+        });
+
+        //type= campaign
+        orderStatusHistoryController.createHistory({
+          statushistory: "cancelled",
+          type: "campaign",
+          retailorderid: item.id,
+          campaignorderid: item.ordercode,
+          description: "has been cancelled by System for: System's account has been disabled",
+        } as OrderStatusHistory);
+      }
+      //2. deactivate all campaign
+      for (const item of ordersInCampaign) {
+        await CampaignOrder.query().update({
+          status: "stopped",
+        })
+          .where('id', item.id);
+      }
+
+      //3. deactivate all prod
+      // -- deacitve prod in Order table
+      for (const item of ordersInCampaign) {
+        await Products.query().update({
+          status: "deactivated",
+        })
+          .where('id', item.productid)
+      }
+      
+
+      // 4.  deactivate table account , supp account 
+      const deacitveSuppId = await Suppliers.query().update({
+        isdeleted: "true",
+      })
+        .where('id', supplierId)
+      const accountId = await Suppliers.query().select('accountid').where('id', supplierId).first();
+      const deactivatedAccount = await Accounts.query().update({
+        isdeleted: "true"
+      })
 
       return res.status(200).send({
-        // customerIds,
+        message: "successful",
+        data: ({
+          deactivatedAccount: deactivatedAccount,
+          deacitveSuppId: deacitveSuppId,
+
+        })
       });
     } catch (error) {
       console.log(error);
