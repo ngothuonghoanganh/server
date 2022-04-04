@@ -28,7 +28,7 @@ router.get(
       //   link: "",
       //   message: "hello world",
       // });
-      return res.status(200).send("successful");
+      return res.status(200).send("hello");
     } catch (error) {
       console.log(error);
     }
