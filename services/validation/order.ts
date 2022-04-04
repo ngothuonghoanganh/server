@@ -106,7 +106,7 @@ export const validUpdateStatusToCancelSupplierBodySchema = Joi.object({
   orderCode: Joi.string().required(),
   type: Joi.string().required(),
   orderId: Joi.string().required(),
-  image: Joi.string().required(),
+  image: Joi.array().required(),
   description: Joi.string().required(),
 });
 
