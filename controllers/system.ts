@@ -278,7 +278,7 @@ class System {
       const accountId = await Suppliers.query().select('accountid').where('id', supplierId).first();
       const deactivatedAccount = await Accounts.query().update({
         isdeleted: "true"
-      })
+      }).where('id', accountId);
 
       return res.status(200).send({
         message: "successful",
