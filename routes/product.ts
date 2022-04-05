@@ -4,6 +4,7 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
 import {
+  bodyProductIdsSchema,
   createBodyProductSchema,
   listCatesIdBodySchema,
   paramProductIdSchema,
@@ -48,7 +49,7 @@ router.post(
 
 router.post(
   '/products/rating',
-  // validator.body(bodyProductIdsSchema),
+  validator.body(bodyProductIdsSchema),
   Product.getRatingByListProducts
 
 )

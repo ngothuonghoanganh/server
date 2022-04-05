@@ -20,7 +20,7 @@ export const listCatesIdBodySchema = Joi.object({
 });
 
 export const bodyProductIdsSchema = Joi.object({
-  productIds: Joi.string().required(),
+  productIds: Joi.array().required(),
 });
 
 

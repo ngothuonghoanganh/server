@@ -6,6 +6,17 @@ import { rmSync } from "fs";
 import { any } from "joi";
 import { Categories } from "../models/category";
 import { Campaigns } from "../models/campaigns";
+import { CampaignOrder } from "../models/campaingorder";
+import notif from "../services/realtime/notification";
+import { Order } from "../models/orders";
+import { Accounts } from "../models/accounts";
+import { Customers } from "../models/customers";
+import orderStatusHistoryController from "./orderStatusHistoryController";
+import { OrderStatusHistory } from "../models/orderstatushistory";
+import transactionController from "./transaction";
+import { Transaction } from "objection";
+import { OrderDetail } from "../models/orderdetail";
+
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -106,16 +117,16 @@ class ProductsController {
 
       const List = supplierId
         ? await Categories.query()
-            .select("products.*", ...ListSupplierEntity)
-            .join("suppliers", "suppliers.id", "categories.supplierid")
-            .join("products", "products.categoryid", "categories.id")
-            .where("products.status", "<>", "deactivated")
-            .andWhere("categories.supplierid", supplierId)
+          .select("products.*", ...ListSupplierEntity)
+          .join("suppliers", "suppliers.id", "categories.supplierid")
+          .join("products", "products.categoryid", "categories.id")
+          .where("products.status", "<>", "deactivated")
+          .andWhere("categories.supplierid", supplierId)
         : await Categories.query()
-            .select("products.*", ...ListSupplierEntity)
-            .join("suppliers", "suppliers.id", "categories.supplierid")
-            .join("products", "products.categoryid", "categories.id")
-            .where("products.status", "<>", "deactivated");
+          .select("products.*", ...ListSupplierEntity)
+          .join("suppliers", "suppliers.id", "categories.supplierid")
+          .join("products", "products.categoryid", "categories.id")
+          .where("products.status", "<>", "deactivated");
 
       return res.status(200).send({
         message: "successful",
@@ -146,7 +157,7 @@ class ProductsController {
           .where("productid", prod.id)
           .groupBy("campaigns.id")
           .first()) || { sum: 0 };
-          
+
         prod.maxquantity = totalMaxQuantity.sum;
       }
 
@@ -223,7 +234,7 @@ class ProductsController {
   };
 
   //supplier  or inspector can do it
-  public disableProduct = async (req: any, res: any, next: any) => {
+  public disableProduct = async (req: any, res: any) => {
     try {
       const { productId } = req.params;
       await Products.query()
@@ -231,7 +242,111 @@ class ProductsController {
           status: "deactivated",
         })
         .where("id", productId)
-        .andWhere("status", "active");
+
+      const inCampaignByProductId: any = await Campaigns.query().select()
+        .where("productid", productId)
+        .andWhere((cd) => {
+          cd.where("status", "ready")
+            .orWhere("status", "active")
+        })
+
+      if (inCampaignByProductId.length > 0) {
+        for (const item of inCampaignByProductId) {
+          await Campaigns.query().update({
+            status: "stopped",
+          })
+            .where('id', item.id);
+        }
+      }
+
+      const orderRetail: any = await Order.query().select()
+        .join('orderdetail', 'orders.id', 'orderdetail.orderid')
+        .where('orderdetail.productid', productId)
+        .andWhere((cd) => {
+          cd.where("orders.status", "advanced")
+            .orWhere("orders.status", "created")
+            .orWhere("orders.status", "unpaid")
+        })
+
+      const orderCampaign: any = await CampaignOrder.query().select()
+        .where('productid', productId)
+        .andWhere((cd) => {
+          cd.where("status", "advanced")
+            .orWhere("status", "created")
+            .orWhere("status", "unpaid")
+        })
+
+      //send notif for customer for retail
+      if (orderRetail.length > 0) {
+        for (const item of orderRetail) {
+          await Order.query().update({
+            status: "cancelled",
+          })
+            .where('id', item.id);
+          const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
+          notif.sendNotiForWeb({
+            userid: cusAccountId.accountid,
+            link: item.ordercode,
+            message: "Order " + item.ordercode + " has been cancelled because the product has been disabled",
+            status: "unread",
+          });
+          orderStatusHistoryController.createHistory({
+            statushistory: 'cancelled',
+            type: 'retail',
+            retailorderid: item.id,
+            // image: JSON.stringify(image),
+            ordercode: item.ordercode,
+            description: "has been cancelled for: product has been disabled",
+          } as OrderStatusHistory);
+        }
+      }
+
+      //send notif for customer for campaign
+      if (orderCampaign.length > 0) {
+        for (const item of orderCampaign) {
+          await CampaignOrder.query().update({
+            status: "cancelled",
+          })
+            .where('id', item.id);
+          const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
+
+          notif.sendNotiForWeb({
+            userid: cusAccountId.accountid,
+            link: item.ordercode,
+            message: "Order " + item.ordercode + " has been cancelled because the product has been disabled",
+            status: "unread",
+          });
+          orderStatusHistoryController.createHistory({
+            statushistory: 'cancelled',
+            type: "campaign",
+            campaignorderid: item.id,
+            // image: JSON.stringify(image),
+            ordercode: item.ordercode,
+            description: "has been cancelled for: product has been disabled",
+          } as OrderStatusHistory);
+        }
+      }
+
+      const suppId: any = await Products.query().select('categories.supplierid')
+        .join('categories', "categories.id", "products.categoryid")
+        .where('products.id', productId).first();
+
+      //send notif for supp abt
+      const suppAccountId = await Suppliers.query().select('accountid').where('id', suppId.supplierid).first();
+
+      notif.sendNotiForWeb({
+        userid: suppAccountId.accountid,
+        link: productId,
+        message: 'Product and its related campaigns and orders have been cancelled',
+        status: "unread",
+      });
+
+      transactionController.createTransaction({
+        ordercode: null,
+        iswithdrawable: false,
+        type: "penalty",
+        supplierid: suppId.supplierid
+      } as Transaction);
 
       return res.status(200).send({
         message: "Delete Success",
@@ -245,14 +360,32 @@ class ProductsController {
   public getRatingByListProducts = async (req: any, res: any, next: any) => {
     try {
       const productIds = req.body.productIds;
+      const nullValue = '';
+      const campaignOrder: any = await CampaignOrder.query()
+        .select('campaignorder.productid',
+          CampaignOrder.raw('COUNT(campaignorder.id) as count'),
+          CampaignOrder.raw(`SUM (rating) AS rating`)
+        )
+        .whereIn('campaignorder.productid', productIds)
+        .andWhere('campaignorder.comment', "<>", nullValue)
+        .groupBy('productid');
 
-      const listRating = await Comments.query()
-        .select("productid", Comments.raw(`AVG(rating) as rating`))
-        .whereIn("productid", productIds)
-        .groupBy("productid");
+      const retailOrder: any = await OrderDetail.query()
+        .select('orderdetail.productid',
+          OrderDetail.raw('COUNT(orderdetail.id) as count'),
+          OrderDetail.raw(`SUM (rating) AS rating`)
+        )
+        .whereIn('orderdetail.productid', productIds)
+        .andWhere('orderdetail.comment', "<>", nullValue)
+        .groupBy('productid');
+
+      // const listRating = await Comments.query()
+      //   .select("productid", Comments.raw(`AVG(rating) as rating`))
+      //   .whereIn("productid", productIds)
+      //   .groupBy("productid");
       return res.status(200).send({
         message: "successful",
-        data: listRating,
+        data: ({ campaignOrder: campaignOrder, retailOrder: retailOrder }),
       });
     } catch (error) {
       console.log(error);

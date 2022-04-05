@@ -140,7 +140,7 @@ class System {
 
   public disableSupplier = async (req: any, res: any, next: any) => {
     try {
-      const { supplierId, supplierAccountId } = req.body;
+      const { supplierId } = req.body;
 
       let prods = await Products.query()
         .select(
@@ -268,7 +268,7 @@ class System {
         })
           .where('id', item.productid)
       }
-      
+
 
       // 4.  deactivate table account , supp account 
       const deacitveSuppId = await Suppliers.query().update({
@@ -290,6 +290,95 @@ class System {
       });
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  public disableCustomer = async (req: any, res: any) => {
+    try {
+      const customerId = req.body.customerId;
+      const orderRetail: any = await Order.query()
+        .select('orders.id', 'categories.supplierid','orders.ordercode')
+        .join('orderdetail', 'orderdetail.orderid', 'orders.id')
+        .join('products', 'products.id', 'orderdetail.productid')
+        .join('categories', 'categories.id', 'products.categoryid')
+        .where('orders.customerid', customerId)
+        .andWhere((cd) => {
+          cd.where("orders.status", "advanced")
+            .orWhere("orders.status", "created")
+            .orWhere("orders.status", "unpaid")
+        })
+
+
+      const orderCampaign: any = await CampaignOrder.query()
+        .select('campaignorder.id', 'categories.supplierid', 'campaignorder.ordercode')
+        .join('products', 'products.id', 'campaignorder.productid')
+        .join('categories', 'categories.id', 'products.categoryid')
+        .where('campaignorder.customerid', customerId)
+        .andWhere((cd) => {
+          cd.where("campaignorder.status", "advanced")
+            .orWhere("campaignorder.status", "created")
+            .orWhere("campaignorder.status", "unpaid")
+        })
+
+      if (orderRetail.length > 0) {
+        for (const item of orderRetail) {
+          await Order.query().update({
+            status: "cancelled",
+          })
+            .where('id', item.id);
+          const suppAccountId = await Suppliers.query().select('accountid').where('id', item.supplierid).first();
+          notif.sendNotiForWeb({
+            userid: suppAccountId.accountid,
+            link: item.ordercode,
+            message: "Order " + item.ordercode + " has been cancelled because customer account has been disabled",
+            status: "unread",
+          });
+          orderStatusHistoryController.createHistory({
+            statushistory: 'cancelled',
+            type: 'retail',
+            retailorderid: item.id,
+            // image: JSON.stringify(image),
+            ordercode: item.ordercode,
+            description: "has been cancelled for: customer account has been disabled",
+          } as OrderStatusHistory);
+        }
+      }
+
+      //send notif for supp for campaign
+      if (orderCampaign.length > 0) {
+        for (const item of orderCampaign) {
+          await CampaignOrder.query().update({
+            status: "cancelled",
+          })
+            .where('id', item.id);
+          const suppAccountId = await Suppliers.query().select('accountid').where('id', item.supplierid).first();
+          notif.sendNotiForWeb({
+            userid: suppAccountId.accountid,
+            link: item.ordercode,
+            message: "Order " + item.ordercode + " has been cancelled because customer account has been disabled",
+            status: "unread",
+          });
+          orderStatusHistoryController.createHistory({
+            statushistory: 'cancelled',
+            type: 'campaign',
+            campaignorderid: item.id,
+            // image: JSON.stringify(image),
+            ordercode: item.ordercode,
+            description: "has been cancelled for: customer account has been disabled ",
+          } as OrderStatusHistory);
+        };
+      }
+      const disableCustomer=await Customers.query().update({
+        isdeleted: true,
+      })
+      .where('id', customerId);
+
+      return res.status(200).send({
+        message: 'successful',
+        data: disableCustomer
+      })
+    } catch (error) {
+      console.log(error)
     }
   };
 }
