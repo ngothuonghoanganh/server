@@ -19,7 +19,7 @@ router.post(
   );
 
   router.post(
-    "/",
+    "/comment/id",
     validator.body(getCommentByOrderId),
     Comment.getCommentByOrderId
   );
