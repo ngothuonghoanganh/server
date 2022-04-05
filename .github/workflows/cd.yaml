@@ -26,7 +26,7 @@ jobs:
           host: 13.215.133.39
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: cd /home/ubuntu/server && git pull
+          script: cd /home/ubuntu/server && git fetch origin main && git reset --hard origin/main && git pull
       - name: CD - Install dependencies
         uses: appleboy/ssh-action@master
         with:
@@ -34,3 +34,18 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: cd /home/ubuntu/server && npm install
+      - name: CD - Kill all ExpressJS process
+        uses: appleboy/ssh-action@master
+        with:
+          host: 13.215.133.39
+          username: ubuntu
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: (fuser -n tcp -k 3000) || true
+      - name: CD - Start ExpressJS Nodemon. Please wait 1 minute after this!
+        uses: appleboy/ssh-action@master
+        with:
+          host: 13.215.133.39
+          username: ubuntu
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: cd /home/ubuntu/server && nodemon &
+        timeout-minutes: 1
