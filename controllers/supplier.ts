@@ -198,21 +198,26 @@ class Supplier {
       //   message: 'ok',
       //   status: "unread",
 
-      // })
-      let update = await Order.query()
-        .select()
-        .where((cd) => {
-          cd.where("status", "created")
-            .orWhere("status", "unpaid")
-            .orWhere("status", "advanced")
-            .orWhere("status", "processing");
-        })
-        .andWhere("ordercode", '5598674083-1648966735388');
-
-        
+      // const orders: any = await Order.query()
+      //   .select('orders.id', 'categories.supplierid')
+      //   .join('orderdetail','orderdetail.orderid', 'orders.id')
+      //   .join('products', 'products.id', 'orderdetail.productid')
+      //   .join('categories', 'categories.id', 'products.categoryid')
+      //   .where('orders.customerid', 'bb9610ed-d151-418f-857a-5c9ca948f669')
+      const ListEntity = [
+        'customers.avt',
+        'customers.firstname',
+        'customers.lastname'
+      ]
+      const nullValue = '';
+      const campaignOrder: any = await CampaignOrder.query()
+        .select('campaignorder.comment', ...ListEntity, 'campaignorder.rating')
+        .join('customers', 'customers.id', 'campaignorder.customerid')
+        .where('campaignorder.productid', '8f984767-8816-449e-b711-26aadd60ab44')
+        .andWhere('campaignorder.comment', "<>", nullValue)
       return res.status(200).send({
         message: "ok",
-        data: update
+        data: campaignOrder
       })
     } catch (error) {
       console.log(error)

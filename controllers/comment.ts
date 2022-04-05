@@ -1,73 +1,85 @@
+import { CampaignOrder } from "../models/campaingorder";
 import { Comments } from "../models/comment";
 import { OrderDetail } from "../models/orderdetail";
 import { Order } from "../models/orders";
 
 class Comment {
-    public CreateNewComment = async (req: any, res: any, next: any) => {
+    public updateComment = async (req: any, res: any, next: any) => {
         try {
             let {
-                orderDetailId,
-                productId,
+                isCampaign,
                 comment,
-                customerId,
+                orderId,
                 rating
-
             } = req.body
-            console.log(orderDetailId)
-
-            const createNew = await Comments.query()
-                .insert({
-                    oderdetailid: orderDetailId,
-                    productid: productId,
+            let update;
+            if (isCampaign) {
+                update = await CampaignOrder.query().update({
                     comment: comment,
-                    customerid: customerId,
                     rating: rating
                 })
+                    .where('id', orderId).first();
+            } else {
+                update = await OrderDetail.query().update({
+                    comment: comment,
+                    rating: rating
+                })
+                    .where('id', orderId).first();
+            }
 
             return res.status(200).send({
                 message: 'successful',
-                data: createNew
+                data: update
             })
         } catch (error) {
             console.log(error)
         }
     };
 
-    public getCommentById = async (req: any, res: any, next: any) => {
+    // public getCommentById = async (req: any, res: any, next: any) => {
+    //     try {
+    //         const commentId = req.params.commentId;
+    //         const ListEntity = [
+    //             'customers.avt',
+    //             'customers.firstname',
+    //             'customers.lastname'
+    //         ]
+    //         const data = await Comments.query()
+    //             .select('comments.*', ...ListEntity)
+    //             .join('customers', 'customers.id', 'comments.customerid')
+    //             .where('comments.id', commentId)
+
+    //         return res.status(200).send({
+    //             message: 'successful',
+    //             data: data
+    //         })
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // };
+
+    public getCommentByOrderId = async (req: any, res: any, next: any) => {
         try {
-            const commentId = req.params.commentId;
+            const orderId = req.body.orderId;
+            const isCampaign = req.body.isCampaign;
             const ListEntity = [
                 'customers.avt',
                 'customers.firstname',
                 'customers.lastname'
             ]
-            const data = await Comments.query()
-                .select('comments.*', ...ListEntity)
-                .join('customers', 'customers.id', 'comments.customerid')
-                .where('comments.id', commentId)
-
-            return res.status(200).send({
-                message: 'successful',
-                data: data
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    };
-
-    public getCommentByOrderDetailId = async (req: any, res: any, next: any) => {
-        try {
-            const orderDetailId = req.query.orderDetailId;
-            const ListEntity = [
-                'customers.avt',
-                'customers.firstname',
-                'customers.lastname'
-            ]
-            const data = await Comments.query()
-                .select('comments.*', ...ListEntity)
-                .join('customers', 'customers.id', 'comments.customerid')
-                .where('oderdetailid', orderDetailId)
-
+            let data;
+            if (isCampaign) {
+                data = await CampaignOrder.query()
+                    .select('campaignorder.comment', ...ListEntity, 'campaignorder.rating')
+                    .join('customers', 'customers.id', 'campaignorder.customerid')
+                    .where('id', orderId)
+            } else {
+                data = await OrderDetail.query()
+                    .select('orderdetail.comment', ...ListEntity, 'orderdetail.rating')
+                    .join('orders', 'orders.id', 'orderdetail.orderid')
+                    .join('customers', 'customers.id', 'orders.customerid')
+                    .where('id', orderId)
+            }
             return res.status(200).send({
                 message: 'successful',
                 data: data
@@ -86,14 +98,32 @@ class Comment {
                 'customers.firstname',
                 'customers.lastname'
             ]
-            const data = await Comments.query()
-                .select('comments.*', ...ListEntity)
-                .join('customers', 'customers.id', 'comments.customerid')
-                .where('comments.productid', productId)
+            // const data = await Comments.query()
+            //     .select('comments.*', ...ListEntity)
+            //     .join('customers', 'customers.id', 'comments.customerid')
+            //     .where('comments.productid', productId)
+
+
+
+            const nullValue = '';
+            const campaignOrder: any = await CampaignOrder.query()
+                .select('campaignorder.comment', ...ListEntity, 'campaignorder.rating')
+                .join('customers', 'customers.id', 'campaignorder.customerid')
+                .where('campaignorder.productid', productId)
+                .andWhere('campaignorder.comment', "<>", nullValue)
+
+            const retailOrder: any = await OrderDetail.query()
+                .select('orderdetail.comment', ...ListEntity, 'orderdetail.rating')
+                .join('orders', 'orders.id', 'orderdetail.orderid')
+                .join('customers', 'customers.id', 'orders.customerid')
+                .where('orderdetail.productid', productId)
+                .andWhere('orderdetail.comment', "<>", nullValue)
+
+            campaignOrder.push(...retailOrder)
 
             return res.status(200).send({
                 message: 'successful',
-                data: data
+                data: campaignOrder
             })
         } catch (error) {
             console.log(error)
@@ -105,24 +135,33 @@ class Comment {
             const productId = req.body.productId;
             let totalNumOfComment = 0;
             let averageRating
-            const data: any = await Comments.query()
-                .select(
-                    '*'
-                )
-                .where('productid', productId)
+            const nullValue = '';
 
-            if (data.length > 0) {
-                totalNumOfComment = data.length
-                averageRating = (data.map((item: any) => item.rating).reduce((prev: any, next: any) => prev + next)) / totalNumOfComment;
+            const campaignOrder: any = await CampaignOrder.query()
+                .select('campaignorder.comment', 'campaignorder.rating')
+                .where('campaignorder.productid', productId)
+                .andWhere('campaignorder.comment', "<>", nullValue)
+
+            const retailOrder: any = await OrderDetail.query()
+                .select('orderdetail.comment', 'orderdetail.rating')
+                .where('orderdetail.productid', productId)
+                .andWhere('orderdetail.comment', "<>", nullValue)
+
+
+            campaignOrder.push(...retailOrder)
+
+            if (campaignOrder.length > 0) {
+                totalNumOfComment = campaignOrder.length
+                averageRating = (campaignOrder.map((item: any) => item.rating).reduce((prev: any, next: any) => prev + next)) / totalNumOfComment;
+               
                 return res.status(200).send({
                     message: 'successful',
-                    data: ({ comments: data, totalNumOfComment, averageRating })
+                    data: ({ comments: campaignOrder, totalNumOfComment, averageRating })
                 })
             }
-
             return res.status(200).send({
                 message: 'no result',
-               
+
             })
         } catch (error) {
             console.log(error)
@@ -155,7 +194,7 @@ class Comment {
                 r[a.productId].push(a);
                 return r;
             }, Object.create({}));
-            
+
             return res.status(200).send({
                 message: 'successful',
                 data: ({ result, })
