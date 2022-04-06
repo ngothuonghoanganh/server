@@ -44,22 +44,28 @@ class Comment {
         "customers.firstname",
         "customers.lastname",
       ];
-      let data;
+      let data = [];
       if (isCampaign) {
         data = await CampaignOrder.query()
           .select(
+            "campaignorder.*",
             "campaignorder.comment",
             ...ListEntity,
             "campaignorder.rating"
           )
           .join("customers", "customers.id", "campaignorder.customerid")
-          .where("id", orderId);
+          .where("campaignorder.id", orderId);
       } else {
         data = await OrderDetail.query()
-          .select("orderdetail.comment", ...ListEntity, "orderdetail.rating")
+          .select(
+            "orderdetail.*",
+            "orderdetail.comment",
+            ...ListEntity,
+            "orderdetail.rating"
+          )
           .join("orders", "orders.id", "orderdetail.orderid")
           .join("customers", "customers.id", "orders.customerid")
-          .where("id", orderId);
+          .where("orderdetail.id", orderId);
       }
       return res.status(200).send({
         message: "successful",
@@ -81,7 +87,7 @@ class Comment {
       ];
 
       const nullValue = "";
-      
+
       // select * from campaignorder join customer on campaignorder.customerid = customer.id
       // where campaignorder.productid =${productId}
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )

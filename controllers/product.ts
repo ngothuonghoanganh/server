@@ -103,18 +103,6 @@ class ProductsController {
         "suppliers.address as supplieraddress",
       ];
 
-      // const List = supplierId
-      //   ? await Products.query()
-      //     .select("products.*", ...ListSupplierEntity)
-      //     // .join('suppliers', 'suppliers.id', 'products.supplierid')
-      //     .join("suppliers", "suppliers.id", "products.supplierid")
-      //     .where("supplierid", supplierId)
-      //     .andWhere("status", "<>", "deactivated")
-      //   : await Products.query()
-      //     .select(...ListSupplierEntity, "products.*")
-      //     .join("suppliers", "suppliers.id", "products.supplierid")
-      //     .where("status", "<>", "deactivated");
-
       const List = supplierId
         ? await Categories.query()
           .select("products.*", ...ListSupplierEntity)
