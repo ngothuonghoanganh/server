@@ -153,8 +153,8 @@ class System {
           "categories.id as categoryid",
           "campaigns.id as campaignid"
         )
+        .join("categories", "categories.id", "products.categoryid")
         .join("campaigns", "campaigns.productid", "products.id")
-        .leftOuterJoin("categories", "categories.id", "products.categoryid")
         .where("products.status", "<>", "deactivated")
         .andWhere("categories.supplierid", supplierId);
 
@@ -252,8 +252,8 @@ class System {
         orderStatusHistoryController.createHistory({
           statushistory: "cancelled",
           type: "campaign",
-          retailorderid: item.id,
-          campaignorderid: item.ordercode,
+          campaignorderid: item.id,
+          ordercode: item.ordercode,
           description: "has been cancelled by System for: System's account has been disabled",
         } as OrderStatusHistory);
       }
