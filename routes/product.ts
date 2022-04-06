@@ -20,7 +20,6 @@ const validator = createValidator();
 router.get(
   "/",
   // Authentication.protected,
-  // Authentication.checkRole(["Supplier"0]),
   Product.getAllProductAndSupplierInformation
 );
 
