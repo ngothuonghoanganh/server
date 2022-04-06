@@ -61,6 +61,11 @@ class System {
         .groupBy("campaigns.id");
 
       orders.push(...ordersInCampaign);
+
+      for (const order of orders) {
+        const customer = await Customers.query().select().where("id", order.customerid).first();
+        order.customer = customer;
+      }
       return res.status(200).send({
         message: "successful",
         data: orders,
