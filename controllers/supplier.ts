@@ -189,35 +189,43 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      // const accountIdCus = await Customers.query().select('accountid').where('id','44b18efd-14d7-45c1-8a11-ae0320cf8378').first();
 
-      // console.log(accountIdCus.accountid)
-      // const accountIdCus = notif.sendNotiForWeb({
-      //   userid: '53c07267-74b6-486f-bed0-ab7ae7ef2bb7',
-      //   link: 'abc123',
-      //   message: 'ok',
-      //   status: "unread",
+      // const ordersInCampaign = await CampaignOrder.query()
+      //   .select(
+      //     "campaignorder.*",
+      //     CampaignOrder.raw(
+      //       `array_to_json(array_agg(json_build_object(
+      //       'id','',
+      //       'image', image,
+      //       'price', campaignorder.price,
+      //       'quantity', campaignorder.quantity,
+      //       'ordercode', ordercode,
+      //       'productid', campaignorder.productid,
+      //       'campaignid', campaignid,
+      //       'incampaign', true,
+      //       'customerid', customerid,
+      //       'totalprice', totalprice,
+      //       'productname', campaignorder.productname,
+      //       'notes', campaignorder.notes)
+      //       )) as details`
+      //     )
+      
+      let prods = await Products.query()
+        .select(
+          "products.id as productid",
+          "categories.id as categoryid",
+          "campaigns.id as campaignid"
+        )
+        .join("campaigns", "campaigns.productid", "products.id")
+        .leftOuterJoin("categories", "categories.id", "products.categoryid")
+        .where("products.status", "<>", "deactivated")
+        .andWhere("categories.supplierid", '481d3929-7ce6-4826-b39d-d7b3892d7013');
 
-      // const orders: any = await Order.query()
-      //   .select('orders.id', 'categories.supplierid')
-      //   .join('orderdetail','orderdetail.orderid', 'orders.id')
-      //   .join('products', 'products.id', 'orderdetail.productid')
-      //   .join('categories', 'categories.id', 'products.categoryid')
-      //   .where('orders.customerid', 'bb9610ed-d151-418f-857a-5c9ca948f669')
-      const ListEntity = [
-        'customers.avt',
-        'customers.firstname',
-        'customers.lastname'
-      ]
-      const nullValue = '';
-      const campaignOrder: any = await CampaignOrder.query()
-        .select('campaignorder.comment', ...ListEntity, 'campaignorder.rating')
-        .join('customers', 'customers.id', 'campaignorder.customerid')
-        .where('campaignorder.productid', '8f984767-8816-449e-b711-26aadd60ab44')
-        .andWhere('campaignorder.comment', "<>", nullValue)
+        console.log(prods)
+        const productIds = prods.map((item: any) => item.productid);
       return res.status(200).send({
         message: "ok",
-        data: campaignOrder
+        data: prods
       })
     } catch (error) {
       console.log(error)

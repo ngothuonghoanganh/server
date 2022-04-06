@@ -31,6 +31,8 @@ import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
 import transactionRouter from "./routes/transaction";
 import systemRouter from "./routes/system";
+// import notifRouter from "./services/realtime/notification";
+
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -94,6 +96,8 @@ app.use("/api/supplier", supplierRouter);
 app.use("/api/history", retailOrderRouter);
 app.use("/api/transaction", transactionRouter);
 app.use("/api/system", systemRouter);
+// app.use("/api/notif", notifRouter);
+
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {

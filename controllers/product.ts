@@ -357,6 +357,25 @@ class ProductsController {
     }
   };
 
+  public activeProductById = async (req: any, res: any) => {
+    try {
+      const productId = req.body.productId;
+
+      const update = await Products.query().update({
+        status: 'active',
+      })
+        .where('status', 'deactivated')
+        .andWhere('id', productId).first();
+
+      return res.status(200).send({
+        message: " successful",
+        data: update
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   public getRatingByListProducts = async (req: any, res: any, next: any) => {
     try {
       const productIds = req.body.productIds;
