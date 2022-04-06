@@ -24,14 +24,13 @@ import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
 import paymentRouter from "./routes/payment";
 import loyalCustomerRouter from "./routes/loyalCustomer";
-import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
 import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
 import transactionRouter from "./routes/transaction";
 import systemRouter from "./routes/system";
-// import notifRouter from "./services/realtime/notification";
+import notifRouter from "./routes/notif";
 
 
 import Logger from "./lib/logger";
@@ -96,7 +95,7 @@ app.use("/api/supplier", supplierRouter);
 app.use("/api/history", retailOrderRouter);
 app.use("/api/transaction", transactionRouter);
 app.use("/api/system", systemRouter);
-// app.use("/api/notif", notifRouter);
+app.use("/api/notif", notifRouter);
 
 
 try {
