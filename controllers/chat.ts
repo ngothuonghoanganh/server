@@ -139,6 +139,44 @@ class ChatController {
       console.log(error);
     }
   };
+
+  public getChatAllowTime = async (req: any, res: any, next: any) => {
+    try {
+      // const from = req.user.accountid;
+      const { from, to, startDate, endDate } = req.body;
+      // const from = req.body.from;
+      // const to = req.body.to;
+
+      const data = await Chat.query()
+        .select()
+        .where((cd) => {
+          cd.where((cd1) => {
+            cd1.where("from", from).andWhere("to", to);
+          }).orWhere((cd2) => {
+            cd2.where("to", from).andWhere("from", to);
+          });
+        })
+        .andWhere((cd) => {
+          if (startDate && endDate) {
+            cd.whereBetween("createdat", [startDate, endDate]);
+          }
+          if (startDate && !endDate) {
+            cd.where("createdat", ">=", startDate);
+          }
+
+          if (!startDate && endDate) {
+            cd.where("createdat", "<=", endDate);
+          }
+        });
+
+      return res.status(200).send({
+        message: "successful",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 export default new ChatController();
