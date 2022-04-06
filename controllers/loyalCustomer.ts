@@ -126,7 +126,7 @@ class LoyalcustomerController {
 
       return res.status(200).send({
         data: data,
-        message: "get successfully",
+        message: "update successfully",
       });
     } catch (error) {
       console.log(error);
