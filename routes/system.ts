@@ -17,4 +17,14 @@ router.post("/suppliers/disable", systemControllers.disableSupplier);
 
 router.post("/customer/disable", systemControllers.disableCustomer)
 
+router.post(
+    '/enableCustomer/id',
+    systemControllers.enableCustomerByCusId
+);
+router.post(
+    '/enableSupplier',
+    systemControllers.enableSupplier
+)
+
+
 export default router;

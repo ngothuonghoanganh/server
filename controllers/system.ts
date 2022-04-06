@@ -283,7 +283,7 @@ class System {
       const accountId = await Suppliers.query().select('accountid').where('id', supplierId).first();
       const deactivatedAccount = await Accounts.query().update({
         isdeleted: "true"
-      }).where('id', accountId);
+      }).where('id', accountId.accountid);
 
       return res.status(200).send({
         message: "successful",
@@ -302,7 +302,7 @@ class System {
     try {
       const customerId = req.body.customerId;
       const orderRetail: any = await Order.query()
-        .select('orders.id', 'categories.supplierid','orders.ordercode')
+        .select('orders.id', 'categories.supplierid', 'orders.ordercode')
         .join('orderdetail', 'orderdetail.orderid', 'orders.id')
         .join('products', 'products.id', 'orderdetail.productid')
         .join('categories', 'categories.id', 'products.categoryid')
@@ -373,14 +373,63 @@ class System {
           } as OrderStatusHistory);
         };
       }
-      const disableCustomer=await Customers.query().update({
+      const disableCustomer = await Customers.query().update({
         isdeleted: true,
       })
-      .where('id', customerId);
+        .where('id', customerId);
 
       return res.status(200).send({
         message: 'successful',
         data: disableCustomer
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public enableCustomerByCusId = async (req: any, res: any) => {
+    try {
+      const customerId = req.body.customerId;
+
+      const update = await Customers.query().update({
+        isdeleted: false,
+      })
+        .where('isdeleted', true)
+        .andWhere('id', customerId);
+
+      return res.status(200).send({
+        message: "successful",
+        data: update
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public enableSupplier = async (req: any, res: any) => {
+    try {
+      const supplierId = req.body.supplierId;
+      // const dateForUpdate = await Suppliers.query().select('updatedat').where('id', supplierId).first();
+
+      const data = await Suppliers.query().update({
+        isdeleted: "false"
+      })
+        .where('isdeleted', true)
+        .andWhere('id', supplierId);
+
+      // const prods = await Products.query().select(
+      //   Suppliers.raw(`select updatedat from Suppliers where`)
+      // )
+      //   .join('categories', 'products.categoryid', 'categories.id')
+      //   .where('categories.supplierid', supplierId)
+      //   .andWhere('products.status', 'deactivated')
+      //   .andWhere('products.updatedat', '>=', dateForUpdate.updatedat)
+
+        // console.log(prods)
+
+      return res.status(200).send({
+        message: 'successful',
+        data: data
       })
     } catch (error) {
       console.log(error)

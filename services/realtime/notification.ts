@@ -1,6 +1,8 @@
 
+import { Customers } from "../../models/customers";
 import { database } from "../../models/firebase/firebase";
 import { Notification } from "../../models/notification";
+import { Suppliers } from "../../models/suppliers";
 
 class Notif {
     //send noti gom 3 thanh phan 
@@ -29,6 +31,45 @@ class Notif {
             const data = await Notification.query()
                 .select()
                 .where('userid', accountId)
+
+            return res.status(200).send({
+                message: 'successful',
+                data: data
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    public getNotiForLoginUser = async (req: any, res: any) => {
+        try {
+            const userId = req.user.id;
+            let accountId;
+            accountId = await Customers.query().select('accountid').where('id', userId).first();
+            if (!accountId) {
+                accountId = await Suppliers.query().select('accountid').where('id', userId).first();
+
+            }
+
+            const data = await Notification.query().select().where('accountid', accountId);
+
+            return res.status(200).send({
+                message: 'successful',
+                data: data
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    public updateNotifByListId = async (req: any, res: any) => {
+        try {
+            const notifs = req.body.notifs;
+
+            const data = await Notification.query().update({
+                status: "read"
+            })
+                .whereIn('id', notifs);
 
             return res.status(200).send({
                 message: 'successful',
