@@ -245,10 +245,10 @@ class ProductsController {
 
       const inCampaignByProductId: any = await Campaigns.query().select()
         .where("productid", productId)
-        .andWhere((cd) => {
-          cd.where("status", "ready")
-            .orWhere("status", "active")
-        })
+        // .andWhere((cd) => {
+        //   cd.where("status", "ready")
+        //     .orWhere("status", "active")
+        // })
 
       if (inCampaignByProductId.length > 0) {
         for (const item of inCampaignByProductId) {
