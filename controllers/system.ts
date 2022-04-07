@@ -147,32 +147,36 @@ class System {
     try {
       const { supplierId } = req.body;
 
-      let prods = await Products.query()
-        .select(
-          "products.id as productid",
-          "categories.id as categoryid",
-          "campaigns.id as campaignid"
-        )
-        .join("categories", "categories.id", "products.categoryid")
-        .join("campaigns", "campaigns.productid", "products.id")
-        .where("products.status", "<>", "deactivated")
-        .andWhere("categories.supplierid", supplierId);
+      // let prods = await Products.query()
+      //   .select(
+      //     "products.id as productid",
+      //     "categories.id as categoryid",
+      //     "campaigns.id as campaignid"
+      //   )
+      //   .join("categories", "categories.id", "products.categoryid")
+      //   .join("campaigns", "campaigns.productid", "products.id")
+      //   .where("products.status", "<>", "deactivated")
+      //   .andWhere("categories.supplierid", supplierId);
 
-      const productIds = prods.map((item: any) => item.productid);
-      const categoryIds = prods.map((item: any) => item.categoryid);
-      const campaignIds = prods.map((item: any) => item.campaignid);
-      // console.log(prods);
-      // console.log(productIds);
-      // console.log(categoryIds);
-      // console.log(campaignIds);
+      const products = await Products.query()
+        .select('products.id')
+        .join('categories', 'products.categoryid', 'categories.id')
+        .where('categories.supplierid', supplierId)
+        .andWhere('products.status', '<>', 'deactivated');
+
+      const campaign = await Campaigns.query().select('campaigns.id')
+
+        .where('supplierid', supplierId)
+        .andWhere((cd) => {
+          cd.where('status', 'active')
+            .orWhere('status', 'ready');
+        })
+
+      const campaignIds = campaign.map((item: any) => item.id);
+      const productIds = products.map((item: any) => item.id);
 
       const orders: any = await Order.query()
-        .select(
-          "orders.*",
-          Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
-          )
-        )
+        .select()
         .join("orderdetail", "orders.id", "orderdetail.orderid")
         .whereIn("orderdetail.productid", productIds)
         .andWhere((cd) => {
@@ -184,25 +188,7 @@ class System {
         .groupBy("orders.id");
 
       const ordersInCampaign = await CampaignOrder.query()
-        .select(
-          "campaignorder.*",
-          CampaignOrder.raw(
-            `array_to_json(array_agg(json_build_object(
-            'id','',
-            'image', image,
-            'price', campaignorder.price,
-            'quantity', campaignorder.quantity,
-            'ordercode', ordercode,
-            'productid', campaignorder.productid,
-            'campaignid', campaignid,
-            'incampaign', true,
-            'customerid', customerid,
-            'totalprice', totalprice,
-            'productname', campaignorder.productname,
-            'notes', campaignorder.notes)
-            )) as details`
-          )
-        )
+        .select()
         .whereIn("campaignorder.productid", productIds)
         .andWhere((cd) => {
           cd.where("campaignorder.status", "processing")
@@ -257,25 +243,21 @@ class System {
           description: "has been cancelled by System for: System's account has been disabled",
         } as OrderStatusHistory);
       }
-      //2. deactivate all campaign
-      for (const item of ordersInCampaign) {
-        await CampaignOrder.query().update({
-          status: "stopped",
-        })
-          .where('id', item.id);
-      }
+      // //2. deactivate all campaign
 
-      //3. deactivate all prod
+      await Campaigns.query().update({
+        status: "stopped",
+      })
+        .whereIn('id', campaignIds);
+
+      // //3. deactivate all prod
       // -- deacitve prod in Order table
-      for (const item of ordersInCampaign) {
-        await Products.query().update({
-          status: "deactivated",
-        })
-          .where('id', item.productid)
-      }
+      await Products.query().update({
+        status: "deactivated",
+      })
+        .whereIn('id', productIds)
 
-
-      // 4.  deactivate table account , supp account 
+      // // 4.  deactivate table account , supp account 
       const deacitveSuppId = await Suppliers.query().update({
         isdeleted: "true",
       })
@@ -378,6 +360,12 @@ class System {
       })
         .where('id', customerId);
 
+      const cusAccount = await Customers.query().select('accountid').where('customerid', customerId).first();
+
+      const deactivatedAccount = await Accounts.query().update({
+        isdeleted: "true"
+      }).where('id', cusAccount.accountid);
+
       return res.status(200).send({
         message: 'successful',
         data: disableCustomer
@@ -425,7 +413,7 @@ class System {
       //   .andWhere('products.status', 'deactivated')
       //   .andWhere('products.updatedat', '>=', dateForUpdate.updatedat)
 
-        // console.log(prods)
+      // console.log(prods)
 
       return res.status(200).send({
         message: 'successful',
