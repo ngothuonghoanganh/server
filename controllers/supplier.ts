@@ -5,6 +5,7 @@ import { CampaignOrder } from "../models/campaingorder";
 import { Products } from "../models/products";
 import notif from "../services/realtime/notification";
 import { Order } from "../models/orders";
+import { Campaigns } from "../models/campaigns";
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
@@ -209,24 +210,23 @@ class Supplier {
       //       'notes', campaignorder.notes)
       //       )) as details`
       //     )
-      
-      let prods = await Products.query()
-        .select(
-          "products.id as productid",
-          "categories.id as categoryid",
-          "campaigns.id as campaignid"
-        )
-        .join("campaigns", "campaigns.productid", "products.id")
-        .leftOuterJoin("categories", "categories.id", "products.categoryid")
-        .where("products.status", "<>", "deactivated")
-        .andWhere("categories.supplierid", '481d3929-7ce6-4826-b39d-d7b3892d7013');
 
-        console.log(prods)
-        const productIds = prods.map((item: any) => item.productid);
-      return res.status(200).send({
-        message: "ok",
-        data: prods
-      })
+      // const campaign = await Campaigns.query().select('campaigns.id')
+
+      //   .where('supplierid', supplierId)
+      //   .andWhere((cd) => {
+      //     cd.where('status', 'active')
+      //       .orWhere('status', 'ready');
+      //   })
+
+      // const campaignIds = campaign.map((item: any) => item.id);
+      // console.log(campaign)
+      // console.log(campaignIds)
+
+      // return res.status(200).send({
+      //   message: "ok",
+      //   data: campaign
+      // })
     } catch (error) {
       console.log(error)
     }
