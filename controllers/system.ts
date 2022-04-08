@@ -103,9 +103,37 @@ class System {
 
   public getAllSupplier = async (req: any, res: any, next: any) => {
     try {
+      const ListEntityAccount = [
+        'accounts.id as accountid',
+        'accounts.roleid as roleid',
+        'accounts.username as username',
+        'accounts.googleid as googleid',
+        'accounts.phone as phone',
+        'accounts.isdeleted as accountisdeleted',
+
+      ]
+
+      const ListEntitysupplier=[
+        'suppliers.id as supplierid',
+        'suppliers.accountid as accountid',
+        'suppliers.name as name',
+        'suppliers.email as email',
+        'suppliers.avt as avt',
+        'suppliers.isdeleted as isdeleted',
+        'suppliers.createdat as createdat',
+        'suppliers.updatedat as updatedat',
+        'suppliers.address as address',
+        'suppliers.identificationcard as identificationcard',
+        'suppliers.identificationimage as identificationimage',
+        'suppliers.ewalletcode as ewalletcode',
+        'suppliers.ewalletsecrect as ewalletsecrect',
+
+
+      ]
       const suppliername = req.query.supplierName;
       const suppliers = await Suppliers.query()
-        .select()
+        .select(...ListEntitysupplier, ...ListEntityAccount)
+        .join('accounts','accounts.id', 'suppliers.accountid')
         .where((cd) => {
           if (suppliername) {
             cd.where("name", "like", `%${suppliername}%`);
@@ -122,9 +150,31 @@ class System {
 
   public getAllCustomer = async (req: any, res: any, next: any) => {
     try {
+      const ListEntityCustomer = [
+        'customers.id as customersid',
+        'customers.firstname as fistname',
+        'customers.lastname as lastname',
+        'customers.email as email',
+        'customers.avt as avt',
+        'customers.isdeleted as customerisdeleted',
+        'customers.createdat as createdat',
+        'customers.updatedat as updatedat',
+        'customers.ewalletaccount as ewalletaccount',
+        'customers.ewalletprovider as ewalletprovider',
+      ]
+      const ListEntityAccount = [
+        'accounts.id as accountid',
+        'accounts.roleid as roleid',
+        'accounts.username as username',
+        'accounts.googleid as googleid',
+        'accounts.phone as phone',
+        'accounts.isdeleted as accountisdeleted',
+
+      ]
       const customername = req.query.customerName;
       const customers = await Customers.query()
-        .select()
+        .select(...ListEntityAccount, ...ListEntityCustomer)
+        .join('accounts', 'accounts.id', 'customers.accountid')
         .where((cd) => {
           if (customername) {
             cd.where("firstname", "like", `%${customername}%`).orWhere(
