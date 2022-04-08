@@ -23,3 +23,8 @@ export const getCommentByProductIdParamSchema = Joi.object({
 export const countNumOfCommentByProductId = Joi.object({
     productId: Joi.string().required(),
 });
+
+export const disableComment = Joi.object({
+    orderId: Joi.string().required(),
+    isCampaign: Joi.boolean().required(),
+});
