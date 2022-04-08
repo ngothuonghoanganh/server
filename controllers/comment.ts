@@ -2,6 +2,7 @@ import { CampaignOrder } from "../models/campaingorder";
 import { Comments } from "../models/comment";
 import { OrderDetail } from "../models/orderdetail";
 import { Order } from "../models/orders";
+import order from "./order";
 
 class Comment {
   public updateComment = async (req: any, res: any, next: any) => {
@@ -203,6 +204,36 @@ class Comment {
       console.log(error);
     }
   };
+
+  public disableComment = async (req: any, res: any) => {
+    try {
+      let { orderId, isCampaign } = req.body;
+      // console.log(orderId)
+      // console.log(isCampaign)
+
+      const disableValue = 'removed';
+      let data;
+      if (isCampaign) {
+        data = await CampaignOrder.query().update({
+          comment: disableValue,
+        })
+          .where('id', orderId).first();
+          console.log('test')
+      } else {
+        data = await OrderDetail.query().update({
+          comment: disableValue
+        })
+          .where('id', orderId).first();
+      }
+
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 export default new Comment();
