@@ -7,8 +7,22 @@ export class Role extends Model {
     return "roles";
   }
   id?: string;
-  rolename!: string;
-  description?: string;
-  isdeleted?: boolean;
-  createdat?: Date;
+  roleName?: string;
+
+
+  static columnNameMappers: any = {
+    parse(object: any) {
+      return {
+        id: object.id,
+        rolename: object.roleName,
+        
+      }
+    },
+    format(object: any) {
+      return {
+        id: object.id,
+        roleName: object.rolename,
+      }
+    },
+  }
 }

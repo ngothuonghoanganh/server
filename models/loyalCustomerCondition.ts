@@ -8,10 +8,32 @@ export class LoyalCustomerCondition extends Model {
     return "loyalcustomercondition";
   }
   id?: string;
-  supplierid?:string;
- minorder?: number;
- minproduct?: string;
- discountpercent?: number;
-  created?: Date;
+  supplierId?: string;
+  minOrder?: number;
+  minProduct?: string;
+  discountPercent?: number;
+  createdAt?: Date;
 
+  static columnNameMappers: any = {
+    parse(object: any) {
+        return {
+            id: object.id,
+            supplierid: object.supplierId,
+            minorder: object.minOrder,
+            minproduct: object.minProduct,
+            discountpercent: object.discountPercent,
+            createdat: object.createdAt,
+        }
+    },
+    format(object: any) {
+        return {
+          id: object.id,
+          supplierId: object.supplierid,
+          minOrder: object.minorder,
+          minProduct: object.minproduct,
+          discountPercent: object.discountpercent,
+          createdAt: object.createdat,
+        }
+    },
+}
 }

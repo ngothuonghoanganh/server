@@ -9,20 +9,63 @@ export class Transaction extends Model {
   }
 
   id?: string;
-  supplierid?: string;
+  supplierId?: string;
   amount?: Number;
-  ordercode?: string;
-  advancefee?: Number;
-  ordervalue?: Number;
-  paymentvalue?: Number;
-  platformfee?: Number;
-  Penaltyfee?: Number;
+  orderCode?: string;
+  advanceFee?: Number;
+  orderValue?: Number;
+  paymentFee?: Number;
+  platformFee?: Number;
+  penaltyFee?: Number;
   type?: string;
-  iswithdrawable?: boolean;
+  isWithdrawable?: boolean;
   description?: string;
   content?: string;
   status?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  paymentlink?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  static columnNameMappers: any = {
+    parse(object: any) {
+      return {
+        id: object.id,
+        supplierid: object.supplierId,
+        amount: object.name,
+        ordercode: object.orderCode,
+        advancefee: object.advanceFee,
+        ordervalue: object.orderValue,
+        paymentfee: object.paymentFee,
+        platformfee: object.platformFee,
+        penaltyfee: object.penaltyFee,
+        type: object.eWalletCode,
+        iswithdrawable: object.isWithdrawable,
+        description: object.description,
+        content: object.content,
+        status: object.status,
+        createdat: object.createdAt,
+        updatedat: object.updatedAt,
+
+      }
+    },
+    format(object: any) {
+      return {
+        id: object.id,
+        supplierId: object.supplierid,
+        amount: object.name,
+        orderCode: object.ordercode,
+        advanceFee: object.advancefee,
+        orderValue: object.ordervalue,
+        paymentfee: object.paymentfee,
+        paymentFee: object.platformfee,
+        penaltyFee: object.penaltyfee,
+        type: object.ewalletcode,
+        isWithdrawable: object.iswithdrawable,
+        description: object.description,
+        content: object.content,
+        status: object.status,
+        createdAt: object.createdat,
+        updatedAt: object.updatedat,
+      }
+    },
+  }
 }

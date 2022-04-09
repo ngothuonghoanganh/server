@@ -9,10 +9,33 @@ export class Categories extends Model {
     }
 
     id?: string;
-    categoryname?: string;
-    supplierid?: string;
-    createdat?: Date;
-    updatedat?: Date;
-    isdeleted?: boolean;
+    categoryName?: string;
+    supplierId?: string;
+    isDeleted?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    static columnNameMappers: any = {
+        parse(object: any) {
+            return {
+                id: object.id,
+                categoryname: object.categoryName,
+                supplierid: object.supplierId,
+                createdat: object.createdAt,
+                updatedat: object.updatedAt,
+                isdeleted: object.isDeleted,
+            }
+        },
+        format(object: any) {
+            return {
+                id: object.id,
+                categoryName: object.categoryname,
+                supplierId: object.supplierid,
+                createdAt: object.createdat,
+                updatedAt: object.updatedat,
+                isDeleted: object.isdeleted,
+            }
+        },
+    }
 
 }

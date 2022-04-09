@@ -9,10 +9,37 @@ export class SystemProfile extends Model {
   }
 
   id?: string;
-  accountid?: string;
   name?: string;
   avt?: string;
-  isdeleted?: boolean;
-  createdat?: Date;
-  updatedat?: Date;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  accountId?: string;
+
+  static columnNameMappers: any = {
+    parse(object: any) {
+      return {
+        id: object.id,
+        name: object.name,
+        avt: object.avt,
+        isdeleted: object.isDeleted,
+        createdat: object.createdAt,
+        updatedat: object.updatedAt,
+        accountid: object.accountId,
+
+      }
+    },
+    format(object: any) {
+      return {
+        id: object.id,
+        name: object.name,
+        avt: object.avt,
+        isDeleted: object.isdeleted,
+        createdAt: object.createdat,
+        updatedAt: object.updatedat,
+        accountId: object.accountid,
+        
+      }
+    },
+  }
 }

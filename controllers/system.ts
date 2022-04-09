@@ -341,7 +341,6 @@ class System {
             .orWhere("orders.status", "unpaid")
         })
 
-
       const orderCampaign: any = await CampaignOrder.query()
         .select('campaignorder.id', 'categories.supplierid', 'campaignorder.ordercode')
         .join('products', 'products.id', 'campaignorder.productid')

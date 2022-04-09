@@ -11,4 +11,23 @@ export class Files extends Model {
   name?: string;
   url?: string;
   isdeleted?: boolean;
+
+  static columnNameMappers: any = {
+    parse(object: any) {
+        return {
+            id: object.id,
+            name: object.name,
+            url: object.url,
+            isdeleted: object.isDeleted,
+        }
+    },
+    format(object: any) {
+        return {
+          id: object.id,
+          name: object.name,
+          url: object.url,
+          isDeleted: object.isdeleted,
+        }
+    },
+}
 }

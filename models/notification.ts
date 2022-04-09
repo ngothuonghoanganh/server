@@ -8,10 +8,32 @@ export class Notification extends Model {
     return "notif";
   }
   id?: string;
-  userid?:string;
-  link?:string;
+  userId?: string;
+  link?: string;
   message?: string;
   status?: string;
-  created?: Date;
+  createdAt?: Date;
 
+  static columnNameMappers: any = {
+    parse(object: any) {
+      return {
+        id: object.id,
+        userid: object.userId,
+        link: object.link,
+        message: object.message,
+        status: object.status,
+        createdat: object.createdAt,
+      }
+    },
+    format(object: any) {
+      return {
+        id: object.id,
+        userId: object.userid,
+        link: object.link,
+        message: object.message,
+        status: object.status,
+        createdAt: object.createdat,
+      }
+    },
+  }
 }

@@ -9,11 +9,37 @@ export class Address extends Model {
     }
 
     id?: string;
-    customerid?: string;
+    customerId?: string;
     province?: string;
     street?: string;
-    isdefault?:boolean;
-    createdat?: Date;
-    updatedat?: Date;
+    isDefault?:boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    static columnNameMappers: any = {
+        parse(object: any) {
+            return {
+                id: object.id,
+                customerid: object.customerId,
+                province: object.province,
+                street: object.street,
+                isdefault: object.isDefault,
+                createdat: object.createdAt,
+                updatedat: object.updatedAt,
+            }
+        },
+        format(object: any) {
+            return {
+                id: object.id,
+                customerId: object.customerid,
+                province: object.province,
+                street: object.street,
+                isDefault: object.isdefault,
+                createdAt: object.createdat,
+                updatedAt: object.updatedat,
+
+            }
+        },
+    }
 
 }

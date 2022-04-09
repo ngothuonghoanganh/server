@@ -8,21 +8,52 @@ export class OrderDetail extends Model {
   static get tableName() {
     return "orderdetail";
   }
-  
+
   id?: string;
-  productid?: string;
-  productname?: string;
-  quantity?: number;
-  price?: number;
-  totalprice?: number;
-  notes?: string;
-  typeofproduct?: string;
-  ordercode?: string;
-  orderid?: string;
+  productName?: string;
+  quantity?: Number;
+  price?: Number;
+  note?: string;
+  orderCode?: string;
+  productId?: Number;
+  totalPrice?:Number;
   image?: string;
-  customerid?: string;
-  incampaign?: boolean;
-  campaignid?: string;
+  orderId?: string;
   comment?: string;
   rating?: Number;
+
+  static columnNameMappers: any = {
+    parse(object: any) {
+      return {
+        id: object.id,
+        productname: object.productName,
+        quantity: object.quantity,
+        price: object.price,
+        note: object.note,
+        ordercode: object.orderCode,
+        productid: object.productId,
+        totalprice: object.totalPrice,
+        image: object.image,
+        orderid: object.orderId,
+        comment: object.comment,
+        rating: object.rating,
+      }
+    },
+    format(object: any) {
+      return {
+        id: object.id,
+        productName: object.productname,
+        quantity: object.quantity,
+        price: object.price,
+        note: object.note,
+        orderCode: object.ordercode,
+        productId: object.productid,
+        totalPrice: object.totalprice,
+        image: object.image,
+        orderId: object.orderid,
+        comment: object.comment,
+        rating: object.rating,
+      }
+    },
+  }
 }

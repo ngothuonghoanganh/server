@@ -10,25 +10,54 @@ export class Order extends Model {
   }
 
   id?: string;
-  customerid?: string;
-  iswholesale?: boolean;
-  customerdiscountcodeid?: string;
   status?: string;
-  campaignid?: string;
-  paymentid?: string;
-  discountprice?: number;
-  shippingfee?: number;
-  ordercode?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  addressid?: string;
-  totalprice?: number;
-  supplierid?: string;
-  address?: string;
-  reasonforupdatestatus?: string;
-  advancefee?: number;
-  advancedid?: number;
-  paymentmethod?: string;
-  reasonforcancel?:string;
-  imageproof?: string;
+  address?: boolean;
+  paymentMethod?: string;
+  customerId?: string;
+  paymentId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  discountPrice?: string;
+  shippingFee?: number;
+  orderCode?: string;
+  totalPrice?: string;
+  customerDiscountCodeId?: string;
+
+
+  static columnNameMappers: any = {
+    parse(object: any) {
+      return {
+        id: object.id,
+        status: object.status,
+        address: object.address,
+        paymentmethod: object.paymentMethod,
+        customerid: object.customerId,
+        paymentid: object.paymentId,
+        createdat: object.createdAt,
+        updatedat: object.updatedAt,
+        discountprice: object.discountPrice,
+        shippingfee: object.shippingFee,
+        ordercode: object.orderCode,
+        totalprice: object.totalPrice,
+        customerdiscountcodeid: object.customerDiscountCodeid,
+      }
+    },
+    format(object: any) {
+      return {
+        id: object.id,
+        status: object.status,
+        address: object.address,
+        paymentMethod: object.paymentmethod,
+        customerId: object.customerid,
+        paymentId: object.paymentid,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
+        discountPrice: object.discountprice,
+        shippingFee: object.shippingfee,
+        orderCode: object.ordercode,
+        totalPrice: object.totalprice,
+        customerDiscountCodeid: object.customerdiscountcodeid,
+      }
+    },
+  }
 }

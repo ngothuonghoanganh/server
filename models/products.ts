@@ -10,14 +10,40 @@ export class Products extends Model {
 
     id?: string;
     name?: string;
-    supplierid?: string;
-    retailprice?: Number;
+    retailPrice?: Number;
     quantity?: Number;
-    description?: string;
     image?: string;
-    categoryid?: string;
+    categoryId?: string;
     status?: string;
-    typeofproduct?: string;
-    createdat?: Date;
-    updatedat?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    static columnNameMappers: any = {
+        parse(object: any) {
+          return {
+            id: object.id,
+            name: object.name,
+            retailprice: object.retailPrice,
+            quantity: object.quantity,
+            image: object.image,
+            categoryid: object.categoryId,
+            status: object.status,
+            createdat: object.createdAt,
+            updatedat: object.updatedAt,
+          }
+        },
+        format(object: any) {
+          return {
+            id: object.id,
+            name: object.name,
+            retailPrice: object.retailprice,
+            quantity: object.quantity,
+            image: object.image,
+            categoryId: object.categoryid,
+            status: object.status,
+            createdAt: object.createdat,
+            updatedAt: object.updatedat,
+          }
+        },
+      }
 }

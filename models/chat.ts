@@ -14,5 +14,30 @@ export class Chat extends Model {
     message?: string;
     file?: string;
     status?: string;
-    createdat?: string;
+    createdAt?: string;
+
+    static columnNameMappers: any = {
+        parse(object: any) {
+            return {
+                id: object.id,
+                from: object.from,
+                to: object.to,
+                message: object.message,
+                file: object.file,
+                status: object.status,
+                createdat: object.createdAt,
+            }
+        },
+        format(object: any) {
+            return {
+                id: object.id,
+                from: object.from,
+                to: object.to,
+                message: object.message,
+                file: object.file,
+                status: object.status,
+                createdAt: object.createdat,
+            }
+        },
+    }
 }
