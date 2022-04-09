@@ -104,7 +104,6 @@ class System {
   public getAllSupplier = async (req: any, res: any, next: any) => {
     try {
       const ListEntityAccount = [
-        'accounts.id as id',
         'accounts.roleid as roleid',
         'accounts.username as username',
         'accounts.googleid as googleid',
@@ -127,8 +126,6 @@ class System {
         'suppliers.identificationimage as identificationimage',
         'suppliers.ewalletcode as ewalletcode',
         'suppliers.ewalletsecrect as ewalletsecrect',
-
-
       ]
       const suppliername = req.query.supplierName;
       const suppliers = await Suppliers.query()
@@ -151,7 +148,7 @@ class System {
   public getAllCustomer = async (req: any, res: any, next: any) => {
     try {
       const ListEntityCustomer = [
-        'customers.id as customersid',
+        'customers.id as id',
         'customers.firstname as fistname',
         'customers.lastname as lastname',
         'customers.email as email',
@@ -163,7 +160,6 @@ class System {
         'customers.ewalletprovider as ewalletprovider',
       ]
       const ListEntityAccount = [
-        'accounts.id as accountid',
         'accounts.roleid as roleid',
         'accounts.username as username',
         'accounts.googleid as googleid',
@@ -410,10 +406,10 @@ class System {
       })
         .where('id', customerId);
 
-      const cusAccount = await Customers.query().select('accountid').where('customerid', customerId).first();
+      const cusAccount = await Customers.query().select('accountid').where('id', customerId).first();
 
       const deactivatedAccount = await Accounts.query().update({
-        isdeleted: "true"
+        isdeleted: true
       }).where('id', cusAccount.accountid);
 
       return res.status(200).send({
