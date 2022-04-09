@@ -104,7 +104,7 @@ class System {
   public getAllSupplier = async (req: any, res: any, next: any) => {
     try {
       const ListEntityAccount = [
-        'accounts.id as accountid',
+        'accounts.id as id',
         'accounts.roleid as roleid',
         'accounts.username as username',
         'accounts.googleid as googleid',
@@ -114,7 +114,7 @@ class System {
       ]
 
       const ListEntitysupplier=[
-        'suppliers.id as supplierid',
+        'suppliers.id as id',
         'suppliers.accountid as accountid',
         'suppliers.name as name',
         'suppliers.email as email',
