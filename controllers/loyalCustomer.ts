@@ -9,10 +9,10 @@ class LoyalcustomerController {
       const supplierId = req.user.id;
 
       const newConditon = await LoyalCustomerCondition.query().insert({
-        supplierid: supplierId,
-        minorder: minOrder,
-        minproduct: minProduct,
-        discountpercent: discountPercent,
+        supplierId: supplierId,
+        minOrder: minOrder,
+        minProduct: minProduct,
+        discountPercent: discountPercent,
       });
 
       return res.status(200).send({
@@ -31,9 +31,9 @@ class LoyalcustomerController {
 
       const newConditon = await LoyalCustomerCondition.query()
         .update({
-          minorder: minOrder,
-          minproduct: minProduct,
-          discountpercent: discountPercent,
+          minOrder: minOrder,
+          minProduct: minProduct,
+          discountPercent: discountPercent,
         })
         .where("id", id);
 
@@ -99,8 +99,8 @@ class LoyalcustomerController {
       const listEntity = [
         "loyalcustomer.*",
         "customers.id as customerid",
-        "customers.firstname as customerfirstname",
-        "customers.lastname as customerlastname",
+        "customers.firstName as customerfirstname",
+        "customers.lastName as customerlastname",
         "customers.avt as customeravt",
       ];
       const data = await LoyalCustomer.query()
@@ -133,49 +133,54 @@ class LoyalcustomerController {
     }
   };
 
-
-  public getLoyaCustomerBySuppIdAndCusId = async (req: any, res: any, next: any) => {
-    // console.log('aewdae')
+  public getLoyaCustomerBySuppIdAndCusId = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
       const supplierId = req.query.supplierId;
-      const status = 'active';
+      const status = "active";
       const customerId = req.user.id;
-
-      // console.log(supplierId)
 
       const data = await LoyalCustomer.query()
         .select()
-        .where('supplierid', supplierId)
-        .andWhere('customerid', customerId)
-        .andWhere('status', status)
+        .where("supplierId", supplierId)
+        .andWhere("customerId", customerId)
+        .andWhere("status", status);
 
       return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
+        message: "successful",
+        data: data,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
-  public getLoyalCustomerByLoginCustomer = async (req: any, res: any, next: any) => {
+  public getLoyalCustomerByLoginCustomer = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
     try {
       const customerId = req.user.id;
-      // console.log('testtttttttttt')
 
-      const data = await LoyalCustomer.query().select()
-        .where('customerid', customerId).first();
+      const data = await LoyalCustomer.query()
+        .select()
+        .where("customerid", customerId)
+        .first();
 
-      console.log(data.supplierid)
-
-      const supplierInfor = await Suppliers.query().select().where('id', data.supplierid);
+      const supplierInfor = await Suppliers.query()
+        .select()
+        .where("id", data.supplierId);
 
       return res.status(200).send({
-        message: 'successful',
-        data: ({ loyalCustomer: data, supplierInfor: supplierInfor })
-      })
+        message: "successful",
+        data: { loyalCustomer: data, supplierInfor: supplierInfor },
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 }

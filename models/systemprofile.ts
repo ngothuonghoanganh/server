@@ -5,7 +5,7 @@ Model.knex(connection.knex);
 
 export class SystemProfile extends Model {
   static get tableName() {
-    return "systemprofile";
+    return "systemProfiles";
   }
 
   id?: string;

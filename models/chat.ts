@@ -5,7 +5,7 @@ Model.knex(connection.knex)
 
 export class Chat extends Model {
     static get tableName() {
-        return 'chatmessages';
+        return 'chatMessages';
     }
 
     id?: string;

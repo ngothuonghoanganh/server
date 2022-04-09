@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-// import { Users } from "../models/user";
 import { Role } from "../models/role";
 import { Accounts } from "../models/accounts";
 import { Customers } from "../models/customers";
@@ -25,20 +24,20 @@ class Authentication {
       if (user.rolename === "Customer") {
         info = await Customers.query()
           .select()
-          .where("accountid", user.id)
-          .andWhere("isdeleted", false)
+          .where("accountId", user.id)
+          .andWhere("isDeleted", false)
           .first();
       } else if (user.rolename === "Supplier") {
         info = await Suppliers.query()
           .select()
-          .where("accountid", user.id)
-          .andWhere("isdeleted", false)
+          .where("accountId", user.id)
+          .andWhere("isDeleted", false)
           .first();
       } else {
         info = await SystemProfile.query()
           .select()
-          .where("accountid", user.id)
-          .andWhere("isdeleted", false)
+          .where("accountId", user.id)
+          .andWhere("isDeleted", false)
           .first();
       }
       if (!info) return res.status(401).send("User does not exist");
@@ -68,16 +67,12 @@ class Authentication {
     try {
       let { username, password } = req.body;
 
-      // if (!username || !password) {
-      //   return res.status(400).send("Cannot find username or password !");
-      // }
-
       const user: any = await Accounts.query()
-        .select("accounts.*", "roles.rolename")
-        .join("roles", "roles.id", "accounts.roleid")
+        .select("accounts.*", "roles.roleName")
+        .join("roles", "roles.Id", "accounts.roleId")
         .where("accounts.username", username)
         .orWhere("accounts.phone", username)
-        .andWhere("accounts.isdeleted", false)
+        .andWhere("accounts.isDeleted", false)
         .first();
       if (user) {
         const validPassword = await bcrypt.compare(password, user.password);
@@ -112,20 +107,20 @@ class Authentication {
       if (verify.rolename === "Supplier") {
         currentUser = await Suppliers.query()
           .select()
-          .where("accountid", verify.userid)
-          .andWhere("isdeleted", false)
+          .where("accountId", verify.userid)
+          .andWhere("isDeleted", false)
           .first();
       } else if (verify.rolename === "Customer") {
         currentUser = await Customers.query()
           .select()
-          .where("accountid", verify.userid)
-          .andWhere("isdeleted", false)
+          .where("accountId", verify.userid)
+          .andWhere("isDeleted", false)
           .first();
       } else {
         currentUser = await SystemProfile.query()
           .select()
-          .where("accountid", verify.userid)
-          .andWhere("isdeleted", false)
+          .where("accountId", verify.userid)
+          .andWhere("isDeleted", false)
           .first();
       }
 
@@ -172,25 +167,25 @@ class Authentication {
       }
       let user: any = await Accounts.query()
         .select()
-        .where("googleid", googleId)
+        .where("googleId", googleId)
         .first();
       let role: Role = await Role.query()
         .select()
-        .where("rolename", roleName)
+        .where("roleName", roleName)
         .first();
 
       if (!user) {
         const newAccount = await Accounts.query().insert({
-          googleid: googleId,
-          roleid: role.id,
+          googleId: googleId,
+          roleId: role.id,
           phone: phone,
         });
         let newUser;
         if (roleName === "Customer") {
           newUser = await Customers.query().insert({
-            accountid: newAccount.id,
-            firstname: firstName,
-            lastname: lastName,
+            accountId: newAccount.id,
+            firstName: firstName,
+            lastName: lastName,
             email: email,
           });
 
@@ -198,7 +193,7 @@ class Authentication {
         }
         if (roleName === "Supplier") {
           newUser = await Suppliers.query().insert({
-            accountid: newAccount.id,
+            accountId: newAccount.id,
             name: firstName + " " + lastName,
             email: email,
             address: address,
@@ -209,9 +204,9 @@ class Authentication {
       }
 
       user = await Accounts.query()
-        .select("accounts.*", "roles.rolename")
-        .join("roles", "roles.id", "accounts.roleid")
-        .where("accounts.googleid", googleId)
+        .select("accounts.*", "roles.roleName")
+        .join("roles", "roles.id", "accounts.roleId")
+        .where("accounts.googleId", googleId)
         .first();
       return this.sendJWTToken(user, 200, res);
     } catch (error) {
@@ -227,7 +222,7 @@ class Authentication {
         firstName = "",
         lastName = "",
         email = "",
-        phone="",
+        phone = "",
         address = "",
         roleName = "Customer",
       } = req.body;
@@ -236,21 +231,21 @@ class Authentication {
       password = await bcrypt.hash(password, salt);
       let role: Role = await Role.query()
         .select()
-        .where("rolename", roleName)
+        .where("roleName", roleName)
         .first();
 
       const newAccount = await Accounts.query().insert({
         username: username,
         password: password,
-        roleid: role.id,
+        roleId: role.id,
         phone: phone,
       });
       let newUser;
       if (roleName === "Customer") {
         newUser = await Customers.query().insert({
-          accountid: newAccount.id,
-          firstname: firstName,
-          lastname: lastName,
+          accountId: newAccount.id,
+          firstName: firstName,
+          lastName: lastName,
           email: email,
         });
 
@@ -258,7 +253,7 @@ class Authentication {
       }
       if (roleName === "Supplier") {
         newUser = await Suppliers.query().insert({
-          accountid: newAccount.id,
+          accountId: newAccount.id,
           name: firstName + " " + lastName,
           email: email,
           address: address,
@@ -288,53 +283,10 @@ class Authentication {
     }
   };
 
-  //   //do not use
-  //   public getAllUsers = async (req: any, res: any, next: any) => {
-  //     try {
-  //       // const { userId = "" } = req.params;
-
-  //       const listEntity = [
-  //         "users.id",
-  //         "users.username",
-  //         "users.firstname",
-  //         "users.lastname",
-  //         "users.email",
-  //         "users.phone",
-  //         "users.roleid",
-  //         "users.createat",
-  //         "users.avt",
-  //         "role.rolename",
-  //       ];
-
-  //       let currentUser;
-  //       // if (userId === null || userId === undefined || userId === "" || userId) {
-  //       currentUser = await Users.query()
-  //         .select(...listEntity)
-  //         .join("role", "role.id", "users.roleid")
-  //         .where("users.isdeleted", false)
-  //         .andWhereNot("users.id", req.user.Id);
-  //       // }
-  //       //  else {
-  //       //   currentUser = await User.query()
-  //       //     .select(...listEntity)
-  //       //     .join("role", "role.Id", "user.RoleId")
-  //       //     .where("user.IsDeleted", false)
-  //       //     .andWhereNot("user.Id", req.user.Id)
-  //       //     .andWhere("user.Id", userId)
-  //       //     .first();
-  //       // }
-
-  //       return res.send(currentUser);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
   public checkRole = (roles: Array<string>) => {
-    // console.log(role)
     return (req: any, res: any, next: any) => {
       const user = req.user;
-      // console.log(user);
+
       if (!roles.includes(user.rolename)) {
         return res.status(403).send("this user don't have permission");
       }

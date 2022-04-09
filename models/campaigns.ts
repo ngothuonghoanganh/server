@@ -9,20 +9,20 @@ export class Campaigns extends Model {
   }
 
   id?: string;
-  supplierid?: string;
-  productid?: string;
+  supplierId?: string;
+  productId?: string;
   status?: string;
-  fromdate?: Date;
-  todate?: Date;
+  fromDate?: Date;
+  toDate?: Date;
   quantity?: number;
   price?: number;
-  createdat?: Date;
-  updatedat?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   code?: string;
   description?:string;
-  maxquantity?: number;
-  isshare?: boolean;
-  advancefee?: number;
+  maxQuantity?: number;
+  isShare?: boolean;
+  advanceFee?: number;
 
   static columnNameMappers: any = {
     parse(object: any) {

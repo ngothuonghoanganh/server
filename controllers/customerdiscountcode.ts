@@ -3,232 +3,244 @@ import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { DiscountCode } from "../models/discountcode";
 
 class CustomerDiscountCodeController {
-    public createCustomerDiscountCode = async (req: any, res: any, next: any) => {
-        try {
-            let {
-                discountCodeId,
-                quantity,
-                status = "ready",
-                customerId
-            } = req.body;
+  public createCustomerDiscountCode = async (req: any, res: any, next: any) => {
+    try {
+      let { discountCodeId, quantity, status = "ready", customerId } = req.body;
 
-            let createCode = await CustomerDiscountCode.query()
-                .insert({
-                    discountcodeid: discountCodeId,
-                    quantity: quantity,
-                    status: status,
-                    customerid: customerId
-                })
+      let createCode = await CustomerDiscountCode.query().insert({
+        discountCodeId: discountCodeId,
+        quantity: quantity,
+        status: status,
+        customerId: customerId,
+      });
 
-            return res.status(200).send({
-                message: "successful",
-                data: createCode,
-            });
-        } catch (error) {
-            console.log(error)
-        }
-    };
+      return res.status(200).send({
+        message: "successful",
+        data: createCode,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    public getListDiscountCodeByStatus = async (req: any, res: any, next: any) => {
-        try {
-            const status = req.query.status;
-            const customerId=req.user.id
-            // console.log(status)
-            const ListEntity = [
-                'customerdiscountcode.customerid as customerId',
-                'customerdiscountcode.id as id',
-                'customerdiscountcode.discountcodeid as discountCodeId',
-                'customerdiscountcode.status as customerDiscountCodeStatus',
-            ]
+  public getListDiscountCodeByStatus = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      const status = req.query.status;
+      const customerId = req.user.id;
 
-            const discountCodeEntit=[
-                'discountcode.supplierid as supplierId',
-                'discountcode.code as code',
-                'discountcode.description as description',
-                'discountcode.minimunpricecondition as minimunPriceCondition',
-                'discountcode.startdate as startdate',
-                'discountcode.enddate as enddate',
-                'discountcode.quantity as quantity',
-                'discountcode.createdat as createdAt',
-                'discountcode.updatedat as updatedAt',
-                'discountcode.status as status',
-                'discountcode.productid as productId',
-                'discountcode.discountprice as discountPrice',
-            ]
-            // console.log(status)
-            const listDiscountCode: any = await CustomerDiscountCode.query()
-                .select(discountCodeEntit, ListEntity)
-                .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                .where('customerdiscountcode.status', status)
-                .andWhere('customerid', customerId)
+      const ListEntity = [
+        "customerDiscountCodes.customerId as customerId",
+        "customerDiscountCodes.id as id",
+        "customerDiscountCodes.disCountcodeId as discountCodeId",
+        "customerDiscountCodes.status as customerDiscountCodeStatus",
+      ];
 
-            return res.status(200).send({
-                message: 'successful',
-                data: listDiscountCode
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    };
+      const discountCodeEntit = [
+        "discountCodes.supplierId as supplierId",
+        "discountCodes.code as code",
+        "discountCodes.description as description",
+        "discountCodes.minimunpricecondition as minimunPriceCondition",
+        "discountCodes.startdate as startdate",
+        "discountCodes.enddate as enddate",
+        "discountCodes.quantity as quantity",
+        "discountCodes.createdat as createdAt",
+        "discountCodes.updatedat as updatedAt",
+        "discountCodes.status as status",
+        "discountCodes.productid as productId",
+        "discountCodes.discountprice as discountPrice",
+      ];
 
-    public reduceDiscountUse = async (req: any, res: any, next: any) => {
-        try {
-            const status = 'used';
-            const customerDiscountCodeId = req.body.customerDiscountCodeId;
+      const listDiscountCode: any = await CustomerDiscountCode.query()
+        .select(discountCodeEntit, ListEntity)
+        .join(
+          "discountCodes",
+          "discountCodes.id",
+          "customerDiscountCodes.discountcodeid"
+        )
+        .where("customerDiscountCodes.status", status)
+        .andWhere("customerid", customerId);
 
-            const updateStatusForCusDiscountCode: any = await CustomerDiscountCode.query()
-            .update({
-                status: status
-            })
-            .where('id', customerDiscountCodeId)
-            .andWhere('status', 'ready')
+      return res.status(200).send({
+        message: "successful",
+        data: listDiscountCode,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-            if(updateStatusForCusDiscountCode===0){
-                return res.status(200).send('discount code is used')
-            }
+  public reduceDiscountUse = async (req: any, res: any, next: any) => {
+    try {
+      const status = "used";
+      const customerDiscountCodeId = req.body.customerDiscountCodeId;
 
-            const currentDiscountCodeId: any = await CustomerDiscountCode.query()
-                .select('discountcodeid')
-                .where('id', customerDiscountCodeId)
-                .first()
+      const updateStatusForCusDiscountCode: any =
+        await CustomerDiscountCode.query()
+          .update({
+            status: status,
+          })
+          .where("id", customerDiscountCodeId)
+          .andWhere("status", "ready");
 
-                // console.log(currentDiscountCodeId['discountcodeid'])
+      if (updateStatusForCusDiscountCode === 0) {
+        return res.status(200).send("discount code is used");
+      }
 
-            const currentQuantityOfDiscountCode: any = await DiscountCode.query()
-                .select('quantity')
-                .where('id', currentDiscountCodeId['discountcodeid'])
-                .first()
-            // console.log(currentQuantityOfDiscountCode['quantity']);
-            const updateQuantity: any = await DiscountCode.query()
-                .update({
-                    quantity: currentQuantityOfDiscountCode['quantity'] - 1
-                })
-                .where('id', currentDiscountCodeId['discountcodeid'])
-            // console.log(updateQuantity)
+      const currentDiscountCodeId: any = await CustomerDiscountCode.query()
+        .select("disCountcodeId")
+        .where("id", customerDiscountCodeId)
+        .first();
 
-            
-            return res.status(200).send({
-                message: 'successful',
-                data: updateQuantity
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    };
+      const currentQuantityOfDiscountCode: any = await DiscountCode.query()
+        .select("quantity")
+        .where("id", currentDiscountCodeId["discountcodeid"])
+        .first();
 
-    public getListCustomerDiscountCodeBySuppId = async (req: any, res: any, next: any) => {
-        try {
-            const suppId = req.body.suppId;
-            const customerId=req.user.id;
-            const status = 'ready';
-            const minPriceCondition = req.body.minPriceCondition;
-            const productIds = req.body.productIds;
-            // console.log(productIds)
-            const ListEntity = [
-                'customerdiscountcode.id as id',
-                'customerdiscountcode.customerid as customerId',
-                'customerdiscountcode.discountcodeid as discountCodeId',
-                'customerdiscountcode.status as customerDiscountCodeStatus',
-            ]
+      const updateQuantity: any = await DiscountCode.query()
+        .update({
+          quantity: currentQuantityOfDiscountCode["quantity"] - 1,
+        })
+        .where("id", currentDiscountCodeId["discountcodeid"]);
 
-            const discountCodeEntity=[
-                'discountcode.supplierid as supplierId',
-                'discountcode.code as code',
-                'discountcode.description as description',
-                'discountcode.minimunpricecondition as minimunPriceCondition',
-                'discountcode.startdate as startdate',
-                'discountcode.enddate as enddate',
-                'discountcode.quantity as quantity',
-                'discountcode.createdat as createdAt',
-                'discountcode.updatedat as updatedAt',
-                'discountcode.status as status',
-                'discountcode.productid as productId',
-                'discountcode.discountprice as discountPrice',
-            ]
+      return res.status(200).send({
+        message: "successful",
+        data: updateQuantity,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-            const ListCusDiscountCode = productIds
-                ? await CustomerDiscountCode.query()
-                    // .select('discountcode.*', ...ListEntity)
-                    // .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                    // .where('discountcode.supplierid', suppId)
-                    // .andWhere('discountcode.minimunpricecondition', '<=',  minPriceCondition)
-                    // .andWhere('customerdiscountcode.status', status)
+  public getListCustomerDiscountCodeBySuppId = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      const suppId = req.body.suppId;
+      const customerId = req.user.id;
+      const status = "ready";
+      const minPriceCondition = req.body.minPriceCondition;
+      const productIds = req.body.productIds;
 
-                    .select(discountCodeEntity, ...ListEntity)
-                    .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                    .whereIn('discountcode.productid', productIds)
-                    .where('discountcode.supplierid', suppId)
-                    .andWhere('customerdiscountcode.status', status)
-                    .andWhere('customerid', customerId)
+      const ListEntity = [
+        "customerDiscountCodes.id as id",
+        "customerDiscountCodes.customerId as customerId",
+        "customerDiscountCodes.discountCodeId as discountCodeId",
+        "customerDiscountCodes.status as customerDiscountCodeStatus",
+      ];
 
-                : await CustomerDiscountCode.query()
-                    // .select('discountcode.*', ...ListEntity)
-                    // .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                    // .whereIn('discountcode.productid', productIds)
-                    // .where('discountcode.supplierid', suppId)
-                    // .andWhere('customerdiscountcode.status', status)
+      const discountCodeEntity = [
+        "discountCodes.supplierId as supplierId",
+        "discountCodes.code as code",
+        "discountCodes.description as description",
+        "discountCodes.minimunPriceCondition as minimunPriceCondition",
+        "discountCodes.startDate as startdate",
+        "discountCodes.endDate as enddate",
+        "discountCodes.quantity as quantity",
+        "discountCodes.createdAt as createdAt",
+        "discountCodes.updatedAt as updatedAt",
+        "discountCodes.status as status",
+        "discountCodes.productId as productId",
+        "discountCodes.discountPrice as discountPrice",
+      ];
 
-                    .select(discountCodeEntity, ...ListEntity)
-                    .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                    .where('discountcode.supplierid', suppId)
-                    .andWhere('discountcode.minimunpricecondition', '<=',  minPriceCondition)
-                    .andWhere('customerdiscountcode.status', status)
-                    .andWhere('customerid', customerId)
+      const ListCusDiscountCode = productIds
+        ? await CustomerDiscountCode.query()
 
-                    console.log(ListCusDiscountCode)
-                    return res.status(200).send({
-                        message: 'successful',
-                        data: ListCusDiscountCode
-                    })
-        } catch (error) {
-            console.log(error)
-        }
-    };
+            .select(discountCodeEntity, ...ListEntity)
+            .join(
+              "discountCodes",
+              "discountCodes.id",
+              "customerDiscountCodes.discountCodeId"
+            )
+            .whereIn("discountCodes.productId", productIds)
+            .where("discountCodes.supplierId", suppId)
+            .andWhere("customerDiscountCodes.status", status)
+            .andWhere("customerId", customerId)
+        : await CustomerDiscountCode.query()
 
-    public getCustomerDiscountByDiscountCodeAndSuppId = async( req: any, res: any, next: any)=>{
-        try {
-            const status ='ready';
-            const discountCode = req.body.discountCode;
-            const supplierId = req.body.supplierId;
-            const customerId= req.user.id;
-            const ListEntity = [
-                'customerdiscountcode.id as id',
-                'customerdiscountcode.customerid as customerId',
-                'customerdiscountcode.discountcodeid as discountCodeId',
-                'customerdiscountcode.status as customerDiscountCodeStatus',
-            ]
+            .select(discountCodeEntity, ...ListEntity)
+            .join(
+              "discountCodes",
+              "discountCodes.id",
+              "customerDiscountCodes.discountCodeId"
+            )
+            .where("discountCodes.supplierId", suppId)
+            .andWhere(
+              "discountCodes.minimunPriceCondition",
+              "<=",
+              minPriceCondition
+            )
+            .andWhere("customerDiscountCodes.status", status)
+            .andWhere("customerId", customerId);
 
-            const discountCodeEntity=[
-                'discountcode.supplierid as supplierId',
-                'discountcode.code as code',
-                'discountcode.description as description',
-                'discountcode.minimunpricecondition as minimunPriceCondition',
-                'discountcode.startdate as startdate',
-                'discountcode.enddate as enddate',
-                'discountcode.quantity as quantity',
-                'discountcode.createdat as createdAt',
-                'discountcode.updatedat as updatedAt',
-                'discountcode.status as status',
-                'discountcode.productid as productId',
-                'discountcode.discountprice as discountPrice',
-            ]
+      console.log(ListCusDiscountCode);
+      return res.status(200).send({
+        message: "successful",
+        data: ListCusDiscountCode,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-            const data= await CustomerDiscountCode.query()
-                .select(...ListEntity, ...discountCodeEntity)
-                .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                .where('customerdiscountcode.status', status)
-                .andWhere('discountcode.code', discountCode)
-                .andWhere('discountcode.supplierid', supplierId)
-                .andWhere('customerdiscountcode.customerid', customerId)
+  public getCustomerDiscountByDiscountCodeAndSuppId = async (
+    req: any,
+    res: any,
+    next: any
+  ) => {
+    try {
+      const status = "ready";
+      const discountCode = req.body.discountCode;
+      const supplierId = req.body.supplierId;
+      const customerId = req.user.id;
+      const ListEntity = [
+        "customerDiscountCodes.id as id",
+        "customerDiscountCodes.customerId as customerId",
+        "customerDiscountCodes.discountCodeId as discountCodeId",
+        "customerDiscountCodes.status as customerDiscountCodeStatus",
+      ];
 
-                return res.status(200).send({
-                    message: 'successful',
-                    data: data
-                })
-        } catch (error) {
-            console.log(error)
-        }
-    };
+      const discountCodeEntity = [
+        "discountCodes.supplierId as supplierId",
+        "discountCodes.code as code",
+        "discountCodes.description as description",
+        "discountCodes.minimunPriceCondition as minimunPriceCondition",
+        "discountCodes.startDate as startdate",
+        "discountCodes.endDate as enddate",
+        "discountCodes.quantity as quantity",
+        "discountCodes.createdAt as createdAt",
+        "discountCodes.updatedAt as updatedAt",
+        "discountCodes.status as status",
+        "discountCodes.productId as productId",
+        "discountCodes.discountPrice as discountPrice",
+      ];
+
+      const data = await CustomerDiscountCode.query()
+        .select(...ListEntity, ...discountCodeEntity)
+        .join(
+          "discountCodes",
+          "discountCodes.id",
+          "customerDiscountCodes.discountCodeId"
+        )
+        .where("customerDiscountCodes.status", status)
+        .andWhere("discountCodes.code", discountCode)
+        .andWhere("discountCodes.supplierid", supplierId)
+        .andWhere("customerDiscountCodes.customerid", customerId);
+
+      return res.status(200).send({
+        message: "successful",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 export default new CustomerDiscountCodeController();

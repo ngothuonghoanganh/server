@@ -22,16 +22,15 @@ class DiscountCodeController {
 
             const newDiscountcode: any = await DiscountCode.query()
                 .insert({
-                    supplierid: id,
+                    supplierId: id,
                     code: code,
                     description: description,
-                    startdate: startDate,
-                    enddate: endDate,
+                    startDate: startDate,
+                    endDate: endDate,
                     quantity: quantity,
                     status: status,
-                    productid: productId,
-                    minimunpricecondition: minimunPriceCondition,
-                    discountprice: discountPrice
+                    minimunPriceCondition: minimunPriceCondition,
+                    discountPrice: discountPrice
                 })
 
             return res.status(200).send({
@@ -90,13 +89,12 @@ class DiscountCodeController {
                 .update({
                     code: code,
                     description: description,
-                    minimunpricecondition: minimunPriceCondition,
-                    discountprice: discountPrice,
-                    startdate: startDate,
-                    enddate: endDate,
+                    minimunPriceCondition: minimunPriceCondition,
+                    discountPrice: discountPrice,
+                    startDate: startDate,
+                    endDate: endDate,
                     quantity: quantity,
                     status: status,
-                    productid: productId
                 })
                 .where('id', discountCodeId)
             if (updateCode === 0) {
@@ -120,10 +118,10 @@ class DiscountCodeController {
             const status = 'deactivated'
             const List = await DiscountCode.query()
                 .select()
-                .leftJoin('products', 'discountcode.productid', 'products.id')
-                .where('discountcode.supplierid', supplierId)
+                .leftJoin('products', 'discountCodes.productId', 'products.id')
+                .where('discountCodes.supplierId', supplierId)
                 // .where('supplierid', supplierId)
-                .andWhere('discountcode.status', '<>', status)
+                .andWhere('discountCodes.status', '<>', status)
             return res.status(200).send({
                 message: 'successful',
                 data: List
@@ -140,8 +138,8 @@ class DiscountCodeController {
             // const status = 'deactivated'
             const List: any = await DiscountCode.query()
                 .select()
-                .leftJoin('products', 'discountcode.productid', 'products.id')
-                .where('discountcode.supplierid', supplierId)
+                .leftJoin('products', 'discountCodes.productId', 'products.id')
+                .where('discountCodes.supplierId', supplierId)
             // .andWhere('status', '<>', status)
 
             return res.status(200).send({

@@ -9,8 +9,8 @@ class CartController {
       let { productId, quantity, inCampaign = false, campaignId } = req.body;
 
       const newCart: any = await OrderDetail.query().insert({
-        customerid: customerId,
-        productid: productId,
+        customerId: customerId,
+        productId: productId,
         quantity: quantity,
         incampaign: inCampaign,
         campaignid: campaignId
