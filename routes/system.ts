@@ -7,6 +7,8 @@ const validator = createValidator();
 
 router.get("/orders", systemControllers.getAllOrders);
 
+router.get("/products", systemControllers.getAllProducts);
+
 router.get("/campaigns", systemControllers.getAllCampaigns);
 
 router.get("/suppliers", systemControllers.getAllSupplier);
