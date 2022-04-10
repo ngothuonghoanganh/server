@@ -43,7 +43,7 @@ class OrderController {
         .first();
 
       const supplierData = await Suppliers.query()
-        .select("accountid")
+        .select("accountId")
         .where("id", supplierId)
         .first();
 
@@ -51,24 +51,24 @@ class OrderController {
 
       if (campaignId) {
         const newOrder = await CampaignOrder.query().insert({
-          customerid: req.user.id,
+          customerId: req.user.id,
           address: address?.street + " " + address?.province,
-          ordercode: orderCode,
-          discountprice: discountPrice,
-          shippingfee: shippingFee,
-          totalprice: products
+          orderCode: orderCode,
+          discountPrice: discountPrice,
+          shippingFee: shippingFee,
+          totalPrice: products
             .map((item: any) => item.totalPrice)
             .reduce((prev: any, next: any) => {
               return prev + next;
             }),
-          paymentmethod: paymentMethod,
-          campaignid: campaignId,
+          paymentMethod: paymentMethod,
+          campaignId: campaignId,
           status: "notAdvanced",
-          productid: products[0].productId,
-          productname: products[0].productName,
+          // productid: products[0].productId,
+          productName: products[0].productName,
           quantity: products[0].quantity,
           price: products[0].price,
-          notes: products[0].notes,
+          note: products[0].notes,
           image: products[0].image,
         });
 
@@ -83,10 +83,10 @@ class OrderController {
           await OrderDetail.query().delete().where("id", product.cartId);
         }
         transactionController.createTransaction({
-          ordercode: orderCode,
-          iswithdrawable: false,
+          orderCode: orderCode,
+          isWithdrawable: false,
           type: "income",
-          supplierid: supplierId,
+          supplierId: supplierId,
         } as Transaction);
 
         // orderStatusHistoryController.createHistory({
@@ -111,23 +111,20 @@ class OrderController {
       }
 
       const newOrder = await Order.query().insert({
-        customerid: req.user.id,
-        iswholesale: isWholeSale,
-        customerdiscountcodeid: customerDiscountCodeId,
-        campaignid: campaignId,
-        addressid: addressId,
-        paymentid: paymentId,
-        supplierid: supplierId,
-        discountprice: discountPrice,
-        shippingfee: shippingFee,
-        paymentmethod: paymentMethod,
+        customerId: req.user.id,
+        customerDiscountCodeId: customerDiscountCodeId,
+        paymentId: paymentId,
+        // supplierid: supplierId,
+        discountPrice: discountPrice,
+        shippingFee: shippingFee,
+        paymentMethod: paymentMethod,
         status: paymentMethod === "cod" ? "created" : "unpaid",
-        totalprice: products
+        totalPrice: products
           .map((item: any) => item.totalPrice)
           .reduce((prev: any, next: any) => {
             return prev + next;
           }),
-        ordercode: orderCode,
+        orderCode: orderCode,
         address: address?.street + " " + address?.province,
       });
       let newOrderDetails: any = [];
@@ -136,17 +133,17 @@ class OrderController {
 
         for (const product of products) {
           details.push({
-            customerid: req.user.id,
-            productid: product.productId,
-            productname: product.productName,
+            // customerid: req.user.id,
+            productId: product.productId,
+            productName: product.productName,
             quantity: product.quantity,
             price: product.price,
-            totalprice: product.totalPrice,
-            notes: product.notes,
-            ordercode: orderCode,
+            totalPrice: product.totalPrice,
+            note: product.notes,
+            orderCode: orderCode,
             image: product.image,
-            orderid: newOrder.id,
-            incampaign: !campaignId ? false : true,
+            orderId: newOrder.id,
+            // incampaign: !campaignId ? false : true,
           });
         }
 
@@ -155,50 +152,50 @@ class OrderController {
         for (const product of products) {
           await OrderDetail.query()
             .update({
-              customerid: req.user.id,
-              productid: product.productId,
-              productname: product.productName,
+              // customerid: req.user.id,
+              productId: product.productId,
+              productName: product.productName,
               quantity: product.quantity,
               price: product.price,
-              totalprice: product.totalPrice,
-              notes: product.notes,
-              ordercode: orderCode,
+              totalPrice: product.totalPrice,
+              note: product.notes,
+              orderCode: orderCode,
               image: product.image,
-              orderid: newOrder.id,
+              orderId: newOrder.id,
             })
             .where("id", product.cartId);
         }
         newOrderDetails = await OrderDetail.query()
           .select()
-          .where("ordercode", orderCode);
+          .where("orderCode", orderCode);
       }
       // insert into history
 
       if (paymentMethod === "cod") {
         orderStatusHistoryController.createHistory({
-          statushistory: "created",
+          orderStatus: "created",
           type: "retail",
-          retailorderid: newOrder.id,
-          ordercode: newOrder.ordercode,
+          retailOrderId: newOrder.id,
+          orderCode: newOrder.orderCode,
           description: "is created",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: supplierData.accountid,
-          link: newOrder.ordercode,
+          userId: supplierData.accountId,
+          link: newOrder.orderCode,
           message: "changed to " + "created",
           status: "unread",
         });
       } else {
         orderStatusHistoryController.createHistory({
-          statushistory: "unpaid",
+          orderStatus: "unpaid",
           type: "retail",
-          retailorderid: newOrder.id,
-          ordercode: newOrder.ordercode,
+          retailOrderId: newOrder.id,
+          orderCode: newOrder.orderCode,
           description: "requires full payment via VNPAY E-Wallet",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: supplierData.accountid,
-          link: newOrder.ordercode,
+          userId: supplierData.accountId,
+          link: newOrder.orderCode,
           message: "changed to " + "unpaid",
           status: "unread",
         });
@@ -214,10 +211,10 @@ class OrderController {
       }
 
       transactionController.createTransaction({
-        ordercode: orderCode,
-        iswithdrawable: false,
+        orderCode: orderCode,
+        isWithdrawable: false,
         type: "income",
-        supplierid: supplierId,
+        supplierId: supplierId,
       } as Transaction);
       return res.status(200).send({
         message: "successful",
@@ -248,7 +245,7 @@ class OrderController {
         .update({
           status: status,
         })
-        .where("ordercode", orderCode)
+        .where("orderCode", orderCode)
         .andWhere("status", "delivered");
       if (update === 0) {
         console.log("update campaign order");
@@ -256,7 +253,7 @@ class OrderController {
           .update({
             status: status,
           })
-          .where("ordercode", orderCode)
+          .where("orderCode", orderCode)
           .andWhere("status", "delivered");
       }
 
@@ -264,44 +261,44 @@ class OrderController {
         (await Order.query()
           .select(
             "orders.*",
-            Order.raw(`sum(orderdetail.quantity) as orderquantity`)
+            Order.raw(`sum(orderDetails.quantity) as orderquantity`)
           )
-          .join("orderdetail", "orders.id", "orderdetail.orderid")
+          .join("orderDetails", "orders.id", "orderDetails.orderid")
           .where("orders.ordercode", orderCode)
           .groupBy("orders.id")
           .first()) ||
         (await CampaignOrder.query()
           .select(
-            "campaignorder.*",
-            "campaignorder.quantity as orderquantity",
-            "campaigns.supplierid as supplierid"
+            "campaignOrders.*",
+            "campaignOrders.quantity as orderquantity",
+            "campaigns.supplierId as supplierid"
           )
-          .join("campaigns", "campaigns.id", "campaignorder.campaignid")
-          .where("campaignorder.ordercode", orderCode)
+          .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
+          .where("campaignOrders.ordercode", orderCode)
           .first());
 
       if (order) {
         const loyalCustomer = await LoyalCustomer.query()
           .select()
-          .where("customerid", order.customerid)
-          .andWhere("supplierid", order.supplierid)
+          .where("customerId", order.customerid)
+          .andWhere("supplierId", order.supplierid)
           .first();
 
         if (!loyalCustomer) {
           await LoyalCustomer.query().insert({
-            customerid: order.customerid,
-            supplierid: order.supplierid,
-            numoforder: 1,
-            numofproduct: order.orderquantity,
+            customerId: order.customerid,
+            supplierId: order.supplierid,
+            numOfOrder: 1,
+            numOfProduct: order.orderquantity,
           });
         } else {
           await LoyalCustomer.query()
             .update({
-              customerid: order.customerid,
-              supplierid: order.supplierid,
-              numoforder: LoyalCustomer.raw(`numoforder + 1`),
-              numofproduct: LoyalCustomer.raw(
-                `numofproduct + ${order.orderquantity}`
+              customerId: order.customerid,
+              supplierId: order.supplierid,
+              numOfOrder: LoyalCustomer.raw(`numOfOrder + 1`),
+              numOfProduct: LoyalCustomer.raw(
+                `numOfProduct + ${order.orderquantity}`
               ),
             })
             .where("id", loyalCustomer.id);
@@ -309,28 +306,28 @@ class OrderController {
 
         const newLoyalCustomer = await LoyalCustomer.query()
           .select()
-          .where("customerid", order.customerid)
-          .andWhere("supplierid", order.supplierid)
+          .where("customerId", order.customerid)
+          .andWhere("supplierId", order.supplierid)
           .andWhere("status", "active")
           .first();
 
         if (newLoyalCustomer) {
           const condition = await LoyalCustomerCondition.query()
             .select()
-            .where("supplierid", order.supplierid)
-            .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
-            .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
+            .where("supplierId", order.supplierid)
+            .andWhere("minOrder", "<=", newLoyalCustomer.numOfOrder)
+            .andWhere("minProduct", "<=", newLoyalCustomer.numOfProduct);
 
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
             .update({
-              discountpercent: maxPercent.discountpercent,
+              discountPercent: maxPercent.discountpercent,
             })
             .where("id", newLoyalCustomer.id);
         }
@@ -358,12 +355,12 @@ class OrderController {
       } as any);
 
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         // image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
 
@@ -373,16 +370,16 @@ class OrderController {
       let accountIdSupp;
       if (type === "retail") {
         supplierDataForRetail = await Order.query()
-          .select("supplierid")
+          .select("supplierId")
           .where("id", orderId)
           .first();
         accountIdSupp = await Suppliers.query()
-          .select("accountid")
-          .where("id", supplierDataForRetail.supplierid)
+          .select("accountId")
+          .where("id", supplierDataForRetail.supplierId)
           .first();
       } else {
         supplierDataForCampaign = await Products.query()
-          .select("products.supplierid")
+          .select("products.supplierId")
           .join("campaignorder", "campaignorder.productid", "products.id")
           .where("campaignorder.id", orderId)
           .first();
@@ -976,25 +973,19 @@ class OrderController {
 
   public updateStatusFromReturningToDeliveredForRejectReturn = async (
     req: any,
-    res: any,
+    res: any
   ) => {
     try {
-      let {
-        orderCode,
-        type,
-        orderId,
-        description,
-        image,
-      } = req.body;
+      let { orderCode, type, orderId, description, image } = req.body;
       const requestReturnTime = await OrderStatusHistory.query()
         .select()
         .where("ordercode", orderCode)
         .andWhere("statushistory", "returning");
       let status;
       if (requestReturnTime.length === 1) {
-        status = 'delivered'
+        status = "delivered";
       } else {
-        status = 'completed'
+        status = "completed";
       }
       let update: any = await Order.query()
         .update({

@@ -5,7 +5,7 @@ Model.knex(connection.knex);
 
 export class LoyalCustomerCondition extends Model {
   static get tableName() {
-    return "loyalcustomercondition";
+    return "loyalCustomerConditions";
   }
   id?: string;
   supplierId?: string;

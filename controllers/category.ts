@@ -9,8 +9,8 @@ class CategoriesController {
       let { categoryName } = req.body;
 
       const newCate: any = await Categories.query().insert({
-        categoryname: categoryName,
-        supplierid: supplierid,
+        categoryName: categoryName,
+        supplierId: supplierid,
       });
 
       return res.status(200).send({
@@ -27,8 +27,8 @@ class CategoriesController {
       const  {id}  = req.user;
       const List = await Categories.query()
         .select("categories.*")
-        .where("isdeleted", false)
-        .andWhere("supplierid", id);
+        .where("isDeleted", false)
+        .andWhere("supplierId", id);
       return res.status(200).send({
         data: List,
         message: "successful",
@@ -45,7 +45,7 @@ class CategoriesController {
       const List = await Categories.query()
         .select('categories.*')
         .where('isdeleted', false)
-        .andWhere('supplierid', userId)
+        .andWhere('supplierId', userId)
 
       // console.log(List)
 
@@ -63,7 +63,7 @@ class CategoriesController {
       const { categoryId } = req.params;
       await Categories.query()
         .update({
-          isdeleted: true
+          isDeleted: true
         })
         .where('id', categoryId)
 
@@ -83,7 +83,7 @@ class CategoriesController {
 
       await Categories.query()
         .update({
-          categoryname: categoryName,
+          categoryName: categoryName,
         })
         .where("id", categoryId)
         .andWhere("isdeleted", false);
@@ -103,8 +103,8 @@ class CategoriesController {
       const userId = req.params.userId;
       const List = await Categories.query()
         .select("categories.*")
-        .where("isdeleted", false)
-        .andWhere("userid", userId);
+        .where("isDeleted", false)
+        .andWhere("userId", userId);
       return res.status(200).send({
         data: List,
         message: "got the list categories",
@@ -119,7 +119,7 @@ class CategoriesController {
       const categoryId = req.params.categoryId;
       const cate: any = await Categories.query()
         .select("categories.*")
-        .where("isdeleted", false)
+        .where("isDeleted", false)
         .andWhere("id", categoryId)
         .first();
       return res.status(200).send({

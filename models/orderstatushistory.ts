@@ -5,7 +5,7 @@ Model.knex(connection.knex);
 
 export class OrderStatusHistory extends Model {
   static get tableName() {
-    return "orderstatushistory";
+    return "orderStatusHistories";
   }
 
   id?: string;

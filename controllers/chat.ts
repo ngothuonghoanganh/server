@@ -28,35 +28,35 @@ class ChatController {
           const fromInfo =
             (await Customers.query()
               .select(
-                "accountid as id",
-                "firstname as firstname",
-                "lastname as lastname",
+                "accountId as id",
+                "firstName as firstname",
+                "lastName as lastname",
                 " avt as avt"
               )
-              .where("accountid", snapshot.val().from)
-              .andWhere("isdeleted", false)
+              .where("accountId", snapshot.val().from)
+              .andWhere("isDeleted", false)
               .first()) ||
             (await Suppliers.query()
-              .select("accountid as id", "name as name", " avt as avt")
-              .where("accountid", snapshot.val().from)
-              .andWhere("isdeleted", false)
+              .select("accountId as id", "name as name", " avt as avt")
+              .where("accountId", snapshot.val().from)
+              .andWhere("isDeleted", false)
               .first());
 
           const toInfo =
             (await Customers.query()
               .select(
-                "accountid as id",
-                "firstname as firstname",
-                "lastname as lastname",
+                "accountId as id",
+                "firstName as firstname",
+                "lastName as lastname",
                 "avt as avt"
               )
-              .where("accountid", snapshot.val().to)
-              .andWhere("isdeleted", false)
+              .where("accountId", snapshot.val().to)
+              .andWhere("isDeleted", false)
               .first()) ||
             (await Suppliers.query()
-              .select("accountid as id", "name as name", " avt as avt")
-              .where("accountid", snapshot.val().to)
-              .andWhere("isdeleted", false)
+              .select("accountId as id", "name as name", " avt as avt")
+              .where("accountId", snapshot.val().to)
+              .andWhere("isDeleted", false)
               .first());
 
           await database
@@ -158,14 +158,14 @@ class ChatController {
         })
         .andWhere((cd) => {
           if (startDate && endDate) {
-            cd.whereBetween("createdat", [startDate, endDate]);
+            cd.whereBetween("createdAt", [startDate, endDate]);
           }
           if (startDate && !endDate) {
-            cd.where("createdat", ">=", startDate);
+            cd.where("createdAt", ">=", startDate);
           }
 
           if (!startDate && endDate) {
-            cd.where("createdat", "<=", endDate);
+            cd.where("createdAt", "<=", endDate);
           }
         });
 

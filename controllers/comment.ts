@@ -42,31 +42,31 @@ class Comment {
       const isCampaign = req.body.isCampaign;
       const ListEntity = [
         "customers.avt",
-        "customers.firstname",
-        "customers.lastname",
+        "customers.firstName as firstname",
+        "customers.lastName as lastname",
       ];
       let data = [];
       if (isCampaign) {
         data = await CampaignOrder.query()
           .select(
-            "campaignorder.*",
-            "campaignorder.comment",
+            "campaignOrders.*",
+            "campaignOrders.comment",
             ...ListEntity,
-            "campaignorder.rating"
+            "campaignOrders.rating"
           )
-          .join("customers", "customers.id", "campaignorder.customerid")
-          .where("campaignorder.id", orderId);
+          .join("customers", "customers.id", "campaignOrders.customerid")
+          .where("campaignOrders.id", orderId);
       } else {
         data = await OrderDetail.query()
           .select(
-            "orderdetail.*",
-            "orderdetail.comment",
+            "orderDetails.*",
+            "orderDetails.comment",
             ...ListEntity,
-            "orderdetail.rating"
+            "orderDetails.rating"
           )
-          .join("orders", "orders.id", "orderdetail.orderid")
+          .join("orders", "orders.id", "orderDetails.orderid")
           .join("customers", "customers.id", "orders.customerid")
-          .where("orderdetail.id", orderId);
+          .where("orderDetails.id", orderId);
       }
       return res.status(200).send({
         message: "successful",
@@ -83,8 +83,8 @@ class Comment {
       // console.log(productId)
       const ListEntity = [
         "customers.avt",
-        "customers.firstname",
-        "customers.lastname",
+        "customers.firstName as firstname",
+        "customers.lastName as lastname",
       ];
 
       const nullValue = "";
@@ -93,25 +93,25 @@ class Comment {
       // where campaignorder.productid =${productId}
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
       const campaignOrder: any = await CampaignOrder.query()
-        .select("campaignorder.comment", ...ListEntity, "campaignorder.rating")
-        .join("customers", "customers.id", "campaignorder.customerid")
-        .where("campaignorder.productid", productId)
+        .select("campaignOrders.comment", ...ListEntity, "campaignOrders.rating")
+        .join("customers", "customers.id", "campaignOrders.customerId")
+        .where("campaignOrders.productId", productId)
         .andWhere((cd) => {
-          cd.where("campaignorder.comment", "<>", nullValue).orWhere(
-            "campaignorder.comment",
+          cd.where("campaignOrders.comment", "<>", nullValue).orWhere(
+            "campaignOrders.comment",
             "<>",
             null
           );
         });
 
       const retailOrder: any = await OrderDetail.query()
-        .select("orderdetail.comment", ...ListEntity, "orderdetail.rating")
-        .join("orders", "orders.id", "orderdetail.orderid")
-        .join("customers", "customers.id", "orders.customerid")
-        .where("orderdetail.productid", productId)
+        .select("orderDetails.comment", ...ListEntity, "orderDetails.rating")
+        .join("orders", "orders.id", "orderDetails.orderid")
+        .join("customers", "customers.id", "orders.customerId")
+        .where("orderDetails.productId", productId)
         .andWhere((cd) => {
-          cd.where("orderdetail.comment", "<>", nullValue).orWhere(
-            "orderdetail.comment",
+          cd.where("orderDetails.comment", "<>", nullValue).orWhere(
+            "orderDetails.comment",
             "<>",
             null
           );
@@ -140,14 +140,14 @@ class Comment {
       const nullValue = "";
 
       const campaignOrder: any = await CampaignOrder.query()
-        .select("campaignorder.comment", "campaignorder.rating")
-        .where("campaignorder.productid", productId)
-        .andWhere("campaignorder.comment", "<>", nullValue);
+        .select("campaignOrders.comment", "campaignOrders.rating")
+        .where("campaignOrders.productId", productId)
+        .andWhere("campaignOrders.comment", "<>", nullValue);
 
       const retailOrder: any = await OrderDetail.query()
-        .select("orderdetail.comment", "orderdetail.rating")
-        .where("orderdetail.productid", productId)
-        .andWhere("orderdetail.comment", "<>", nullValue);
+        .select("orderDetails.comment", "orderDetails.rating")
+        .where("orderDetails.productId", productId)
+        .andWhere("orderDetails.comment", "<>", nullValue);
 
       campaignOrder.push(...retailOrder);
 
@@ -176,16 +176,16 @@ class Comment {
       const productIds = req.body.productIds;
       const status = "completed";
       const ListEntity = [
-        "orderdetail.id as orderDetailId",
+        "orderDetails.id as orderDetailId",
         "orders.status as orderStatus",
-        "orderdetail.productid as productId",
+        "orderDetails.productid as productId",
       ];
       const numOfOrderCompletedByProductId = await OrderDetail.query()
         .select(...ListEntity)
-        .join("orders", "orderdetail.orderid", "orders.id")
-        .whereIn("orderdetail.productid", productIds)
+        .join("orders", "orderDetails.orderid", "orders.id")
+        .whereIn("orderDetails.productId", productIds)
         .andWhere("orders.status", status)
-        .groupBy("orderdetail.id")
+        .groupBy("orderDetails.id")
         .groupBy("orders.id");
 
       // console.log(numOfOrderCompletedByProductId)
