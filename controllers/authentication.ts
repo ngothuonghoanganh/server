@@ -40,6 +40,7 @@ class Authentication {
           .andWhere("isDeleted", false)
           .first();
       }
+
       if (!info) return res.status(401).send("User does not exist");
       res.cookie("jwt", token, cookieOptions);
       res.status(statusCode).json({
@@ -69,11 +70,12 @@ class Authentication {
 
       const user: any = await Accounts.query()
         .select("accounts.*", "roles.roleName")
-        .join("roles", "roles.Id", "accounts.roleId")
+        .join("roles", "roles.id", "accounts.roleId")
         .where("accounts.username", username)
         .orWhere("accounts.phone", username)
         .andWhere("accounts.isDeleted", false)
         .first();
+      console.log(user)
       if (user) {
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {

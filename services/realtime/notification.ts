@@ -12,7 +12,7 @@ class Notif {
     database.ref("notif/" + data.userid).set(data);
     //insert data of noti to database
     const insertNoti = await Notification.query().insert({
-      userid: data.userid,
+      userId: data.userid,
       link: data.link,
       message: data.message,
       status: "unread",

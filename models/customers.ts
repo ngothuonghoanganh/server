@@ -30,19 +30,20 @@ export class Customers extends Model {
         isdeleted: object.isDeleted,
         createdat: object.createdAt,
         updatedat: object.updatedAt,
+        ...object
       }
     },
     format(object: any) {
       return {
         id: object.id,
-        accountId: object.accountid,
-        firstName: object.firstname,
-        lastName: object.lastname,
+        accountId: object.accountId,
+        firstName: object.firstName,
+        lastName: object.lastName,
         email: object.email,
         avt: object.avt,
-        isDeleted: object.isdeleted,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
+        isDeleted: object.isDeleted,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
       }
     },
   }

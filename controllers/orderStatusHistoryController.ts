@@ -116,16 +116,16 @@ class OrderHistoryController {
                 let accountIdSupp;
                 if (type === 'retail') {
                     supplierDataForRetail = await Order.query().select('supplierId').where('id', orderId).first();
-                    accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForRetail.supplierid).first();
+                    // accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForRetail.supplierid).first();
                 } else {
                     supplierDataForCampaign = await Products.query()
                         .select("products.supplierId")
                         .join("campaignOrder", "campaignOrder.productId", "products.id")
                         .where("campaignOrder.id", orderId).first();
-                    accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForCampaign.supplierid).first();
+                    // accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForCampaign.supplierid).first();
                 }
                 notif.sendNotiForWeb({
-                    userid: accountIdSupp.accountId,
+                    // userid: accountIdSupp.accountId,
                     link: orderCode,
                     message: "changed to " + status,
                     status: "unread"
@@ -175,16 +175,16 @@ class OrderHistoryController {
                     let accountIdSupp;
                     if (type === 'retail') {
                         supplierDataForRetail = await Order.query().select('supplierId').where('id', orderId).first();
-                        accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForRetail.supplierId).first();
+                        // accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForRetail.supplierId).first();
                     } else {
                         supplierDataForCampaign = await Products.query()
                             .select("products.supplierId")
                             .join("campaignOrder", "campaignOrder.productId", "products.id")
                             .where("campaignOrder.id", orderId).first();
-                        accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForCampaign.supplierId).first();
+                        // accountIdSupp = await Suppliers.query().select('accountId').where('id', supplierDataForCampaign.supplierId).first();
                     }
                     notif.sendNotiForWeb({
-                        userid: accountIdSupp.accountId,
+                        // userid: accountIdSupp.accountId,
                         link: orderCode,
                         message: "changed to " + status,
                         status: "unread"

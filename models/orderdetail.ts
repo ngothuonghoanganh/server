@@ -16,7 +16,7 @@ export class OrderDetail extends Model {
   note?: string;
   orderCode?: string;
   productId?: Number;
-  totalPrice?:Number;
+  totalPrice?: Number;
   image?: string;
   orderId?: string;
   comment?: string;
@@ -37,23 +37,24 @@ export class OrderDetail extends Model {
         orderid: object.orderId,
         comment: object.comment,
         rating: object.rating,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        productName: object.productname,
+        productName: object.productName,
         quantity: object.quantity,
         price: object.price,
         note: object.note,
-        orderCode: object.ordercode,
-        productId: object.productid,
-        totalPrice: object.totalprice,
+        orderCode: object.orderCode,
+        productId: object.productId,
+        totalPrice: object.totalPrice,
         image: object.image,
-        orderId: object.orderid,
+        orderId: object.orderId,
         comment: object.comment,
         rating: object.rating,
-      }
+      };
     },
-  }
+  };
 }

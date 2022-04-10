@@ -375,7 +375,7 @@ class OrderController {
           .first();
         accountIdSupp = await Suppliers.query()
           .select("accountId")
-          .where("id", supplierDataForRetail.supplierId)
+          // .where("id", supplierDataForRetail.supplierId)
           .first();
       } else {
         supplierDataForCampaign = await Products.query()
@@ -385,7 +385,7 @@ class OrderController {
           .first();
         accountIdSupp = await Suppliers.query()
           .select("accountid")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
       }
       notif.sendNotiForWeb({
@@ -820,7 +820,7 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountId")
-          .where("id", suppId.supplierid)
+          // .where("id", suppId.supplierid)
           .first();
 
         notif.sendNotiForWeb({
@@ -837,7 +837,7 @@ class OrderController {
           .first();
         let supp = await Suppliers.query()
           .select("accountId")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
 
         notif.sendNotiForWeb({
@@ -936,7 +936,7 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountId")
-          .where("id", suppId.supplierid)
+          // .where("id", suppId.supplierid)
           .first();
 
         notif.sendNotiForWeb({
@@ -953,7 +953,7 @@ class OrderController {
           .first();
         let supp = await Suppliers.query()
           .select("accountId")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
         notif.sendNotiForWeb({
           userid: supp.accountId,
@@ -1089,7 +1089,7 @@ class OrderController {
             .first();
           let accountIdSupp = await Suppliers.query()
             .select("accountId")
-            .where("id", suppId.supplierid)
+            // .where("id", suppId.supplierid)
             .first();
 
           notif.sendNotiForWeb({
@@ -1106,7 +1106,7 @@ class OrderController {
             .first();
           let supp = await Suppliers.query()
             .select("accountId")
-            .where("id", supplierDataForCampaign.supplierid)
+            // .where("id", supplierDataForCampaign.supplierid)
             .first();
           notif.sendNotiForWeb({
             userid: supp.accountId,
@@ -1176,7 +1176,7 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountId")
-          .where("id", suppId.supplierid)
+          // .where("id", suppId.supplierid)
           .first();
 
         notif.sendNotiForWeb({
@@ -1193,7 +1193,7 @@ class OrderController {
           .first();
         let supp = await Suppliers.query()
           .select("accountId")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
         notif.sendNotiForWeb({
           userid: supp.accountId,
@@ -1570,19 +1570,19 @@ class OrderController {
       if (!isAdvanced) {
         await Order.query()
           .update({
-            paymentid: vnp_TxnRef,
+            paymentId: vnp_TxnRef,
             status: status,
           })
           .where("id", orderId);
         await CampaignOrder.query()
-          .update({ paymentid: vnp_TxnRef, status: status })
+          .update({ paymentId: vnp_TxnRef, status: status })
           .where("id", orderId);
       } else {
         await CampaignOrder.query()
           .update({
-            advancedid: vnp_TxnRef,
+            advancedId: vnp_TxnRef,
             status: status,
-            advancefee: amount,
+            advanceFee: amount,
           })
           .where("id", orderId);
 
@@ -1590,7 +1590,7 @@ class OrderController {
           .select()
           .where("id", orderId)
           .first();
-        const campaignId = order.campaignid;
+        const campaignId = order.campaignId;
 
         const ordersInCampaign = await CampaignOrder.query()
           .select()
@@ -1629,13 +1629,13 @@ class OrderController {
             .where("id", campaignId);
           const getCampaigns = await Campaigns.query()
             .select()
-            .where("productid", campaign.productid)
+            .where("productid", campaign.productId)
             .andWhere("status", "active");
 
           if (getCampaigns.length === 0) {
             await Products.query()
               .update({ status: "active" })
-              .where("id", campaign.productid);
+              .where("id", campaign.productId);
           }
 
           for (const item of ordersInCampaign) {
@@ -1706,7 +1706,7 @@ class OrderController {
             .first();
           accountIdSupp = await Suppliers.query()
             .select("accountId")
-            .where("id", supplierDataForRetail.supplierid)
+            // .where("id", supplierDataForRetail.supplierid)
             .first();
         } else {
           supplierDataForCampaign = await Products.query()
@@ -1716,7 +1716,7 @@ class OrderController {
             .first();
           accountIdSupp = await Suppliers.query()
             .select("accountId")
-            .where("id", supplierDataForCampaign.supplierid)
+            // .where("id", supplierDataForCampaign.supplierid)
             .first();
         }
         notif.sendNotiForWeb({
@@ -1744,7 +1744,7 @@ class OrderController {
             .first();
           let accountIdSupp = await Suppliers.query()
             .select("accountId")
-            .where("id", supplierDataForCampaign.supplierid)
+            // .where("id", supplierDataForCampaign.supplierid)
             .first();
           notif.sendNotiForWeb({
             userid: accountIdSupp.accountId,
@@ -1770,7 +1770,7 @@ class OrderController {
             .first();
           let accountIdSupp = await Suppliers.query()
             .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
+            // .where("id", supplierDataForCampaign.supplierid)
             .first();
           notif.sendNotiForWeb({
             userid: accountIdSupp.accountId,

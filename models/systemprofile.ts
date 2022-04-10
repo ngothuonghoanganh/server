@@ -26,20 +26,19 @@ export class SystemProfile extends Model {
         createdat: object.createdAt,
         updatedat: object.updatedAt,
         accountid: object.accountId,
-
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
         name: object.name,
         avt: object.avt,
-        isDeleted: object.isdeleted,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
-        accountId: object.accountid,
-        
-      }
+        isDeleted: object.isDeleted,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
+        accountId: object.accountId,
+      };
     },
-  }
+  };
 }

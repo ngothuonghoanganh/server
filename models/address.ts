@@ -26,17 +26,18 @@ export class Address extends Model {
         isdefault: object.isDefault,
         createdat: object.createdAt,
         updatedat: object.updatedAt,
+        ...object
       };
     },
     format(object: any) {
       return {
         id: object.id,
-        customerId: object.customerid,
+        customerId: object.customerId,
         province: object.province,
         street: object.street,
-        isDefault: object.isdefault,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
+        isDefault: object.isDefault,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
       };
     },
   };

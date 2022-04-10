@@ -36,24 +36,24 @@ export class DiscountCode extends Model {
         updatedat: object.updatedAt,
         status: object.status,
         discountprice: object.discountPrice,
-
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        supplierId: object.supplierid,
+        supplierId: object.supplierId,
         code: object.code,
         description: object.description,
-        minimunPriceCondition: object.minimunpricecondition,
-        startDate: object.startdate,
-        endDate: object.enddate,
+        minimunPriceCondition: object.minimunPriceCondition,
+        startDate: object.startDate,
+        endDate: object.endDate,
         quantity: object.quantity,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
         status: object.status,
-        discountPrice: object.discountprice,
-      }
+        discountPrice: object.discountPrice,
+      };
     },
-  }
+  };
 }

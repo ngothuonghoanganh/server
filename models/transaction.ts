@@ -24,7 +24,7 @@ export class Transaction extends Model {
   status?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  paymentLink?:string;
+  paymentLink?: string;
 
   static columnNameMappers: any = {
     parse(object: any) {
@@ -46,29 +46,28 @@ export class Transaction extends Model {
         createdat: object.createdAt,
         updatedat: object.updatedAt,
         paymentlink: object.paymentLink,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        supplierId: object.supplierid,
-        amount: object.name,
-        orderCode: object.ordercode,
-        advanceFee: object.advancefee,
-        orderValue: object.ordervalue,
-        paymentfee: object.paymentfee,
-        paymentFee: object.platformfee,
-        penaltyFee: object.penaltyfee,
+        supplierId: object.supplierId,
+        amount: object.amount,
+        orderCode: object.orderCode,
+        advanceFee: object.advanceFee,
+        orderValue: object.orderValue,
+        paymentFee: object.paymentFee,
+        penaltyFee: object.penaltyFee,
         type: object.ewalletcode,
-        isWithdrawable: object.iswithdrawable,
+        isWithdrawable: object.isWithdrawable,
         description: object.description,
         content: object.content,
         status: object.status,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
-        paymentLink: object.paymentlink,
-
-      }
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
+        paymentLink: object.paymentLink,
+      };
     },
-  }
+  };
 }

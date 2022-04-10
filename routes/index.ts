@@ -8,6 +8,7 @@ const validator = createValidator();
 //lấy schema từ validation trong services
 import { querySchema } from "../services/validation/index";
 import Payment from "../controllers/payment";
+import { createClient } from "redis";
 
 const router = express.Router();
 
@@ -19,15 +20,17 @@ router.get(
   // validator.query(querySchema),
   async (req: any, res: any, next) => {
     try {
-      // database.ref("users/8e77e9fa-7a91-4a0c-a83e-0525726bbdca").push({
-      //   helloword: "hellos",
-      // });
+      // const client = createClient();
+      // client.on("error", (err) => console.log("Redis Client Error", err));
+      // await client.connect();
+      // await client.set(
+      //   "test",
+      //   JSON.stringify({
+      //     test: "successful",
+      //   })
+      // );
 
-      // notification.sendNotiForWeb({
-      //   userid: "abc123",
-      //   link: "",
-      //   message: "hello world",
-      // });
+      // console.log(await client.get("query"));
       return res.status(200).send("hello");
     } catch (error) {
       console.log(error);

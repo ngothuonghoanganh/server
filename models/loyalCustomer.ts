@@ -18,28 +18,29 @@ export class LoyalCustomer extends Model {
 
   static columnNameMappers: any = {
     parse(object: any) {
-        return {
-            id: object.id,
-            supplierid: object.supplierId,
-            customerid: object.customerId,
-            numoforder: object.numOfOrder,
-            numofproduct: object.numOfProduct,
-            discountpercent: object.discountPercent,
-            createdat: object.createdAt,
-            status: object.status,
-        }
+      return {
+        id: object.id,
+        supplierid: object.supplierId,
+        customerid: object.customerId,
+        numoforder: object.numOfOrder,
+        numofproduct: object.numOfProduct,
+        discountpercent: object.discountPercent,
+        createdat: object.createdAt,
+        status: object.status,
+        ...object,
+      };
     },
     format(object: any) {
-        return {
-            id: object.id,
-            supplierId: object.supplierid,
-            customerId: object.customerid,
-            numOfOrder: object.numoforder,
-            numOfProduct: object.numofproduct,
-            discountPercent: object.discountpercent,
-            createdAt: object.createdat,
-            status: object.status,
-        }
+      return {
+        id: object.id,
+        supplierId: object.supplierId,
+        customerId: object.customerId,
+        numOfOrder: object.numOfOrder,
+        numOfProduct: object.numOfProduct,
+        discountPercent: object.discountPercent,
+        createdAt: object.createdAt,
+        status: object.status,
+      };
     },
-}
+  };
 }

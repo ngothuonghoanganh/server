@@ -211,7 +211,7 @@ class Campaign {
             count(campaignOrders.id) filter (where campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced') as numorderwaiting`
           )
         )
-        .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignid")
+        .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
 
         .whereIn("campaigns.productid", productIds)
         .andWhere("campaigns.status", status)
@@ -241,10 +241,10 @@ class Campaign {
       const campaigns = await Campaigns.query()
         .select(
           "campaigns.*",
-          ...listEntity,
-          Campaigns.raw(
-            `(select count(campaignOrders.id) as numorder from campaignOrders where campaignOrders.campaignid = campaigns.id)`
-          )
+          ...listEntity
+          // Campaigns.raw(
+          //   `(select count(campaignOrders.id) as numorder from campaignOrders where campaignOrders.campaignId = campaigns.id)`
+          // )
         )
         .join("products", "campaigns.productId", "products.id")
         .where("campaigns.supplierId", supplierId);

@@ -21,7 +21,6 @@ export class Suppliers extends Model {
   identificationCard?: string;
   identificationImage?: string;
 
-
   static columnNameMappers: any = {
     parse(object: any) {
       return {
@@ -38,24 +37,25 @@ export class Suppliers extends Model {
         ewalletsecret: object.eWalletSecret,
         identificationcard: object.identificationCard,
         identificationimage: object.identificationImage,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        accountId: object.accountid,
+        accountId: object.accountId,
         name: object.name,
         email: object.email,
         avt: object.avt,
-        isDeleted: object.isdeleted,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
+        isDeleted: object.isDeleted,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
         address: object.address,
-        eWalletCode: object.ewalletcode,
-        eWalletSecret: object.ewalletsecret,
-        identificationCard: object.identificationcard,
-        identificationImage: object.identificationimage,
-      }
+        eWalletCode: object.eWalletCode,
+        eWalletSecret: object.eWalletSecret,
+        identificationCard: object.identificationCard,
+        identificationImage: object.identificationImage,
+      };
     },
-  }
+  };
 }
