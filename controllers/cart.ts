@@ -1,5 +1,6 @@
 import { Cart } from "../models/cart";
 import { OrderDetail } from "../models/orderdetail";
+// import { Client } from "../models/redis/index";
 
 class CartController {
   public addToCart = async (req: any, res: any, next: any) => {
@@ -13,7 +14,7 @@ class CartController {
         productid: productId,
         quantity: quantity,
         incampaign: inCampaign,
-        campaignid: campaignId
+        campaignid: campaignId,
       });
 
       return res.status(200).send({
