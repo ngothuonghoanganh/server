@@ -188,11 +188,11 @@ class Comment {
       const ListEntity = [
         "orderDetails.id as orderDetailId",
         "orders.status as orderStatus",
-        "orderDetails.productid as productId",
+        "orderDetails.productId as productId",
       ];
       const numOfOrderCompletedByProductId = await OrderDetail.query()
         .select(...ListEntity)
-        .join("orders", "orderDetails.orderid", "orders.id")
+        .join("orders", "orderDetails.orderId", "orders.id")
         .whereIn("orderDetails.productId", productIds)
         .andWhere("orders.status", status)
         .groupBy("orderDetails.id")

@@ -40,6 +40,7 @@ class Authentication {
           .andWhere("isDeleted", false)
           .first();
       }
+
       if (!info) return res.status(401).send("User does not exist");
       res.cookie("jwt", token, cookieOptions);
       res.status(statusCode).json({

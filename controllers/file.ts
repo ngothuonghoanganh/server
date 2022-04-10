@@ -28,9 +28,14 @@ class FileController {
         // })
 
         // const file = await Files.query().select().where("url", fileLocation)
-        return res.status(200).send({
-          url: fileLocation,
-        });
+        return res.status(200).send([
+          {
+            // data: {
+            url: fileLocation,
+            name: blob.name,
+            // },
+          },
+        ]);
       });
 
       blobWriter.end(req.file.buffer);

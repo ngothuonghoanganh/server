@@ -134,8 +134,8 @@ class ProductsController {
       for (const prod of prods) {
         const totalMaxQuantity: any = (await Campaigns.query()
           .select()
-          .sum("maxquantity")
-          .where("productid", prod.id)
+          .sum("maxQuantity")
+          .where("productId", prod.id)
           .groupBy("campaigns.id")
           .first()) || { sum: 0 };
 
@@ -348,22 +348,22 @@ class ProductsController {
       const nullValue = "";
       const campaignOrder: any = await CampaignOrder.query()
         .select(
-          "campaignOrders.productId",
+          // "campaignOrders.productId",
           CampaignOrder.raw("COUNT(campaignOrders.id) as count"),
-          CampaignOrder.raw(`SUM (rating) AS rating`)
+          CampaignOrder.raw(`SUM (campaignOrders.rating) AS rating`)
         )
         .whereIn("campaignOrders.productId", productIds)
         .andWhere("campaignOrders.comment", "<>", nullValue)
-        .groupBy("productId");
+        .groupBy("campaignOrders.productId");
 
       const retailOrder: any = await OrderDetail.query()
         .select(
-          "orderDetails.productId",
+          // "orderDetails.productId",
           OrderDetail.raw("COUNT(orderDetails.id) as count"),
-          OrderDetail.raw(`SUM (rating) AS rating`)
+          OrderDetail.raw(`SUM (orderDetails.rating) AS rating`)
         )
-        .whereIn("orderDetail.productId", productIds)
-        .andWhere("orderDetail.comment", "<>", nullValue)
+        .whereIn("orderDetails.productId", productIds)
+        .andWhere("orderDetails.comment", "<>", nullValue)
         .groupBy("productId");
 
       return res.status(200).send({
