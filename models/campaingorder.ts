@@ -29,6 +29,7 @@ export class CampaignOrder extends Model {
   campaignId?: string;
   comment?: string;
   rating?: Number;
+  productId?: string;
 
   static columnNameMappers: any = {
     parse(object: any) {
@@ -55,6 +56,7 @@ export class CampaignOrder extends Model {
         campaignid: object.campaignId,
         comment: object.comment,
         rating: object.rating,
+        productid: object.productId,
       }
     },
     format(object: any) {
@@ -81,6 +83,8 @@ export class CampaignOrder extends Model {
         campaignId: object.campaignid,
         comment: object.comment,
         rating: object.rating,
+        productId: object.productid,
+
       }
     },
   }

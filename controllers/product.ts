@@ -35,12 +35,12 @@ class ProductsController {
 
       const prod: any = await Products.query().insert({
         name: name,
-        retailprice: retailPrice,
+        retailPrice: retailPrice,
         quantity: quantity,
         supplierid: supplierId,
         description: description,
         image: JSON.stringify(image),
-        categoryid: categoryId,
+        categoryId: categoryId,
         status: status,
       });
       return res.status(200).send({
@@ -61,8 +61,8 @@ class ProductsController {
       const productUpdated: any = await Products.query()
         .update({
           name: name,
-          retailprice: retailPrice,
-          categoryid: categoryId,
+          retailPrice: retailPrice,
+          categoryId: categoryId,
           quantity: quantity,
           description: description,
           image: JSON.stringify(image),
@@ -95,25 +95,25 @@ class ProductsController {
       let ListSupplierEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
 
       const List = supplierId
         ? await Categories.query()
           .select("products.*", ...ListSupplierEntity)
-          .join("suppliers", "suppliers.id", "categories.supplierid")
-          .join("products", "products.categoryid", "categories.id")
+          .join("suppliers", "suppliers.id", "categories.supplierId")
+          .join("products", "products.categoryId", "categories.id")
           .where("products.status", "<>", "deactivated")
-          .andWhere("categories.supplierid", supplierId)
+          .andWhere("categories.supplierId", supplierId)
         : await Categories.query()
           .select("products.*", ...ListSupplierEntity)
-          .join("suppliers", "suppliers.id", "categories.supplierid")
-          .join("products", "products.categoryid", "categories.id")
+          .join("suppliers", "suppliers.id", "categories.supplierId")
+          .join("products", "products.categoryId", "categories.id")
           .where("products.status", "<>", "deactivated");
 
       return res.status(200).send({
@@ -129,14 +129,14 @@ class ProductsController {
     try {
       let listEntity = [
         "products.*",
-        "categories.categoryname as categoryname",
+        "categories.categoryName as categoryname",
         "categories.id as categoryid",
       ];
       let prods: any = await Products.query()
         .select(...listEntity)
-        .leftOuterJoin("categories", "categories.id", "products.categoryid")
+        .leftOuterJoin("categories", "categories.id", "products.categoryId")
         .where("products.status", "<>", "deactivated")
-        .andWhere("categories.supplierid", req.user.id);
+        .andWhere("categories.supplierId", req.user.id);
 
       for (const prod of prods) {
         const totalMaxQuantity: any = (await Campaigns.query()
@@ -197,17 +197,17 @@ class ProductsController {
       const listEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       const data = await Categories.query()
         .select("products.*", ...listEntity)
-        .join("suppliers", "suppliers.id", "categories.supplierid")
-        .join("products", "products.categoryid", "categories.id")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
+        .join("products", "products.categoryId", "categories.id")
         .where("products.id", productId)
         .first();
 
@@ -248,8 +248,8 @@ class ProductsController {
       }
 
       const orderRetail: any = await Order.query().select()
-        .join('orderdetail', 'orders.id', 'orderdetail.orderid')
-        .where('orderdetail.productid', productId)
+        .join('orderDetail', 'orders.id', 'orderDetail.orderId')
+        .where('orderDetail.productId', productId)
         .andWhere((cd) => {
           cd.where("orders.status", "advanced")
             .orWhere("orders.status", "created")
@@ -257,7 +257,7 @@ class ProductsController {
         })
 
       const orderCampaign: any = await CampaignOrder.query().select()
-        .where('productid', productId)
+        .where('productId', productId)
         .andWhere((cd) => {
           cd.where("status", "advanced")
             .orWhere("status", "created")
@@ -271,19 +271,19 @@ class ProductsController {
             status: "cancelled",
           })
             .where('id', item.id);
-          const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
+          const cusAccountId = await Customers.query().select('accountId').where('id', item.customerid).first();
           notif.sendNotiForWeb({
-            userid: cusAccountId.accountid,
+            userid: cusAccountId.accountId,
             link: item.ordercode,
             message: "Order " + item.ordercode + " has been cancelled because the product has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
-            statushistory: 'cancelled',
+            orderStatus: 'cancelled',
             type: 'retail',
-            retailorderid: item.id,
+            retailOrderId: item.id,
             // image: JSON.stringify(image),
-            ordercode: item.ordercode,
+            orderCode: item.ordercode,
             description: "has been cancelled for: product has been disabled",
           } as OrderStatusHistory);
         }
@@ -296,34 +296,34 @@ class ProductsController {
             status: "cancelled",
           })
             .where('id', item.id);
-          const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
+          const cusAccountId = await Customers.query().select('accountId').where('id', item.customerid).first();
 
           notif.sendNotiForWeb({
-            userid: cusAccountId.accountid,
-            link: item.ordercode,
-            message: "Order " + item.ordercode + " has been cancelled because the product has been disabled",
+            userid: cusAccountId.accountId,
+            link: item.orderCode,
+            message: "Order " + item.orderCode + " has been cancelled because the product has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
-            statushistory: 'cancelled',
+            orderStatus: 'cancelled',
             type: "campaign",
-            campaignorderid: item.id,
+            campaignOrderId: item.id,
             // image: JSON.stringify(image),
-            ordercode: item.ordercode,
+            orderCode: item.orderCode,
             description: "has been cancelled for: product has been disabled",
           } as OrderStatusHistory);
         }
       }
 
-      const suppId: any = await Products.query().select('categories.supplierid')
-        .join('categories', "categories.id", "products.categoryid")
+      const suppId: any = await Products.query().select('categories.supplierId')
+        .join('categories', "categories.id", "products.categoryId")
         .where('products.id', productId).first();
 
       //send notif for supp abt
-      const suppAccountId = await Suppliers.query().select('accountid').where('id', suppId.supplierid).first();
+      const suppAccountId = await Suppliers.query().select('accountId').where('id', suppId.supplierid).first();
 
       notif.sendNotiForWeb({
-        userid: suppAccountId.accountid,
+        userid: suppAccountId.accountId,
         link: productId,
         message: 'Product and its related campaigns and orders have been cancelled',
         status: "unread",
@@ -369,22 +369,22 @@ class ProductsController {
       const productIds = req.body.productIds;
       const nullValue = '';
       const campaignOrder: any = await CampaignOrder.query()
-        .select('campaignorder.productid',
-          CampaignOrder.raw('COUNT(campaignorder.id) as count'),
+        .select('campaignOrder.productId',
+          CampaignOrder.raw('COUNT(campaignOrder.id) as count'),
           CampaignOrder.raw(`SUM (rating) AS rating`)
         )
-        .whereIn('campaignorder.productid', productIds)
-        .andWhere('campaignorder.comment', "<>", nullValue)
-        .groupBy('productid');
+        .whereIn('campaignOrder.productId', productIds)
+        .andWhere('campaignOrder.comment', "<>", nullValue)
+        .groupBy('productId');
 
       const retailOrder: any = await OrderDetail.query()
-        .select('orderdetail.productid',
-          OrderDetail.raw('COUNT(orderdetail.id) as count'),
+        .select('orderDetail.productId',
+          OrderDetail.raw('COUNT(orderDetail.id) as count'),
           OrderDetail.raw(`SUM (rating) AS rating`)
         )
-        .whereIn('orderdetail.productid', productIds)
-        .andWhere('orderdetail.comment', "<>", nullValue)
-        .groupBy('productid');
+        .whereIn('orderDetail.productId', productIds)
+        .andWhere('orderDetail.comment', "<>", nullValue)
+        .groupBy('productId');
 
       // const listRating = await Comments.query()
       //   .select("productid", Comments.raw(`AVG(rating) as rating`))
@@ -405,17 +405,17 @@ class ProductsController {
       const listEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       const prod: any = await Categories.query()
         .select("products.*", ...listEntity)
-        .join("suppliers", "suppliers.id", "categories.supplierid")
-        .join("products", "products.categoryid", "categories.id")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
+        .join("products", "products.categoryId", "categories.id")
         .where("products.name", "like", "%" + value + "%")
         .orWhere("suppliers.name", "like", "%" + value + "%")
         .andWhere("products.status", "<>", "deactivated");
@@ -444,7 +444,7 @@ class ProductsController {
       // console.log(listCategories)
       const data: any = await Products.query()
         .select()
-        .whereIn("categoryid", listCategories)
+        .whereIn("categoryId", listCategories)
         // .andWhere('status', 'active')
         // .andWhere('status', 'incampaign')
         .andWhere("status", "<>", "deactivated");

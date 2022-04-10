@@ -18,10 +18,10 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          identificationcard: identificationCard,
-          identificationimage: JSON.stringify(identificationImage),
-          ewalletcode: eWalletCode,
-          ewalletsecrect: eWalletSecrect,
+          identificationCard: identificationCard,
+          identificationImage: JSON.stringify(identificationImage),
+          eWalletCode: eWalletCode,
+          eWalletSecret: eWalletSecrect,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -38,20 +38,20 @@ class Supplier {
     try {
       const accountEntity = [
         "accounts.id as accountid",
-        "accounts.roleid as roleid",
-        "accounts.username as username",
-        "accounts.googleid as googleid",
+        "accounts.roleId as roleid",
+        "accounts.userName as username",
+        "accounts.googleId as googleid",
         "accounts.phone as phone",
-        "accounts.isdeleted as isdeleted",
+        "accounts.isDeleted as isdeleted",
 
       ]
       const email = req.query.email;
       // console.log(email);
       const suppData = await Suppliers.query().select('suppliers.*', ...accountEntity)
-        .join('accounts', 'accounts.id', 'suppliers.accountid')
+        .join('accounts', 'accounts.id', 'suppliers.accountId')
         .where("suppliers.email", email);
       const cusData = await Customers.query().select('customers.*', ...accountEntity)
-        .join('accounts', 'accounts.id', 'customers.accountid')
+        .join('accounts', 'accounts.id', 'customers.accountId')
         .where("customers.email", email);
       // console.log(suppData.toString());
       return res.status(200).send({
@@ -102,8 +102,8 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          ewalletcode: eWalletCode,
-          ewalletsecrect: eWalletSecrect,
+          eWalletCode: eWalletCode,
+          eWalletSecret: eWalletSecrect,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -123,8 +123,8 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          identificationcard: identificationCard,
-          identificationimage: JSON.stringify(identificationImage),
+          identificationCard: identificationCard,
+          identificationImage: JSON.stringify(identificationImage),
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -140,7 +140,7 @@ class Supplier {
     try {
       const supplierIds = req.body.supplierIds
       const supllierData = await Suppliers.query().select('suppliers.*', 'accounts.phone')
-        .join('accounts', 'accounts.id', 'suppliers.accountid')
+        .join('accounts', 'accounts.id', 'suppliers.accountId')
         .whereIn('suppliers.id', supplierIds)
 
       return res.status(200).send({
@@ -158,7 +158,7 @@ class Supplier {
 
       const supplier = await Suppliers.query()
         .select("accounts.*", 'suppliers.*')
-        .join("accounts", "accounts.id", "suppliers.accountid")
+        .join("accounts", "accounts.id", "suppliers.accountId")
         // .join("roles", "roles.id", "accounts.roleid")
 
         // .join("role", "role.id", "users.roleid")
@@ -169,7 +169,7 @@ class Supplier {
 
       const customer = await Customers.query()
         .select("accounts.*", "suppliers.*")
-        .join("accounts", "accounts.id", "suppliers.accountid")
+        .join("accounts", "accounts.id", "suppliers.accountId")
         // .join("roles", "roles.id", "accounts.roleid")
 
         .where('customers.id', userId)

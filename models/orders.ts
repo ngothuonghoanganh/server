@@ -22,6 +22,7 @@ export class Order extends Model {
   orderCode?: string;
   totalPrice?: string;
   customerDiscountCodeId?: string;
+  productId?:string;
 
 
   static columnNameMappers: any = {
@@ -40,6 +41,7 @@ export class Order extends Model {
         ordercode: object.orderCode,
         totalprice: object.totalPrice,
         customerdiscountcodeid: object.customerDiscountCodeid,
+        productid: object.productId,
       }
     },
     format(object: any) {
@@ -57,6 +59,8 @@ export class Order extends Model {
         orderCode: object.ordercode,
         totalPrice: object.totalprice,
         customerDiscountCodeid: object.customerdiscountcodeid,
+        productId: object.productid,
+
       }
     },
   }

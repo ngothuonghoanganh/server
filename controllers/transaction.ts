@@ -20,7 +20,7 @@ class TransactionController {
         .update({
           ...transaction,
         })
-        .where("ordercode", transaction.ordercode)
+        .where("orderCode", transaction.orderCode)
         .andWhere("type", transaction.type);
     } catch (error) {
       console.log(error);
@@ -85,9 +85,9 @@ class TransactionController {
 
       await Transaction.query()
         .update({
-          iswithdrawable: false,
+          isWithdrawable: false,
           status: "waiting",
-          paymentlink: vnpUrl
+          paymentLink: vnpUrl
         })
         .where("ordercode", ordercode)
         .andWhere("type", "income");
@@ -147,7 +147,7 @@ class TransactionController {
 
       const transaction = await Transaction.query()
         .update({
-          iswithdrawable: false,
+          isWithdrawable: false,
           status: "done",
         })
         .where("ordercode", ordercode)

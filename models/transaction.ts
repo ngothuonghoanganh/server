@@ -24,6 +24,7 @@ export class Transaction extends Model {
   status?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  paymentLink?:string;
 
   static columnNameMappers: any = {
     parse(object: any) {
@@ -44,7 +45,7 @@ export class Transaction extends Model {
         status: object.status,
         createdat: object.createdAt,
         updatedat: object.updatedAt,
-
+        paymentlink: object.paymentLink,
       }
     },
     format(object: any) {
@@ -65,6 +66,8 @@ export class Transaction extends Model {
         status: object.status,
         createdAt: object.createdat,
         updatedAt: object.updatedat,
+        paymentLink: object.paymentlink,
+
       }
     },
   }
