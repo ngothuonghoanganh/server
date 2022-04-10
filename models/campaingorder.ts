@@ -57,35 +57,35 @@ export class CampaignOrder extends Model {
         comment: object.comment,
         rating: object.rating,
         productid: object.productId,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
         quantity: object.quantity,
-        productName: object.productname,
+        productName: object.productName,
         price: object.price,
         note: object.note,
         image: object.image,
-        customerId: object.customerid,
+        customerId: object.customerId,
         status: object.status,
         address: object.address,
-        paymentId: object.paymentid,
-        shippingFee: object.shippinfee,
-        advancedId: object.advancedid,
-        advanceFee: object.advancefee,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
-        orderCode: object.orderaode,
-        discountPrice: object.discountprice,
-        totalPrice: object.totalprice,
-        paymentMethod: object.paymentmethod,
-        campaignId: object.campaignid,
+        paymentId: object.paymentId,
+        shippingFee: object.shippingFee,
+        advancedId: object.advancedId,
+        advanceFee: object.advanceFee,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
+        orderCode: object.orderCode,
+        discountPrice: object.discountPrice,
+        totalPrice: object.totalPrice,
+        paymentMethod: object.paymentMethod,
+        campaignId: object.campaignId,
         comment: object.comment,
         rating: object.rating,
-        productId: object.productid,
-
-      }
+        productId: object.productId,
+      };
     },
-  }
+  };
 }

@@ -9,20 +9,19 @@ export class Role extends Model {
   id?: string;
   roleName?: string;
 
-
   static columnNameMappers: any = {
     parse(object: any) {
       return {
         id: object.id,
         rolename: object.roleName,
-        
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        roleName: object.rolename,
-      }
+        roleName: object.roleName,
+      };
     },
-  }
+  };
 }

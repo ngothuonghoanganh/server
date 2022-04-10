@@ -26,16 +26,17 @@ export class CustomerDiscountCode extends Model {
         createdat: object.createdAt,
         updatedat: object.updatedAt,
         status: object.status,
+        ...object,
       };
     },
     format(object: any) {
       return {
         id: object.id,
-        customerId: object.customerid,
-        discountCodeId: object.discountcodeid,
+        customerId: object.customerId,
+        discountCodeId: object.discountCodeId,
         quantity: object.quantity,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
         status: object.status,
       };
     },

@@ -14,20 +14,21 @@ export class Files extends Model {
 
   static columnNameMappers: any = {
     parse(object: any) {
-        return {
-            id: object.id,
-            name: object.name,
-            url: object.url,
-            isdeleted: object.isDeleted,
-        }
+      return {
+        id: object.id,
+        name: object.name,
+        url: object.url,
+        isdeleted: object.isDeleted,
+        ...object,
+      };
     },
     format(object: any) {
-        return {
-          id: object.id,
-          name: object.name,
-          url: object.url,
-          isDeleted: object.isdeleted,
-        }
+      return {
+        id: object.id,
+        name: object.name,
+        url: object.url,
+        isDeleted: object.isDeleted,
+      };
     },
-}
+  };
 }

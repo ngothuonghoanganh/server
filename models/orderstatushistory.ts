@@ -32,21 +32,22 @@ export class OrderStatusHistory extends Model {
         updatedat: object.updatedAt,
         retailoderid: object.retailOderId,
         type: object.type,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        campaignOrderId: object.campaignorderid,
-        orderCode: object.ordercode,
-        orderStatus: object.orderstatus,
+        campaignOrderId: object.campaignOrderId,
+        orderCode: object.orderCode,
+        orderStatus: object.orderStatus,
         image: object.image,
         description: object.description,
-        createdAt: object.createdat,
-        updatedAt: object.updatedat,
-        retailOderId: object.retailoderid,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
+        retailOderId: object.retailOderId,
         type: object.type,
-      }
+      };
     },
-  }
+  };
 }

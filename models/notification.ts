@@ -23,17 +23,18 @@ export class Notification extends Model {
         message: object.message,
         status: object.status,
         createdat: object.createdAt,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
-        userId: object.userid,
+        userId: object.userId,
         link: object.link,
         message: object.message,
         status: object.status,
-        createdAt: object.createdat,
-      }
+        createdAt: object.createdAt,
+      };
     },
-  }
+  };
 }

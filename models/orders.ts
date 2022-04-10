@@ -22,8 +22,7 @@ export class Order extends Model {
   orderCode?: string;
   totalPrice?: string;
   customerDiscountCodeId?: string;
-  productId?:string;
-
+  productId?: string;
 
   static columnNameMappers: any = {
     parse(object: any) {
@@ -42,26 +41,26 @@ export class Order extends Model {
         totalprice: object.totalPrice,
         customerdiscountcodeid: object.customerDiscountCodeid,
         productid: object.productId,
-      }
+        ...object,
+      };
     },
     format(object: any) {
       return {
         id: object.id,
         status: object.status,
         address: object.address,
-        paymentMethod: object.paymentmethod,
-        customerId: object.customerid,
-        paymentId: object.paymentid,
+        paymentMethod: object.paymentMethod,
+        customerId: object.customerId,
+        paymentId: object.paymentId,
         createdAt: object.createdAt,
         updatedAt: object.updatedAt,
-        discountPrice: object.discountprice,
-        shippingFee: object.shippingfee,
-        orderCode: object.ordercode,
-        totalPrice: object.totalprice,
-        customerDiscountCodeid: object.customerdiscountcodeid,
-        productId: object.productid,
-
-      }
+        discountPrice: object.discountPrice,
+        shippingFee: object.shippingFee,
+        orderCode: object.orderCode,
+        totalPrice: object.totalPrice,
+        customerDiscountCodeid: object.customerDiscountCodeid,
+        productId: object.productId,
+      };
     },
-  }
+  };
 }
