@@ -111,7 +111,7 @@ router.put(
 router.put(
   "/status/supplier/cancel",
   Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
+  // Authentication.checkRole(["Supplier"]),
   validator.body(validUpdateStatusToCancelSupplierBodySchema),
   order.updateStatusToCancelledForSupplier
 );
