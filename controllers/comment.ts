@@ -93,9 +93,14 @@ class Comment {
       // where campaignorder.productid =${productId}
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
       const campaignOrder: any = await CampaignOrder.query()
-        .select("campaignOrders.comment", ...ListEntity, "campaignOrders.rating")
-        .join("customers", "customers.id", "campaignOrders.customerId")
-        .where("campaignOrders.productId", productId)
+        .select(
+          "campaignorder.*",
+          "campaignorder.comment",
+          ...ListEntity,
+          "campaignorder.rating"
+        )
+        .join("customers", "customers.id", "campaignorder.customerid")
+        .where("campaignorder.productid", productId)
         .andWhere((cd) => {
           cd.where("campaignOrders.comment", "<>", nullValue).orWhere(
             "campaignOrders.comment",
@@ -105,10 +110,15 @@ class Comment {
         });
 
       const retailOrder: any = await OrderDetail.query()
-        .select("orderDetails.comment", ...ListEntity, "orderDetails.rating")
-        .join("orders", "orders.id", "orderDetails.orderid")
-        .join("customers", "customers.id", "orders.customerId")
-        .where("orderDetails.productId", productId)
+        .select(
+          "orderdetail.*",
+          "orderdetail.comment",
+          ...ListEntity,
+          "orderdetail.rating"
+        )
+        .join("orders", "orders.id", "orderdetail.orderid")
+        .join("customers", "customers.id", "orders.customerid")
+        .where("orderdetail.productid", productId)
         .andWhere((cd) => {
           cd.where("orderDetails.comment", "<>", nullValue).orWhere(
             "orderDetails.comment",
@@ -211,29 +221,33 @@ class Comment {
       // console.log(orderId)
       // console.log(isCampaign)
 
-      const disableValue = 'removed';
+      const disableValue = "removed";
       let data;
       if (isCampaign) {
-        data = await CampaignOrder.query().update({
-          comment: disableValue,
-        })
-          .where('id', orderId).first();
-          console.log('test')
+        data = await CampaignOrder.query()
+          .update({
+            comment: disableValue,
+          })
+          .where("id", orderId)
+          .first();
+        console.log("test");
       } else {
-        data = await OrderDetail.query().update({
-          comment: disableValue
-        })
-          .where('id', orderId).first();
+        data = await OrderDetail.query()
+          .update({
+            comment: disableValue,
+          })
+          .where("id", orderId)
+          .first();
       }
 
       return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
+        message: "successful",
+        data: data,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 }
 
 export default new Comment();
