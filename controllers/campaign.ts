@@ -285,8 +285,7 @@ class Campaign {
           `)
         )
         // .join('products', 'campaigns.productid', 'products.id')
-        .leftJoin("orders", "campaigns.id", "orders.campaignid")
-        .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+        .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
         .where("campaigns.id", campaignId)
         .groupBy("campaigns.id");
       // console.log(campaign)
