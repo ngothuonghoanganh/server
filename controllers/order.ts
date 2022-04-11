@@ -263,7 +263,7 @@ class OrderController {
             "orders.*",
             Order.raw(`sum(orderDetails.quantity) as orderquantity`)
           )
-          .join("orderDetails", "orders.id", "orderDetails.orderid")
+          .join("orderDetails", "orders.id", "orderDetails.orderId")
           .where("orders.ordercode", orderCode)
           .groupBy("orders.id")
           .first()) ||
@@ -832,8 +832,8 @@ class OrderController {
       } else {
         let supplierDataForCampaign = await Products.query()
           .select("products.supplierId")
-          .join("campaignOrder", "campaignOrder.productId", "products.id")
-          .where("campaignOrder.id", orderId)
+          .join("campaignOrders", "campaignOrders.productId", "products.id")
+          .where("campaignOrders.id", orderId)
           .first();
         let supp = await Suppliers.query()
           .select("accountId")
@@ -948,8 +948,8 @@ class OrderController {
       } else {
         let supplierDataForCampaign = await Products.query()
           .select("products.supplierId")
-          .join("campaignOrder", "campaignOrder.productId", "products.id")
-          .where("campaignOrder.id", orderId)
+          .join("campaignOrders", "campaignOrders.productId", "products.id")
+          .where("campaignOrders.id", orderId)
           .first();
         let supp = await Suppliers.query()
           .select("accountId")
@@ -1101,8 +1101,8 @@ class OrderController {
         } else {
           let supplierDataForCampaign = await Products.query()
             .select("products.supplierId")
-            .join("campaignOrder", "campaignOrder.productId", "products.id")
-            .where("campaignOrder.id", orderId)
+            .join("campaignOrders", "campaignOrders.productId", "products.id")
+            .where("campaignOrders.id", orderId)
             .first();
           let supp = await Suppliers.query()
             .select("accountId")
@@ -1188,8 +1188,8 @@ class OrderController {
       } else {
         let supplierDataForCampaign = await Products.query()
           .select("products.supplierId")
-          .join("campaignOrder", "campaignOrder.productId", "products.id")
-          .where("campaignOrder.id", orderId)
+          .join("campaignOrders", "campaignOrders.productId", "products.id")
+          .where("campaignOrders.id", orderId)
           .first();
         let supp = await Suppliers.query()
           .select("accountId")
@@ -1295,7 +1295,6 @@ class OrderController {
       const orders: any = await Order.query()
         .select(
           "orders.*",
-
           Order.raw(
             
            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId), 
@@ -1353,39 +1352,39 @@ class OrderController {
       const orders: any = await Order.query()
         .select(
           "orders.*",
-          Order.raw(`(select customers.firstname as customerfirstname from customers where customers.id = orders.customerId),
-           (select customers.lastname as customerlastname from customers where customers.id = orders.customerId),
-            json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
+          Order.raw(`(select customers.firstName as customerfirstname from customers where customers.id = orders.customerId),
+           (select customers.lastName as customerlastname from customers where customers.id = orders.customerId),
+            json_agg(to_jsonb(orderDetails) - 'orderid') as details`)
         )
-        .join("orderDetail", "orders.id", "orderDetail.orderid")
+        .join("orderDetails", "orders.id", "orderDetails.orderId")
         .where("orders.supplierId", userId)
         .groupBy("orders.id");
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          "campaignorder.*",
+          "campaignOrders.*",
           CampaignOrder.raw(
-            `(select customers.firstname as customerfirstname from customers where customers.id = campaignOrder.customerId),
-            (select customers.lastname as customerlastname from customers where customers.id = campaignOrder.customerId),
+            `(select customers.firstName as customerfirstname from customers where customers.id = campaignOrders.customerId),
+            (select customers.lastName as customerlastname from customers where customers.id = campaignOrders.customerId),
             array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,
-            'price', campaignorder.price,
-            'quantity', campaignorder.quantity,
+            'price', campaignOrders.price,
+            'quantity', campaignOrders.quantity,
             'ordercode', ordercode,
-            'productid', campaignorder.productid,
+            'productid', campaignOrders.productid,
             'campaignid', campaignid,
             'incampaign', true,
             'customerid', customerid,
             'totalprice', totalprice,
-            'productname', campaignorder.productname,
-            'notes', campaignorder.notes)
+            'productname', campaignOrders.productname,
+            'notes', campaignOrders.notes)
             )) as details`
           )
         )
-        .join("campaigns", "campaigns.id", "campaignOrder.campaignId")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .where("campaigns.supplierId", userId)
-        .groupBy("campaignOrder.id");
+        .groupBy("campaignOrders.id");
 
       orders.push(...ordersInCampaign);
 
@@ -1408,9 +1407,9 @@ class OrderController {
           "orders.*",
           Order.raw(`(select customers.firstName as customerfirstname from customers where customers.id = orders.customerId),
            (select customers.lastName as customerlastname from customers where customers.id = orders.customerId),
-            json_agg(to_jsonb(orderdetail) - 'orderid') as details, json_agg(to_jsonb(orderstatushistory) - 'retailorderid') as orderstatushistory`)
+            json_agg(to_jsonb(orderdetails) - 'orderid') as details, json_agg(to_jsonb(orderstatushistory) - 'retailorderid') as orderstatushistory`)
         )
-        .join("orderDetail", "orders.id", "orderDetail.orderid")
+        .join("orderDetails", "orders.id", "orderDetails.orderId")
         .join(
           "orderStatusHistories",
           "orderStatusHistories.retailOrderId",
@@ -1422,35 +1421,35 @@ class OrderController {
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          "campaignorder.*",
+          "campaignOrders.*",
           CampaignOrder.raw(
-            `(select customers.firstName as customerfirstname from customers where customers.id = campaignOrder.customerId),
-            (select customers.lastName as customerlastname from customers where customers.id = campaignOrder.customerId),
+            `(select customers.firstName as customerfirstname from customers where customers.id = campaignOrders.customerId),
+            (select customers.lastName as customerlastname from customers where customers.id = campaignOrders.customerId),
             array_to_json(array_agg(json_build_object(
             'id','',
-            'image', campaignorder.image,
-            'price', campaignorder.price,
-            'quantity', campaignorder.quantity,
-            'ordercode', campaignorder.ordercode,
-            'productid', campaignorder.productid,
-            'campaignid', campaignorder.campaignid,
+            'image', campaignOrders.image,
+            'price', campaignOrders.price,
+            'quantity', campaignOrders.quantity,
+            'ordercode', campaignOrders.ordercode,
+            'productid', campaignOrders.productid,
+            'campaignid', campaignOrders.campaignid,
             'incampaign', true,
-            'customerid', campaignorder.customerid,
-            'totalprice', campaignorder.totalprice,
-            'productname', campaignorder.productname,
-            'notes', campaignorder.notes)
-            )) as details, json_agg(to_jsonb(orderstatushistory) - 'campaignorderid') as orderstatushistory`
+            'customerid', campaignOrders.customerid,
+            'totalprice', campaignOrders.totalprice,
+            'productname', campaignOrders.productname,
+            'notes', campaignOrders.notes)
+            )) as details, json_agg(to_jsonb(orderStatusHistories) - 'campaignOrderId') as orderstatushistory`
           )
         )
-        .join("campaigns", "campaigns.id", "campaignOrder.campaignId")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .join(
           "orderStatusHistories",
-          "orderStatusHistories.campaignOrderId",
-          "campaignOrder.id"
+          "orderStatusHistories.campaignOrdersId",
+          "campaignOrders.id"
         )
         .where("campaigns.supplierId", userId)
-        .andWhere("campaignOrder.status", status)
-        .groupBy("campaignOrder.id");
+        .andWhere("campaignOrders.status", status)
+        .groupBy("campaignOrders.id");
 
       orders.push(...ordersInCampaign);
 
@@ -1470,30 +1469,30 @@ class OrderController {
 
       const orders = await CampaignOrder.query()
         .select(
-          "campaignorder.*",
+          "campaignOrders.*",
           CampaignOrder.raw(
-            `(select customers.firstName as customerfirstname from customers where customers.id = campaignOrder.customerId),
-          (select customers.lastName as customerlastname from customers where customers.id = campaignOrder.customerId),
+            `(select customers.firstName as customerfirstname from customers where customers.id = campaignOrders.customerId),
+          (select customers.lastName as customerlastname from customers where customers.id = campaignOrders.customerId),
           array_to_json(array_agg(json_build_object(
           'id','',
           'image', image,
-          'price', campaignorder.price,
-          'quantity', campaignorder.quantity,
+          'price', campaignOrders.price,
+          'quantity', campaignOrders.quantity,
           'ordercode', ordercode,
-          'productid', campaignorder.productid,
+          'productid', campaignOrders.productid,
           'campaignid', campaignid,
           'incampaign', true,
           'customerid', customerid,
           'totalprice', totalprice,
-          'productname', campaignorder.productname,
-          'notes', campaignorder.notes)
+          'productname', campaignOrders.productname,
+          'notes', campaignOrders.notes)
           )) as details`
           )
         )
-        .join("campaigns", "campaigns.id", "campaignOrder.campaignId")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .where("campaigns.supplierId", userId)
         .andWhere("campaigns.id", campaignId)
-        .groupBy("campaignOrder.id");
+        .groupBy("campaignOrders.id");
 
       return res.status(200).send({
         message: "successful",
@@ -1812,7 +1811,7 @@ class OrderController {
           "campaignOrder.*",
           "campaigns.supplierId",
           CampaignOrder.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierId), 
             array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,

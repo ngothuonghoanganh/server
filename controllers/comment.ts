@@ -94,13 +94,13 @@ class Comment {
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
       const campaignOrder: any = await CampaignOrder.query()
         .select(
-          "campaignorder.*",
-          "campaignorder.comment",
+          "campaignOrders.*",
+          "campaignOrders.comment",
           ...ListEntity,
-          "campaignorder.rating"
+          "campaignOrders.rating"
         )
-        .join("customers", "customers.id", "campaignorder.customerid")
-        .where("campaignorder.productid", productId)
+        .join("customers", "customers.id", "campaignOrders.customerId")
+        .where("campaignOrders.productId", productId)
         .andWhere((cd) => {
           cd.where("campaignOrders.comment", "<>", nullValue).orWhere(
             "campaignOrders.comment",
@@ -111,14 +111,14 @@ class Comment {
 
       const retailOrder: any = await OrderDetail.query()
         .select(
-          "orderdetail.*",
-          "orderdetail.comment",
+          "orderDetails.*",
+          "orderDetails.comment",
           ...ListEntity,
-          "orderdetail.rating"
+          "orderDetails.rating"
         )
-        .join("orders", "orders.id", "orderdetail.orderid")
-        .join("customers", "customers.id", "orders.customerid")
-        .where("orderdetail.productid", productId)
+        .join("orders", "orders.id", "orderDetails.orderId")
+        .join("customers", "customers.id", "orders.customerId")
+        .where("orderDetails.productId", productId)
         .andWhere((cd) => {
           cd.where("orderDetails.comment", "<>", nullValue).orWhere(
             "orderDetails.comment",

@@ -1,4 +1,5 @@
 import { Campaigns } from "../models/campaigns";
+import { CampaignOrder } from "../models/campaingorder";
 import { Products } from "../models/products";
 
 class Campaign {
@@ -161,7 +162,7 @@ class Campaign {
             .select(
               "campaigns.*",
               Campaigns.raw(
-                `sum(case when campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+                `sum(case when campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced' then campaignOrders.quantity else 0 end) as quantityorderwaiting,
                 count(campaignOrders.id) filter (where campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced') as numorderwaiting`
               )
             )
@@ -206,17 +207,17 @@ class Campaign {
       const campaigns = await Campaigns.query()
         .select(
           "campaigns.*",
-          Campaigns.raw(
-            `sum(case when campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced' then campaignOrders.quantity else 0 end) as quantityorderwaiting,
-            count(campaignOrders.id) filter (where campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced') as numorderwaiting`
+          CampaignOrder.raw(
+            `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
+            count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting`
           )
         )
         .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
-
-        .whereIn("campaigns.productid", productIds)
+        .whereIn("campaigns.productId", productIds)
         .andWhere("campaigns.status", status)
         .groupBy("campaigns.id");
-
+      
+      
       return res.status(200).send({
         data: campaigns,
         message: "get successfully",

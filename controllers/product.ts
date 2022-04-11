@@ -348,22 +348,22 @@ class ProductsController {
       const nullValue = "";
       const campaignOrder: any = await CampaignOrder.query()
         .select(
-          // "campaignOrders.productId",
-          CampaignOrder.raw("COUNT(campaignOrders.id) as count"),
-          CampaignOrder.raw(`SUM (campaignOrders.rating) AS rating`)
+          "productId",
+          CampaignOrder.raw("COUNT(id) as count"),
+          CampaignOrder.raw(`SUM (rating) AS rating`)
         )
-        .whereIn("campaignOrders.productId", productIds)
-        .andWhere("campaignOrders.comment", "<>", nullValue)
-        .groupBy("campaignOrders.productId");
+        .whereIn("productId", productIds)
+        .andWhere("comment", "<>", nullValue)
+        .groupBy("productId");
 
       const retailOrder: any = await OrderDetail.query()
         .select(
-          // "orderDetails.productId",
-          OrderDetail.raw("COUNT(orderDetails.id) as count"),
-          OrderDetail.raw(`SUM (orderDetails.rating) AS rating`)
+          "productId",
+          OrderDetail.raw("COUNT(id) as count"),
+          OrderDetail.raw(`SUM (rating) AS rating`)
         )
-        .whereIn("orderDetails.productId", productIds)
-        .andWhere("orderDetails.comment", "<>", nullValue)
+        .whereIn("productId", productIds)
+        .andWhere("comment", "<>", nullValue)
         .groupBy("productId");
 
       return res.status(200).send({
