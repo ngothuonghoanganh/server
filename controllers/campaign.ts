@@ -266,8 +266,8 @@ class Campaign {
         .select(
           "campaigns.*",
           Campaigns.raw(
-            `sum(case when campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
-          count(campaignOrders.id) filter (where campaignOrders.status <> 'cancelled' and campaignOrders.status <> 'returned' and campaignOrders.status <> 'notAdvanced') as numorderwaiting`
+            `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
+          count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting`
           )
         )
         .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")

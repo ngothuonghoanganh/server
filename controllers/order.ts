@@ -1297,40 +1297,43 @@ class OrderController {
           "orders.*",
 
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId),json_agg(to_jsonb(orderDetail) - 'orderid') as details`
+            
+           `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId), 
+           json_agg(to_jsonb(orderDetails) - 'orderId') as details`
           )
         )
-        .join("orderDetail", "orders.id", "orderDetail.orderid")
+        .join("orderDetails", "orders.id", "orderDetails.orderId")
         .where("orders.customerId", userId)
         .andWhere("orders.status", status)
         .groupBy("orders.id");
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          "campaignOrder.*",
+          "campaignOrders.*",
           "campaigns.supplierId",
           CampaignOrder.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierId), 
+            
+          `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierId), 
             array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,
-            'price', campaignorder.price,
-            'quantity', campaignorder.quantity,
-            'ordercode', ordercode,
-            'productid', campaignorder.productid,
-            'campaignid', campaignid,
+            'price', campaignOrders.price,
+            'quantity', campaignOrders.quantity,
+            'ordercode', orderCode,
+            'productid', campaignOrders.productId,
+            'campaignid', campaignId,
             'incampaign', true,
-            'customerid', customerid,
-            'totalprice', totalprice,
-            'productname', campaignorder.productname,
-            'notes', campaignorder.notes)
+            'customerid', customerId,
+            'totalprice', totalPrice,
+            'productname', campaignOrders.productName,
+            'notes', campaignOrders.note)
             )) as details`
           )
         )
-        .join("campaigns", "campaigns.id", "campaignOrder.campaignid")
-        .where("campaignOrder.status", status)
-        .andWhere("campaignOrder.customerId", userId)
-        .groupBy("campaignOrder.id")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
+        .where("campaignOrders.status", status)
+        .andWhere("campaignOrders.customerId", userId)
+        .groupBy("campaignOrders.id")
         .groupBy("campaigns.id");
 
       orders.push(...ordersInCampaign);
