@@ -30,7 +30,7 @@ export class OrderStatusHistory extends Model {
         description: object.description,
         createdat: object.createdAt,
         updatedat: object.updatedAt,
-        retailoderid: object.retailOderId,
+        retailorderid: object.retailOrderId,
         type: object.type,
         ...object,
       };
@@ -45,7 +45,7 @@ export class OrderStatusHistory extends Model {
         description: object.description,
         createdAt: object.createdAt,
         updatedAt: object.updatedAt,
-        retailOderId: object.retailOderId,
+        retailOrderId: object.retailOrderId,
         type: object.type,
       };
     },

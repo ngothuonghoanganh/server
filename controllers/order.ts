@@ -326,8 +326,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountPercent > c.discountPercent ? p : c
-                )
+                p.discountPercent > c.discountPercent ? p : c
+              )
               : { discountPercent: 0 };
 
           await LoyalCustomer.query()
@@ -1583,7 +1583,7 @@ class OrderController {
         const ordersInCampaign = await CampaignOrder.query()
           .select()
 
-          .where("campaignid", campaignId)
+          .where("campaignId", campaignId)
           .andWhere("status", "advanced");
 
         const currentQuantity = ordersInCampaign.reduce(
@@ -1595,6 +1595,7 @@ class OrderController {
           .where("id", campaignId)
           .andWhere("quantity", "<=", currentQuantity)
           .first();
+        // console.log(campaign)
         if (campaign) {
           const orderId = ordersInCampaign.map((item: any) => item.id);
           await Promise.all([
@@ -1603,13 +1604,13 @@ class OrderController {
                 status: "unpaid",
               })
               .whereIn("id", orderId)
-              .andWhere("paymentmethod", "online"),
+              .andWhere("paymentMethod", "online"),
             CampaignOrder.query()
               .update({
                 status: "created",
               })
               .whereIn("id", orderId)
-              .andWhere("paymentmethod", "cod"),
+              .andWhere("paymentMethod", "cod"),
           ]);
 
           await Campaigns.query()
@@ -1617,7 +1618,7 @@ class OrderController {
             .where("id", campaignId);
           const getCampaigns = await Campaigns.query()
             .select()
-            .where("productid", campaign.productId)
+            .where("productId", campaign.productId)
             .andWhere("status", "active");
 
           if (getCampaigns.length === 0) {
@@ -1688,9 +1689,11 @@ class OrderController {
         let supplierDataForCampaign;
         let accountIdSupp;
         if (type === "retail") {
-          supplierDataForRetail = await Order.query()
-            .select("supplierId")
-            .where("id", orderId)
+          supplierDataForRetail = await OrderDetail.query()
+            .select("categories.supplierId")
+            .join('products', 'products.id', 'orderDetails.productId')
+            .join('categories', 'categories.id', 'products.categoryId')
+            .where("orderDetails.orderCode", orderCode)
             .first();
           accountIdSupp = await Suppliers.query()
             .select("accountId")
@@ -1698,9 +1701,10 @@ class OrderController {
             .first();
         } else {
           supplierDataForCampaign = await Products.query()
-            .select("products.supplierId")
-            .join("campaignOrder", "campaignOrder.productid", "products.id")
-            .where("campaignOrder.id", orderId)
+            .select("categories.supplierId")
+            .join('categories', 'products.categoryId', 'categories.id')
+            .join("campaignOrders", "campaignOrders.productId", "products.id")
+            .where("campaignOrders.id", orderId)
             .first();
           accountIdSupp = await Suppliers.query()
             .select("accountId")
@@ -1725,14 +1729,15 @@ class OrderController {
           } as OrderStatusHistory);
           // TODO
           //type = campaign
-          let supplierDataForCampaign = await Products.query()
-            .select("products.supplierId")
-            .join("campaignOrder", "campaignOrder.productId", "products.id")
-            .where("campaignOrder.id", orderId)
+         let supplierDataForCampaign = await Products.query()
+            .select("categories.supplierId")
+            .join('categories', 'products.categoryId', 'categories.id')
+            .join("campaignOrders", "campaignOrders.productId", "products.id")
+            .where("campaignOrders.id", orderId)
             .first();
           let accountIdSupp = await Suppliers.query()
             .select("accountId")
-            // .where("id", supplierDataForCampaign.supplierid)
+            .where("id", supplierDataForCampaign)
             .first();
           notif.sendNotiForWeb({
             userid: accountIdSupp.accountId,
@@ -1752,9 +1757,10 @@ class OrderController {
 
           //insert send notif
           let supplierDataForCampaign = await Products.query()
-            .select("products.supplierid")
-            .join("campaignOrder", "campaignOrder.productId", "products.id")
-            .where("campaignOrder.id", orderId)
+            .select("categories.supplierId")
+            .join('categories', 'products.categoryId', 'categories.id')
+            // .join("campaignOrders", "campaignOrders.productId", "products.id")
+            .where("campaignOrders.id", orderId)
             .first();
           let accountIdSupp = await Suppliers.query()
             .select("accountid")

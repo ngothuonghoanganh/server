@@ -190,43 +190,14 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-
-      // const ordersInCampaign = await CampaignOrder.query()
-      //   .select(
-      //     "campaignorder.*",
-      //     CampaignOrder.raw(
-      //       `array_to_json(array_agg(json_build_object(
-      //       'id','',
-      //       'image', image,
-      //       'price', campaignorder.price,
-      //       'quantity', campaignorder.quantity,
-      //       'ordercode', ordercode,
-      //       'productid', campaignorder.productid,
-      //       'campaignid', campaignid,
-      //       'incampaign', true,
-      //       'customerid', customerid,
-      //       'totalprice', totalprice,
-      //       'productname', campaignorder.productname,
-      //       'notes', campaignorder.notes)
-      //       )) as details`
-      //     )
-
-      // const campaign = await Campaigns.query().select('campaigns.id')
-
-      //   .where('supplierid', supplierId)
-      //   .andWhere((cd) => {
-      //     cd.where('status', 'active')
-      //       .orWhere('status', 'ready');
-      //   })
-
-      // const campaignIds = campaign.map((item: any) => item.id);
-      // console.log(campaign)
-      // console.log(campaignIds)
-
-      // return res.status(200).send({
-      //   message: "ok",
-      //   data: campaign
-      // })
+      // "categories.supplierId"
+      let supplierDataForCampaign: any = await Products.query()
+        .select()
+        // .join('categories', 'products.categoryId', 'categories.id')
+        .join("campaignOrders", "campaignOrders.productId", "products.id")
+        .where("campaignOrders.id", 'c9232d7a-d423-443b-a740-ffe4a0c03e3c')
+        .first();
+      console.log(supplierDataForCampaign)
     } catch (error) {
       console.log(error)
     }
