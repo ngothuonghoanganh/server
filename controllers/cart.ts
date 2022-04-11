@@ -84,7 +84,8 @@ class CartController {
       const List = await OrderDetail.query()
         .select("orderdetail.*", ...listEntity)
         .join("products", "orderdetail.productid", "products.id")
-        .join("suppliers", "suppliers.id", "products.supplierid")
+        .join('categories', 'categories.id', 'products.categoryid')
+        .join("suppliers", "suppliers.id", "categories.supplierid")
         .where("orderdetail.customerid", id)
         .andWhere("orderdetail.ordercode", "is", null);
 
