@@ -16,7 +16,7 @@ class AddressController {
       }
       // console.log(currentAddress.length)
       const newAddress: any = await Address.query().insert({
-        // customerId: customerId,
+        customerId: customerId,
         province: province,
         street: street,
         isDefault: isdefault,
