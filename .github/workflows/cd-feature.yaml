@@ -2,9 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main]
-  pull_request:
-    branches: [ main ]
+    branches: [feature/* ]
   workflow_dispatch:
 
 jobs:
@@ -12,7 +10,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/feature/*'
 
     strategy:
       matrix:
@@ -27,25 +25,25 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: cd /home/ubuntu/server && git fetch origin main && git reset --hard origin/main && git pull
-      - name: CD - Stop existing server-master's container and remove container
+      - name: CD - Stop existing server-feature's container and remove container
         uses: appleboy/ssh-action@master
         continue-on-error: true
         with:
           host: 13.215.133.39
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: sudo docker stop server-master && sudo docker rm server-master && sudo docker images -a | sudo grep "swg/server-master" | sudo awk '{print $3}' | sudo xargs docker rmi
+          script: sudo docker stop server-feature && sudo docker rm server-feature && sudo docker images -a | sudo grep "swg/server-feature" | sudo awk '{print $3}' | sudo xargs docker rmi
       - name: CD - Build Docker image
         uses: appleboy/ssh-action@master
         with:
           host: 13.215.133.39
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: cd /home/ubuntu/server && sudo docker build . -t swg/server-master
+          script: cd /home/ubuntu/server && sudo docker build . -t swg/server-feature
       - name: CD - Start Express container
         uses: appleboy/ssh-action@master
         with:
           host: 13.215.133.39
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: sudo docker run --name="server-master" -p 3000:3000 -d swg/server-master
+          script: sudo docker run --name="server-feature" -p 3001:3000 -d swg/server-feature
