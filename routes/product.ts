@@ -56,7 +56,7 @@ router.post(
 
 router.post(
   '/activeProduct/id',
-  validator.body(activeProductById),
+  // validator.body(activeProductById),
   Product.activeProductById
 )
 
