@@ -31,7 +31,7 @@ router.get(
       // );
 
       // console.log(await client.get("query"));
-      return res.status(200).send("hello");
+      return res.status(200).send("test commit 1");
     } catch (error) {
       console.log(error);
     }
