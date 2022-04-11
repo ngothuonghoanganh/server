@@ -273,8 +273,8 @@ class Campaign {
           "campaigns.*",
           // 'products.name as productname',
           Campaigns.raw(`
-          sum(case when orders.status = 'advanced' then orderdetail.quantity else 0 end) as quantityorderwaiting,
-          count(orders.id) filter (where orders.status = 'advanced') as numorderwaiting
+          sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+            count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
           `)
         )
         // .join('products', 'campaigns.productid', 'products.id')

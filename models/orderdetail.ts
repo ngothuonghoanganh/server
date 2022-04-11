@@ -8,7 +8,7 @@ export class OrderDetail extends Model {
   static get tableName() {
     return "orderdetail";
   }
-  
+
   id?: string;
   productid?: string;
   productname?: string;
@@ -23,4 +23,6 @@ export class OrderDetail extends Model {
   customerid?: string;
   incampaign?: boolean;
   campaignid?: string;
+  // customerid?: string;
+  // productid?: string;
 }
