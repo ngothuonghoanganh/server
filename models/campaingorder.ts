@@ -30,5 +30,7 @@ export class CampaignOrder extends Model {
   totalprice?: number;
   paymentmethod?: string;
   campaignid?: string;
-  reasonforcancel?:string;
+  reasonforcancel?: string;
+  comment?: string;
+  rating?: Number;
 }

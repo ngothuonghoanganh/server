@@ -4,12 +4,18 @@ import Authentication from "../controllers/authentication";
 
 import order from "../controllers/order";
 import {
+  getByOrderCodeQuerySchema,
   getOrderByIdSchema,
-  getOrderForDeliveryQuerySchema,
-  validOrderCodeSchema,
-  validOrderForSuppAndInsCancelBodySchema,
-  validStatusForCreatedOrAdvancedToProcessingForSupplierSchema,
-  validStatusForDeleveredSchema,
+  updateStatusFromDeliveringToCancelledForDelivery,
+  updateStatusFromReturningToDeliveredForRejectReturn,
+  validDeliveredToCompletedSchema,
+  validDeliveredToReturningSchema,
+  validDeliveringToDeliveredSchema,
+  validProcessingToDeliveringSchema,
+  validReturningToReturnedSchema,
+  validStatusForCreatedToProcessingForSupplierSchema,
+  validUpdateStatusToCancelCustomerBodySchema,
+  validUpdateStatusToCancelSupplierBodySchema,
 } from "../services/validation/order";
 
 const router = express.Router();
@@ -27,19 +33,27 @@ router.post(
 router.post("/payment", order.paymentOrder);
 
 router.put(
-  "/customer",
+  "/status/customer/completed",
   Authentication.protected,
   Authentication.checkRole(["Customer"]),
-  validator.body(validOrderCodeSchema),
+  validator.body(validDeliveredToCompletedSchema),
   order.updateStatusFromDeliveredToCompletedForCustomer
 );
 
 router.put(
-  "/customer/returned",
+  "/status/customer/returning",
   Authentication.protected,
   Authentication.checkRole(["Customer"]),
-  validator.body(validOrderCodeSchema),
-  order.updateStatusFromDeliveredToReturnedForCustomer
+  validator.body(validDeliveredToReturningSchema),
+  order.updateStatusFromDeliveredToReturningForCustomer
+);
+
+router.put(
+  "/status/supplier/returned",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  validator.body(validReturningToReturnedSchema),
+  order.updateStatusFromReturningToReturned
 );
 
 router.get(
@@ -57,6 +71,13 @@ router.get(
 );
 
 router.get(
+  "/supplier/status",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  order.getOrderForSupplierByStatus
+);
+
+router.get(
   "/supplier/campaign/:campaignId",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
@@ -64,43 +85,67 @@ router.get(
 );
 
 router.put(
-  "/supplier/delivering",
+  "/status/supplier/delivering",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.body(validStatusForDeleveredSchema),
+  validator.body(validProcessingToDeliveringSchema),
   order.updateStatusFromProcessingToDeliveringForSupplier
 );
 
 router.put(
-  "/supplier",
+  "/status/supplier/processing",
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.body(validStatusForCreatedOrAdvancedToProcessingForSupplierSchema),
+  validator.body(validStatusForCreatedToProcessingForSupplierSchema),
   order.updateStatusFromCreatedToProcessingForSupplier
 );
 
 router.put(
-  "/supplier/cancel",
+  "/status/customer/cancel",
   Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
-  validator.body(validOrderForSuppAndInsCancelBodySchema),
-  order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
+  Authentication.checkRole(["Customer"]),
+  validator.body(validUpdateStatusToCancelCustomerBodySchema),
+  order.updateStatusToCancelledForCustomer
 );
 
 router.put(
-  "/inspector",
+  "/status/supplier/cancel",
   Authentication.protected,
-  Authentication.checkRole(["Inspector"]),
-  validator.body(validOrderForSuppAndInsCancelBodySchema),
-  order.updateStatusFromCreatedOrProcessingToCancelledForInspectorAndSupplier
+  // Authentication.checkRole(["Supplier"]),
+  validator.body(validUpdateStatusToCancelSupplierBodySchema),
+  order.updateStatusToCancelledForSupplier
 );
 
+// router.put(
+//   "/inspector",
+//   Authentication.protected,
+//   Authentication.checkRole(["Customer", "Supplier"]),
+//   validator.body(validOrderForSuppAndInsCancelBodySchema),
+//   order.updateStatusFromCreatedOrProcessingToCancelledForSupplier
+// );
+
 router.put(
-  "/delivery/delivered",
+  "/status/delivery/delivered",
   // Authentication.protected,
   // Authentication.checkRole(["Delivery"]),
-  validator.body(validOrderCodeSchema),
+  validator.body(validDeliveringToDeliveredSchema),
   order.updateStatusFromDeliveringToDeliveredForDelivery
+);
+
+router.put(
+  "/status/delivery/cancelled",
+  // Authentication.protected,
+  // Authentication.checkRole(["Delivery"]),
+  validator.body(updateStatusFromDeliveringToCancelledForDelivery),
+  order.updateStatusFromDeliveringToCancelledForDelivery
+);
+
+router.put(
+  "/status/supplier/delivered",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier", "CustomerService"]),
+  validator.body(updateStatusFromReturningToDeliveredForRejectReturn),
+  order.updateStatusFromReturningToDeliveredForRejectReturn
 );
 
 router.get(
@@ -112,9 +157,15 @@ router.get(
 );
 
 router.get(
-  '/delivery/getListOrderForDelivery',
-  validator.query(getOrderForDeliveryQuerySchema),
+  "/delivery/getListOrderForDelivery",
+  // validator.params(getOrderForDeliveryQuerySchema),
   order.getListOrderForDelivery
+);
+
+router.get(
+  '/getOrderByCode',
+  validator.query(getByOrderCodeQuerySchema),
+  order.getOrderByCode
 )
 
 export default router;

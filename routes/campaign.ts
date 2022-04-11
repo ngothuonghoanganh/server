@@ -3,7 +3,6 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 import CampaignController from "../controllers/campaign";
 import {
-  bodySchema,
   paramsSchema,
   querySchema,
 } from "../services/validation/campaign";
@@ -36,7 +35,7 @@ router.get(
 router.get(
   "/:campaignId",
   validator.params(paramsSchema),
-  CampaignController.getOneCompaignByCampaignId
+  CampaignController.getOneCampaignByCampaignId
 );
 
 router.delete(
@@ -44,7 +43,7 @@ router.delete(
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
   validator.params(paramsSchema),
-  CampaignController.deleteCompaign
+  CampaignController.deleteCampaign
 );
 
 router.put(
@@ -53,7 +52,7 @@ router.put(
   Authentication.checkRole(["Supplier"]),
   // validator.params(paramsSchema),
   // validator.body(bodySchema),
-  CampaignController.updateCompaign
+  CampaignController.updateCampaign
 );
 
 

@@ -23,6 +23,6 @@ export class OrderDetail extends Model {
   customerid?: string;
   incampaign?: boolean;
   campaignid?: string;
-  // customerid?: string;
-  // productid?: string;
+  comment?: string;
+  rating?: Number;
 }

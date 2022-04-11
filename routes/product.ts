@@ -1,17 +1,14 @@
 import * as express from "express";
 import { createValidator } from "express-joi-validation";
-import { val, Validator } from "objection";
 
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
-import { updateParamSchema } from "../services/validation/category";
 import {
+  activeProductById,
   bodyProductIdsSchema,
   createBodyProductSchema,
   listCatesIdBodySchema,
   paramProductIdSchema,
-  querySupplierIdSchema,
-  supplierIdSchema,
   updateBodyProductSchema,
 } from "../services/validation/product";
 
@@ -24,7 +21,6 @@ const validator = createValidator();
 router.get(
   "/",
   // Authentication.protected,
-  // Authentication.checkRole(["Supplier"0]),
   Product.getAllProductAndSupplierInformation
 );
 
@@ -53,9 +49,15 @@ router.post(
 
 router.post(
   '/products/rating',
-  // validator.body(bodyProductIdsSchema),
+  validator.body(bodyProductIdsSchema),
   Product.getRatingByListProducts
 
+)
+
+router.post(
+  '/activeProduct/id',
+  validator.body(activeProductById),
+  Product.activeProductById
 )
 
 router.post(
@@ -68,7 +70,7 @@ router.post(
 router.get(
   "/All",
   Authentication.protected,
-  // Authentication.checkRole(["Supplier"]),
+  Authentication.checkRole(["Supplier"]),
   Product.getAllProductsAndCates
 );
 

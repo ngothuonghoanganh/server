@@ -2,7 +2,7 @@ import * as express from "express";
 import { createValidator } from "express-joi-validation";
 
 import OrderStatusHistory from "../controllers/orderStatusHistoryController";
-import { bodyOrderCodeSchema,queryOrderHistoryIdSchema } from "../services/validation/orderhistory";
+import { bodyOrderCodeListSchema, bodyOrderCodeSchema,bodyOrderUpdateStatusSchema,queryOrderHistoryIdSchema } from "../services/validation/orderhistory";
 
 const router = express.Router();
 const validator = createValidator();
@@ -20,9 +20,18 @@ router.post(
 )
 
 router.post(
-    '/test',
-    OrderStatusHistory.test
+    '/listOrderCode',
+    validator.body(bodyOrderCodeListSchema),
+    OrderStatusHistory.getOrderHistoryByOrderCodeList
 )
+
+router.post(
+    '/status',
+    validator.body(bodyOrderUpdateStatusSchema),
+    OrderStatusHistory.insertOrderHistoryForReturning
+)
+
+
 
 
 

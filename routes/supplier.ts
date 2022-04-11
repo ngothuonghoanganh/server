@@ -5,6 +5,8 @@ import supplier from "../controllers/supplier";
 import {
   bodyUpdateEwalletSchema,
   checkExistEmailQuerySchema,
+  getUserByIdBodySchema,
+  validSuppIdsBodySchema,
 } from "../services/validation/supplier";
 
 const router = express.Router();
@@ -45,5 +47,19 @@ router.put(
   Authentication.checkRole(["Supplier"]),
   supplier.updateIdentification
 );
+
+router.post(
+  "/getSuppInforByListSuppId",
+  // Authentication.protected,
+  // Authentication.checkRole(["Supplier"]),
+  validator.body(validSuppIdsBodySchema),
+  supplier.getSuppInforByListSuppId
+);
+
+router.get(
+  '/test',
+  supplier.test
+)
+
 
 export default router;

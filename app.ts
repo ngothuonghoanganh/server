@@ -24,12 +24,14 @@ import discontCodeRouter from "./routes/discountcode";
 import customerDiscontCodeRouter from "./routes/customerdiscountcode";
 import paymentRouter from "./routes/payment";
 import loyalCustomerRouter from "./routes/loyalCustomer";
-import { database } from "./models/firebase/firebase";
 import commentRouter from "./routes/comment";
 import chatRouter from "./routes/chat";
 import supplierRouter from "./routes/supplier";
 import retailOrderRouter from "./routes/history";
-import transactionRouter from "./routes/transaction"
+import transactionRouter from "./routes/transaction";
+import systemRouter from "./routes/system";
+import notifRouter from "./routes/notif";
+
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -42,10 +44,8 @@ const port = 3000;
 
 const server: http.Server = http.createServer(app);
 
-// cronjob config
 cronjob.run();
 
-// logger config
 const stream: StreamOptions = {
   write: (message) => Logger.http(message),
 };
@@ -62,7 +62,6 @@ const morganMiddleware = morgan(
 
 chat.run();
 
-// server config
 app.use(morganMiddleware);
 app.use(bodyParser.json());
 app.use(helmet());
@@ -76,9 +75,7 @@ app.use(cookieParser());
 app.use(cookies_reader);
 app.use(upload.single("file"));
 app.use(express.urlencoded({ extended: false }));
-// app.use(express.static(path.join(__dirname, "public")));
 
-// routes config
 app.use("/api", indexRoute);
 app.use("/api/users", userRoute);
 app.use("/api/files", fileRoute);
@@ -97,6 +94,8 @@ app.use("/api/chat", chatRouter);
 app.use("/api/supplier", supplierRouter);
 app.use("/api/history", retailOrderRouter);
 app.use("/api/transaction", transactionRouter);
+app.use("/api/system", systemRouter);
+app.use("/api/notif", notifRouter);
 
 
 try {
