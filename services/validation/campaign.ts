@@ -14,6 +14,10 @@ export const paramsSchema = Joi.object({
   campaignId: Joi.string().required(),
 });
 
+export const changeStatusToActive = Joi.object({
+  campaignId: Joi.string().required(),
+});
+
 export const querySchema = Joi.object({
   supplierId: Joi.string().allow(null).allow("").default(""),
 });

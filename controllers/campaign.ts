@@ -169,37 +169,37 @@ class Campaign {
 
       const campaigns = supplierId
         ? await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
-              )
             )
-            .leftJoin(
-              "campaignorder",
-              "campaigns.id",
-              "campaignorder.campaignid"
-            )
-            .where("campaigns.supplierid", supplierId)
-            // .andWhere("campaigns.status", "active")
-            .groupBy("campaigns.id")
+          )
+          .leftJoin(
+            "campaignorder",
+            "campaigns.id",
+            "campaignorder.campaignid"
+          )
+          .where("campaigns.supplierid", supplierId)
+          // .andWhere("campaigns.status", "active")
+          .groupBy("campaigns.id")
         : await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
-              )
             )
-            .leftJoin(
-              "campaignorder",
-              "campaignorder.id",
-              "campaignorder.campaignid"
-            )
-            // .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
-            // .where("campaigns.status", "active")
-            .groupBy("campaigns.id");
+          )
+          .leftJoin(
+            "campaignorder",
+            "campaignorder.id",
+            "campaignorder.campaignid"
+          )
+          // .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
+          // .where("campaigns.status", "active")
+          .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
@@ -300,6 +300,36 @@ class Campaign {
       console.log(error);
     }
   };
+
+  public changeStatusToActive = async (req: any, res: any) => {
+    try {
+      const { campaignId } = req.body;
+      const statusActive = 'active';
+// console.log(campaignId)
+      const updateCampaignStatus = await Campaigns.query().update({
+        status: statusActive,
+      })
+        .where('id', campaignId)
+        .andWhere('status', 'ready');
+// console.log(updateCampaignStatus)
+
+      const product = await Campaigns.query().select('productid').where('id', campaignId).first();
+      // console.log(product)
+      const updateProductStatus = await Products.query().update({
+        status: 'incampaign',
+      })
+        .where('id', product.productid);
+      return res.status(200).send({
+        message: 'successful',
+        data: ({
+          updateProdStatus: updateProductStatus,
+          updateCampaignStatus: updateCampaignStatus
+        })
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 export default new Campaign();

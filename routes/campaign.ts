@@ -19,6 +19,15 @@ router.post(
   CampaignController.createCampaign
 );
 
+
+router.put(
+  '/update/active',
+  // Authentication.protected,
+  // Authentication.checkRole(["Supplier"]),
+  validator.body(paramsSchema),
+  CampaignController.changeStatusToActive
+)
+
 router.get(
   "/All",
   Authentication.protected,
