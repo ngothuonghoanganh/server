@@ -1,5 +1,6 @@
 import console from "console";
 import { Categories } from "../models/category";
+import { Products } from "../models/products";
 
 class CategoriesController {
   public createNewCate = async (req: any, res: any, next: any) => {
@@ -24,7 +25,7 @@ class CategoriesController {
 
   public getAllCate = async (req: any, res: any, next: any) => {
     try {
-      const  {id}  = req.user;
+      const { id } = req.user;
       const List = await Categories.query()
         .select("categories.*")
         .where("isdeleted", false)
@@ -61,16 +62,20 @@ class CategoriesController {
   public deleteCate = async (req: any, res: any, next: any) => {
     try {
       const { categoryId } = req.params;
-      await Categories.query()
-        .update({
-          isdeleted: true
-        })
-        .where('id', categoryId)
-
-      res.status(200).send({
-        message: 'deactivated a cate',
-
-      })
+      const isExistProds = await Products.query().select().where('categoryid', categoryId);
+      if (isExistProds.length === 0) {
+        await Categories.query()
+          .update({
+            isdeleted: true
+          })
+          .where('id', categoryId)
+         return res.status(200).send({
+            message: 'deactivated a cate',
+          })
+      }else{
+       return res.status(200).send('Please delete all products belong to this catalog before deleting the catalog!')
+      }
+      
     } catch (error) {
       console.log(error)
     }
