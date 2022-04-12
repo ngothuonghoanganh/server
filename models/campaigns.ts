@@ -23,4 +23,5 @@ export class Campaigns extends Model {
   maxquantity?: number;
   isshare?: boolean;
   advancefee?: number;
+  description?:string;
 }
