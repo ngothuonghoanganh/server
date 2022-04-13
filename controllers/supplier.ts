@@ -75,9 +75,9 @@ class Supplier {
             avt: JSON.stringify(avatar),
           })
           .where("id", req.user.id),
-        // Accounts.query()
-        //   .update({ phone: phone })
-        //   .where("id", req.user.accountid),
+        Accounts.query()
+          .update({ phone: phone })
+          .where("id", req.user.accountid),
       ]);
 
       const [updateProfile, updateAccount] = await Promise.all([

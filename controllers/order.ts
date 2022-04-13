@@ -20,6 +20,7 @@ import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 
+
 class OrderController {
   public createOrder = async (req: any, res: any) => {
     try {
@@ -586,7 +587,22 @@ class OrderController {
         orderId,
         image,
         description,
+        cancelLinkRequestor,
+        supplierId
       } = req.body;
+      if (cancelLinkRequestor === 'Supplier') {
+        const order: any = (await Order.query().select().where('ordercode', orderCode).first()) || (await CampaignOrder.query().select().where('ordercode', orderCode).first())
+        if (order && order.status === 'processing') {
+          transactionController.createTransaction({
+            description: 'charge money because Supplier cancel order in status: processing',
+            iswithdrawable: false,
+            type: "penalty",
+            supplierid: supplierId,
+            penaltyfee: (order.totalprice || 0) * 0.2,
+            ordercode: orderCode || null,
+          } as any);
+        }
+      }
       let update = await Order.query()
         .update({
           status: status,
@@ -1030,7 +1046,7 @@ class OrderController {
       // === 0 ->>> notif to customer
       // === 1 ->>> notif cus + supp
 
-      console.log(requestReturnTime);
+      // console.log(requestReturnTime);
       //send notif to customer
       if (requestReturnTime.length === 1) {
         let customerObj;

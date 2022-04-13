@@ -214,9 +214,19 @@ class Authentication {
         .where("accounts.googleid", googleId)
         .first();
       return this.sendJWTToken(user, 200, res);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      if (
+        error.message.includes("duplicate key value violates unique constraint")
+      ) {
+        return res.status(400).send({
+          message:
+            "username, google id and phone must be unique",
+          data: null,
+        });
+      }
     }
+    
   };
 
   public createUser = async (req: any, res: any, next: any) => {

@@ -16,7 +16,7 @@ export class Transaction extends Model {
   ordervalue?: Number;
   paymentvalue?: Number;
   platformfee?: Number;
-  Penaltyfee?: Number;
+  penaltyfee?: Number;
   type?: string;
   iswithdrawable?: boolean;
   description?: string;

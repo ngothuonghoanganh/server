@@ -6,13 +6,78 @@ import moment from "moment";
 class TransactionController {
   public createTransaction = async (transaction: Transaction) => {
     try {
-      await Transaction.query().insert({
+
+      const newTransaction = await Transaction.query().insert({
         ...transaction,
       });
+      if (transaction.type === 'penalty') {
+        const paymentlink = this.createPaymentLink('NCB', transaction.description, transaction.type, transaction.penaltyfee, '', transaction.id);
+        await Transaction.query().update({
+          paymentlink: paymentlink,
+        })
+        .where('id', newTransaction.id)
+      }
+      
     } catch (error) {
       console.log(error);
     }
   };
+
+  public createPaymentLink = (bankcode: any, orderDescription: any, ordertype: any, amount: any, language: any, penaltyId: any) => {
+    try {
+      const ipAddr =
+        '13.215.133.39';
+
+      const tmnCode = process.env.vnp_TmnCode;
+      const secretKey: any = process.env.vnp_HashSecret;
+      let vnpUrl = process.env.vnp_Url;
+      const returnUrl = process.env.vnp_ReturnUrl;
+
+      // const amount = req.body.amount;
+      const bankCode = bankcode;
+
+      const orderInfo = orderDescription;
+      const orderType = ordertype;
+      let date = new Date();
+      let locale = language;
+      if (locale === null || locale === "" || !locale) {
+        locale = "vn";
+      }
+
+      console.log(moment(date).format("yyyyMMDDHHmmss"))
+      let currCode = "VND";
+      let vnp_Params: any = {};
+      vnp_Params["vnp_Version"] = "2.1.0";
+      vnp_Params["vnp_Command"] = "pay";
+      vnp_Params["vnp_TmnCode"] = tmnCode;
+      // vnp_Params['vnp_Merchant'] = ''
+      vnp_Params["vnp_Locale"] = locale;
+      vnp_Params["vnp_CurrCode"] = currCode;
+      vnp_Params["vnp_TxnRef"] = moment(date).format("HHmmss");
+      vnp_Params["vnp_OrderInfo"] = orderInfo;
+      vnp_Params["vnp_OrderType"] = orderType;
+      vnp_Params["vnp_ReturnUrl"] =
+        returnUrl + `/transaction/payment?penaltyId=${penaltyId}&type=penalty`;
+      vnp_Params["vnp_Amount"] = amount*100;
+      vnp_Params["vnp_IpAddr"] = ipAddr;
+      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss");
+      if (bankCode !== null && bankCode !== "") {
+        vnp_Params["vnp_BankCode"] = bankCode;
+      }
+
+      console.log(vnp_Params["vnp_TxnRef"]);
+      vnp_Params = this.sortObject(vnp_Params);
+      const signData = QueryString.stringify(vnp_Params, { encode: false });
+      let hmac = crypto.createHmac("sha512", secretKey);
+      let signed = hmac.update(new Buffer(signData, "utf-8")).digest("hex");
+      vnp_Params["vnp_SecureHash"] = signed;
+      vnpUrl += "?" + QueryString.stringify(vnp_Params, { encode: false });
+
+      return vnpUrl;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   public update = async (transaction: Transaction) => {
     try {
