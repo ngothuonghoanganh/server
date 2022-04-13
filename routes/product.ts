@@ -7,6 +7,8 @@ import {
   activeProductById,
   bodyProductIdsSchema,
   createBodyProductSchema,
+  getAllProductByStatus,
+  getAllProdWithStatus,
   listCatesIdBodySchema,
   paramProductIdSchema,
   updateBodyProductSchema,
@@ -65,8 +67,32 @@ router.post(
   Product.searchProduct
 )
 
+router.post(
+  '/getAllProdWithCampaignStatus',
+  validator.body(getAllProdWithStatus),
+  Product.getAllProdWithCampaignStatus
+
+)
+
+router.post(
+  '/getAllProductByStatus',
+  validator.body(getAllProductByStatus),
+  Product.getAllProductByStatus
+)
+
+// router.post(
+//   '/searching/staus',
+//   // validator.query(getAllProdWithStatus),
+//   Product.getAllProdWithStatus
+// )
+
 // ở đây cũng lấy toàn bộ product ra nhưng để cho supplier quản lý nên là cần authentication
 // và check cả role của nó nên là userId lấy từ request
+
+router.get(
+  '/getProductWithOrderCompleted',
+  Product.getProductWithOrderCompleted
+)
 router.get(
   "/All",
   Authentication.protected,

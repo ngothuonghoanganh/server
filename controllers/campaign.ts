@@ -329,7 +329,7 @@ class Campaign {
     } catch (error) {
       console.log(error)
     }
-  }
+  };
 }
 
 export default new Campaign();

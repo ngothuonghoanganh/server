@@ -16,6 +16,8 @@ import { OrderStatusHistory } from "../models/orderstatushistory";
 import transactionController from "./transaction";
 import { Transaction } from "objection";
 import { OrderDetail } from "../models/orderdetail";
+import moment from "moment";
+
 
 
 class ProductsController {
@@ -88,7 +90,6 @@ class ProductsController {
   public getAllProductAndSupplierInformation = async (
     req: any,
     res: any,
-    next: any
   ) => {
     try {
       const supplierId = req.query.supplierId;
@@ -233,10 +234,10 @@ class ProductsController {
 
       const inCampaignByProductId: any = await Campaigns.query().select()
         .where("productid", productId)
-        // .andWhere((cd) => {
-        //   cd.where("status", "ready")
-        //     .orWhere("status", "active")
-        // })
+      // .andWhere((cd) => {
+      //   cd.where("status", "ready")
+      //     .orWhere("status", "active")
+      // })
 
       if (inCampaignByProductId.length > 0) {
         for (const item of inCampaignByProductId) {
@@ -461,6 +462,109 @@ class ProductsController {
       console.log(error);
     }
   };
+
+  public getAllProdWithCampaignStatus = async (req: any, res: any) => {
+    try {
+      const campaignStatus = req.body.campaignStatus;
+      console.log(campaignStatus)
+      let ListSupplierEntity = [
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
+
+      const products = await Campaigns.query().select('productid').where('status', campaignStatus).groupBy('productid');
+      const productIds = products.map((item: any) => item.productid);
+
+      const List = await Products.query()
+        .select("products.*", ...ListSupplierEntity)
+        .join("categories", "categories.id", "products.categoryid")
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .whereIn('products.id', productIds)
+        .where('products.status', '<>', 'deactivated')
+      // .groupBy('products.id')
+      // .groupBy('supplier.id')
+
+
+      return res.status(200).send({
+        message: 'successful',
+        data: List
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public getProductWithOrderCompleted = async (req: any, res: any) => {
+    try {
+      const status = 'completed';
+      let ListSupplierEntity = [
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
+      let productIdOrder: any = await Order.query().select('orderdetail.productid')
+        .join('orderdetail', 'orders.id', "orderdetail.orderid")
+        .where('orders.status', status).groupBy('orderdetail.productid');
+
+      let productIdCampaign = await CampaignOrder.query().select('productid').where('campaignorder.status', status).groupBy('productid');
+      productIdCampaign.push(...productIdOrder)
+
+      productIdCampaign = [...new Map(productIdCampaign.map((item: any) => [item['productid'], item])).values()]
+      const productIds = productIdCampaign.map((item: any) => item.productid);
+
+      const List = await Products.query()
+        .select("products.*", ...ListSupplierEntity)
+        .join("categories", "categories.id", "products.categoryid")
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .whereIn('products.id', productIds)
+        .where('products.status', '<>', 'deactivated')
+
+      return res.status(200).send({
+        message: 'successful',
+        data: List
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  public getAllProductByStatus = async (req: any, res: any) => {
+    try {
+      const status = req.body.status;
+      let ListSupplierEntity = [
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
+      const data = await Products.query().select(...ListSupplierEntity, 'products.*')
+        .join("categories", "categories.id", "products.categoryid")
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .where('status', status)
+
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 export default new ProductsController();
