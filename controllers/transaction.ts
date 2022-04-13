@@ -15,9 +15,9 @@ class TransactionController {
         await Transaction.query().update({
           paymentlink: paymentlink,
         })
-        .where('id', newTransaction.id)
+          .where('id', newTransaction.id)
       }
-      
+
     } catch (error) {
       console.log(error);
     }
@@ -58,7 +58,7 @@ class TransactionController {
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
         returnUrl + `/transaction/payment?penaltyId=${penaltyId}&type=penalty`;
-      vnp_Params["vnp_Amount"] = amount*100;
+      vnp_Params["vnp_Amount"] = amount * 100;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss");
       if (bankCode !== null && bankCode !== "") {
@@ -208,15 +208,26 @@ class TransactionController {
 
   public confirmTransactionRequest = async (req: any, res: any) => {
     try {
-      const { ordercode, type } = req.query;
+      const { ordercode, type, penaltyId } = req.query;
 
-      const transaction = await Transaction.query()
-        .update({
-          iswithdrawable: false,
-          status: "done",
-        })
-        .where("ordercode", ordercode)
-        .andWhere("type", type);
+      let transaction = 0;
+      if (type === 'income') {
+        transaction = await Transaction.query()
+          .update({
+            iswithdrawable: false,
+            status: "done",
+          })
+          .where("ordercode", ordercode)
+          .andWhere("type", type);
+      } else{
+        transaction = await Transaction.query()
+          .update({
+            iswithdrawable: false,
+            status: "done",
+          })
+          .where("id", penaltyId)
+          .andWhere("type", type);
+      }
       return res.status(200).send({
         message: "success",
         data: transaction,
