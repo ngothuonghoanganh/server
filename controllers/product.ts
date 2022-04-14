@@ -564,7 +564,43 @@ class ProductsController {
     } catch (error) {
       console.log(error)
     }
-  }
+  };
+
+  public getProductCreatedThisWeek = async (req: any, res: any) => {
+    try {
+      let ListSupplierEntity = [
+        "products.id as productid",
+        "suppliers.id as supplierid",
+        "suppliers.accountid as accountid",
+        "suppliers.name as suppliername",
+        "suppliers.email as supplieremai",
+        "suppliers.avt as supplieravt",
+        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.address as supplieraddress",
+      ];
+      var now = moment();
+      var monday = now.clone().weekday(1);
+      var sunday = now.clone().weekday(7);
+      // var isNowWeekday = now.isBetween(monday, friday, null, '[]');
+
+      // console.log(`now: ${now}`);
+      // console.log(`monday: ${monday}`);
+      // console.log(`sunday: ${sunday}`);
+      const data = await Products.query().select('products.*', ...ListSupplierEntity)
+        .join("categories", "categories.id", "products.categoryid")
+        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .whereBetween("products.createdat", [monday, sunday]);
+
+      if (monday && sunday) {
+        return res.status(200).send({
+          message: 'successful',
+          data: data
+        })
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
 }
 
 export default new ProductsController();

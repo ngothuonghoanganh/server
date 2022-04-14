@@ -6,6 +6,8 @@ import { Products } from "../models/products";
 import notif from "../services/realtime/notification";
 import { Order } from "../models/orders";
 import { Campaigns } from "../models/campaigns";
+import moment from "moment";
+
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
@@ -191,42 +193,30 @@ class Supplier {
   public test = async (req: any, res: any) => {
     try {
 
-      // const ordersInCampaign = await CampaignOrder.query()
-      //   .select(
-      //     "campaignorder.*",
-      //     CampaignOrder.raw(
-      //       `array_to_json(array_agg(json_build_object(
-      //       'id','',
-      //       'image', image,
-      //       'price', campaignorder.price,
-      //       'quantity', campaignorder.quantity,
-      //       'ordercode', ordercode,
-      //       'productid', campaignorder.productid,
-      //       'campaignid', campaignid,
-      //       'incampaign', true,
-      //       'customerid', customerid,
-      //       'totalprice', totalprice,
-      //       'productname', campaignorder.productname,
-      //       'notes', campaignorder.notes)
-      //       )) as details`
-      //     )
+      const orderCampaign: any = await CampaignOrder.query().select('campaignid',
+        CampaignOrder.raw('SUM(quantity) as totalQuantity')
+      ).where('status', 'advanced').groupBy('campaignid')
+      //  CampaignOrder.raw('SUM(quantity)')
+      // const campaignIds = orderCampaign.map((item: any) => item.campaignid);
 
-      // const campaign = await Campaigns.query().select('campaigns.id')
+      const data = [];
+      for (const item of orderCampaign) {
+        const campaign: any = await Campaigns.query().select()
+          .where('id', item.campaignid).first();
+        // console.log(campaign.quantity * 0.8 as Number)
+        console.log(((campaign.quantity * 0.8) as Number) < item['totalQuantity']) // -> so sánh đc
+        // console.log(item['totalQuantity'] as Number)
+        if (((campaign.quantity * 0.8) as Number) < item['totalQuantity']) {
+          // data.push(campaign)
+          console.log('okay')
+        }
+      }
+      // moment().add(15,'days').format('DD-MM-YYYY')
 
-      //   .where('supplierid', supplierId)
-      //   .andWhere((cd) => {
-      //     cd.where('status', 'active')
-      //       .orWhere('status', 'ready');
-      //   })
-
-      // const campaignIds = campaign.map((item: any) => item.id);
-      // console.log(campaign)
-      // console.log(campaignIds)
-
-      // return res.status(200).send({
-      //   message: "ok",
-      //   data: campaign
-      // })
+      return res.status(200).send({
+        message: 'successful',
+        data: null
+      })
     } catch (error) {
       console.log(error)
     }
