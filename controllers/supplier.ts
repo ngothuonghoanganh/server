@@ -77,9 +77,10 @@ class Supplier {
             avt: JSON.stringify(avatar),
           })
           .where("id", req.user.id),
-        Accounts.query()
-          .update({ phone: phone })
-          .where("id", req.user.accountid),
+        phone ?
+          Accounts.query()
+            .update({ phone: phone })
+            .where("id", req.user.accountid) : null
       ]);
 
       const [updateProfile, updateAccount] = await Promise.all([
@@ -201,7 +202,18 @@ class Supplier {
 
       const data = [];
       for (const item of orderCampaign) {
-        const campaign: any = await Campaigns.query().select()
+        let campaign: any = await Campaigns.query()
+          .select(
+            "campaigns.*",
+            // 'products.name as productname',
+            Campaigns.raw(`
+          sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+            count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
+          `)
+          )
+          .join('products', 'campaigns.productid', 'products.id')
+          .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
+          // const campaign: any = await Campaigns.query().select()
           .where('id', item.campaignid).first();
         // console.log(campaign.quantity * 0.8 as Number)
         console.log(((campaign.quantity * 0.8) as Number) < item['totalQuantity']) // -> so sánh đc
