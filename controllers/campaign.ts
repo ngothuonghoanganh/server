@@ -5,6 +5,7 @@ import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import moment from "moment";
+import { CampaignDetail } from "../models/campaigndetail";
 
 class Campaign {
   async createCampaign(req: any, res: any, next: any) {
@@ -20,10 +21,11 @@ class Campaign {
         isShare = false,
         advanceFee = 0,
         status = "ready",
-        description
+        description,
+        range = [],
       } = req.body;
 
-      let newCampaign,
+      let newCampaign: any,
         campaign: any = null;
       campaign = await Campaigns.query()
         .select()
@@ -41,7 +43,7 @@ class Campaign {
           ">=",
           parseInt(campaign.maxquantitycampaign) + maxQuantity
         );
-      console.log(product);
+
       if (product && product.length > 0) {
         newCampaign = await Campaigns.query().insert({
           supplierid: userId,
@@ -54,20 +56,19 @@ class Campaign {
           maxquantity: maxQuantity,
           advancefee: advanceFee,
           status: status,
-          description: description
+          description: description,
         });
+        if (isShare) {
+          for (const element of range) {
+            element.campaignId = newCampaign.id;
+          }
 
-        // await Products.query()
-        //   .update({
-        //     status: "incampaign",
-        //   })
-        //   .where("id", productId);
+          const newDetails = await CampaignDetail.query().insert(range);
+          newCampaign.range = newDetails;
+        }
 
         return res.status(200).send({
-          data: await Campaigns.query()
-            .select()
-            .where("id", newCampaign.id)
-            .first(),
+          data: newCampaign,
           message: "campaign is created successfully",
         });
       } else {
@@ -125,7 +126,7 @@ class Campaign {
             advancefee: advanceFee,
           })
           .where("id", campaignId)
-          // .andWhere("fromdate", ">=", Campaigns.raw("now()"))
+
           .andWhere("status", "ready");
       } else {
         return res.status(200).send({
@@ -165,45 +166,42 @@ class Campaign {
     }
   }
 
-  //TODO
   async getAllCampaigns(req: any, res: any, next: any) {
     try {
       const supplierId = req.query.supplierId;
-      // let listEntityies = ["sum(orders.quantity) as quantityOrderWaiting"];
 
       const campaigns = supplierId
         ? await Campaigns.query()
-          .select(
-            "campaigns.*",
-            Campaigns.raw(
-              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
+              )
             )
-          )
-          .leftJoin(
-            "campaignorder",
-            "campaigns.id",
-            "campaignorder.campaignid"
-          )
-          .where("campaigns.supplierid", supplierId)
-          // .andWhere("campaigns.status", "active")
-          .groupBy("campaigns.id")
+            .leftJoin(
+              "campaignorder",
+              "campaigns.id",
+              "campaignorder.campaignid"
+            )
+            .where("campaigns.supplierid", supplierId)
+
+            .groupBy("campaigns.id")
         : await Campaigns.query()
-          .select(
-            "campaigns.*",
-            Campaigns.raw(
-              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
+              )
             )
-          )
-          .leftJoin(
-            "campaignorder",
-            "campaignorder.id",
-            "campaignorder.campaignid"
-          )
-          // .leftJoin("orderdetail", "orders.id", "orderdetail.orderid")
-          // .where("campaigns.status", "active")
-          .groupBy("campaigns.id");
+            .leftJoin(
+              "campaignorder",
+              "campaignorder.id",
+              "campaignorder.campaignid"
+            )
+
+            .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
@@ -214,7 +212,6 @@ class Campaign {
     }
   }
 
-  //TODO
   async getAllCampaignsAllowProductId(req: any, res: any, next: any) {
     try {
       const productIds = req.body.productIds;
@@ -229,7 +226,7 @@ class Campaign {
           )
         )
         .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
-        // .leftJoin("orderdetail", "campaignorder.id", "orderdetail.campaignorder")
+
         .whereIn("campaigns.productid", productIds)
         .andWhere("campaigns.status", status)
         .groupBy("campaigns.id");
@@ -243,7 +240,6 @@ class Campaign {
     }
   }
 
-  //TODO
   async getAllCampaignsInSupplier(req: any, res: any, next: any) {
     try {
       const supplierId = req.user.id;
@@ -266,7 +262,7 @@ class Campaign {
         )
         .join("products", "campaigns.productid", "products.id")
         .where("campaigns.supplierid", supplierId);
-      // .andWhere("campaigns.status", "active");
+
       return res.status(200).send({
         data: campaigns,
         message: "get successfully",
@@ -276,7 +272,6 @@ class Campaign {
     }
   }
 
-  //TODO
   public getOneCampaignByCampaignId = async (req: any, res: any, next: any) => {
     try {
       const campaignId = req.params.campaignId;
@@ -284,17 +279,16 @@ class Campaign {
       const campaign: any = await Campaigns.query()
         .select(
           "campaigns.*",
-          // 'products.name as productname',
+
           Campaigns.raw(`
           sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
             count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
           `)
         )
-        // .join('products', 'campaigns.productid', 'products.id')
+
         .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
         .where("campaigns.id", campaignId)
         .groupBy("campaigns.id");
-      // console.log(campaign)
 
       return res.status(200).send({
         data: campaign,
@@ -308,51 +302,57 @@ class Campaign {
   public changeStatusToActive = async (req: any, res: any) => {
     try {
       const { campaignId } = req.body;
-      const statusActive = 'active';
-      // console.log(campaignId)
-      const updateCampaignStatus = await Campaigns.query().update({
-        status: statusActive,
-      })
-        .where('id', campaignId)
-        .andWhere('status', 'ready');
-      // console.log(updateCampaignStatus)
+      const statusActive = "active";
 
-      const product = await Campaigns.query().select('productid', 'code').where('id', campaignId).first();
-      // console.log(product)
-      const updateProductStatus = await Products.query().update({
-        status: 'incampaign',
-      })
-        .where('id', product.productid);
-      const supplierId: any = Products.query().select('categories.supplierid')
+      const updateCampaignStatus = await Campaigns.query()
+        .update({
+          status: statusActive,
+        })
+        .where("id", campaignId)
+        .andWhere("status", "ready");
+
+      const product = await Campaigns.query()
+        .select("productid", "code")
+        .where("id", campaignId)
+        .first();
+
+      const updateProductStatus = await Products.query()
+        .update({
+          status: "incampaign",
+        })
+        .where("id", product.productid);
+      const supplierId: any = Products.query()
+        .select("categories.supplierid")
         .join("categories", "categories.id", "products.categoryid")
-        .where('products.id', product.productid);
+        .where("products.id", product.productid);
 
-      const accountCustomer: any = await Customers.query().select('customers.accountid')
-        .join('loyalcustomer', 'loyalcustomer.customerid', 'customers.id')
-        .where('loyalcustomer.supplierid', supplierId);
-      // console.log(accountCustomer)
-      const customerAccountIds = accountCustomer.map((item: any) => item.accountid);
+      const accountCustomer: any = await Customers.query()
+        .select("customers.accountid")
+        .join("loyalcustomer", "loyalcustomer.customerid", "customers.id")
+        .where("loyalcustomer.supplierid", supplierId);
 
-      //send notif for customer who buy products in campaign
+      const customerAccountIds = accountCustomer.map(
+        (item: any) => item.accountid
+      );
+
       for (const item of customerAccountIds) {
         notif.sendNotiForWeb({
           userid: item,
-          link: campaignId, //campaign id
+          link: campaignId,
           message: "campaign with code: " + product.code + " has started",
           status: "unread",
         });
       }
 
-
       return res.status(200).send({
-        message: 'successful',
-        data: ({
+        message: "successful",
+        data: {
           updateProdStatus: updateProductStatus,
-          updateCampaignStatus: updateCampaignStatus
-        })
-      })
+          updateCampaignStatus: updateCampaignStatus,
+        },
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -369,38 +369,40 @@ class Campaign {
       ];
       const campaign: any = await Campaigns.query()
         .select(
-          "campaigns.*", ...listEntity,
-          // 'products.name as productname',
+          "campaigns.*",
+          ...listEntity,
+
           Campaigns.raw(`
           sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
             count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
           `)
         )
-        .join('products', 'campaigns.productid', 'products.id')
+        .join("products", "campaigns.productid", "products.id")
         .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
         .where("campaigns.description", "like", "%" + value + "%")
         .orWhere("campaigns.code", "like", "%" + value + "%")
         .andWhere((cd) => {
-          cd.where("campaigns.status", 'active')
-            .orWhere("campaigns.status", 'ready')
+          cd.where("campaigns.status", "active").orWhere(
+            "campaigns.status",
+            "ready"
+          );
         })
         .groupBy("campaigns.id")
         .groupBy("products.id");
 
       return res.status(200).send({
-        message: 'successful',
-        data: campaign
-      })
-    }
-    catch (error) {
-      console.log(error)
+        message: "successful",
+        data: campaign,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
   public getEndingCampaignList = async (req: any, res: any) => {
     try {
-      const value = moment().add(3, 'days').toDate();
-      console.log(value)
+      const value = moment().add(3, "days").toDate();
+      console.log(value);
       const listEntity = [
         "products.id as productid",
         "products.name as productname",
@@ -411,25 +413,28 @@ class Campaign {
       ];
       const campaignList: any = await Campaigns.query()
         .select(
-          "campaigns.*", ...listEntity,
-          // 'products.name as productname',
+          "campaigns.*",
+          ...listEntity,
+
           Campaigns.raw(`
           sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
             count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
           `)
         )
-        .join('products', 'campaigns.productid', 'products.id')
+        .join("products", "campaigns.productid", "products.id")
         .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
         .where("campaigns.todate", "<", value)
-        .andWhere("campaigns.status", 'active')
+        .andWhere("campaigns.status", "active")
         .groupBy("campaigns.id")
-        .groupBy("products.id")
+        .groupBy("products.id");
 
-
-
-      const orderCampaign: any = await CampaignOrder.query().select('campaignid',
-        CampaignOrder.raw('SUM(quantity) as totalQuantity'))
-        .where('status', 'advanced').groupBy('campaignid')
+      const orderCampaign: any = await CampaignOrder.query()
+        .select(
+          "campaignid",
+          CampaignOrder.raw("SUM(quantity) as totalQuantity")
+        )
+        .where("status", "advanced")
+        .groupBy("campaignid");
 
       for (const item of orderCampaign) {
         let campaign: any = await Campaigns.query()
@@ -440,33 +445,26 @@ class Campaign {
             count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
           `)
           )
-          .join('products', 'campaigns.productid', 'products.id')
+          .join("products", "campaigns.productid", "products.id")
           .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
-          .where('id', item.campaignid).first();
-        console.log(((campaign.quantity * 0.8) as Number) < item['totalQuantity']) // -> so sánh đc
-        if (((campaign.quantity * 0.8) as Number) < item['totalQuantity']) {
-          /*  
-          TODO
-          so sánh số lượng đã order (item['totalQuantity'])  và minQuantity của campaign
-          nếu như số lượng order >= 80% minQuantity thì add campaign vào campaignList (line 453)
-
-          */
-          campaignList.push(campaign)
+          .where("id", item.campaignid)
+          .first();
+        console.log(
+          ((campaign.quantity * 0.8) as Number) < item["totalQuantity"]
+        );
+        if (((campaign.quantity * 0.8) as Number) < item["totalQuantity"]) {
+          campaignList.push(campaign);
         }
       }
-      //TODO
-      // next step: delete duplicate campaign list
-
 
       return res.status(200).send({
-        message: 'successful',
-        data: campaignList
-      })
+        message: "successful",
+        data: campaignList,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
-  }
+  };
 }
 
 export default new Campaign();
