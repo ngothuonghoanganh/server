@@ -111,7 +111,6 @@ class Campaign {
           ">=",
           parseInt(campaign.maxquantitycampaign) + maxQuantity
         );
-      console.log(product);
       let numRecordUpdated = 0;
       if (product && product.length > 0) {
         numRecordUpdated = await Campaigns.query()
@@ -126,7 +125,6 @@ class Campaign {
             advancefee: advanceFee,
           })
           .where("id", campaignId)
-
           .andWhere("status", "ready");
       } else {
         return res.status(200).send({
@@ -217,7 +215,7 @@ class Campaign {
       const productIds = req.body.productIds;
       const { status = "active" } = req.body;
 
-      const campaigns = await Campaigns.query()
+      const campaigns: any = await Campaigns.query()
         .select(
           "campaigns.*",
           Campaigns.raw(
@@ -230,7 +228,14 @@ class Campaign {
         .whereIn("campaigns.productid", productIds)
         .andWhere("campaigns.status", status)
         .groupBy("campaigns.id");
-
+      for (const element of campaigns) {
+        if (element.isshare) {
+          const campaignDetails = await CampaignDetail.query()
+            .select()
+            .where("campaignId", element.id);
+          element.range = campaignDetails;
+        }
+      }
       return res.status(200).send({
         data: campaigns,
         message: "get successfully",
@@ -290,6 +295,11 @@ class Campaign {
         .where("campaigns.id", campaignId)
         .groupBy("campaigns.id");
 
+      const campaignDetails = await CampaignDetail.query()
+        .select()
+        .where("campaignId", campaign[0].id);
+
+      campaign[0].range = campaignDetails;
       return res.status(200).send({
         data: campaign,
         message: "get successfully",
