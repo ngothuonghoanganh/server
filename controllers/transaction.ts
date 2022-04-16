@@ -6,27 +6,39 @@ import moment from "moment";
 class TransactionController {
   public createTransaction = async (transaction: Transaction) => {
     try {
-
       const newTransaction = await Transaction.query().insert({
         ...transaction,
       });
-      if (transaction.type === 'penalty') {
-        const paymentlink = this.createPaymentLink('NCB', transaction.description, transaction.type, transaction.penaltyfee, '', transaction.id);
-        await Transaction.query().update({
-          paymentlink: paymentlink,
-        })
-          .where('id', newTransaction.id)
+      if (transaction.type === "penalty") {
+        const paymentlink = this.createPaymentLink(
+          "NCB",
+          transaction.description,
+          transaction.type,
+          transaction.penaltyfee,
+          "",
+          transaction.id
+        );
+        await Transaction.query()
+          .update({
+            paymentlink: paymentlink,
+          })
+          .where("id", newTransaction.id);
       }
-
     } catch (error) {
       console.log(error);
     }
   };
 
-  public createPaymentLink = (bankcode: any, orderDescription: any, ordertype: any, amount: any, language: any, penaltyId: any) => {
+  public createPaymentLink = (
+    bankcode: any,
+    orderDescription: any,
+    ordertype: any,
+    amount: any,
+    language: any,
+    penaltyId: any
+  ) => {
     try {
-      const ipAddr =
-        '13.215.133.39';
+      const ipAddr = "13.215.133.39";
 
       const tmnCode = process.env.vnp_TmnCode;
       const secretKey: any = process.env.vnp_HashSecret;
@@ -44,7 +56,7 @@ class TransactionController {
         locale = "vn";
       }
 
-      console.log(moment(date).format("yyyyMMDDHHmmss"))
+      console.log(moment(date).format("yyyyMMDDHHmmss"));
       let currCode = "VND";
       let vnp_Params: any = {};
       vnp_Params["vnp_Version"] = "2.1.0";
@@ -77,7 +89,7 @@ class TransactionController {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   public update = async (transaction: Transaction) => {
     try {
@@ -136,7 +148,7 @@ class TransactionController {
         returnUrl + `/transaction/payment?ordercode=${ordercode}&type=income`;
       vnp_Params["vnp_Amount"] = amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
-      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss")
+      vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss");
       if (bankCode !== null && bankCode !== "") {
         vnp_Params["vnp_BankCode"] = bankCode;
       }
@@ -152,7 +164,7 @@ class TransactionController {
         .update({
           iswithdrawable: false,
           status: "waiting",
-          paymentlink: vnpUrl
+          paymentlink: vnpUrl,
         })
         .where("ordercode", ordercode)
         .andWhere("type", "income");
@@ -211,7 +223,7 @@ class TransactionController {
       const { ordercode, type, penaltyId } = req.query;
 
       let transaction = 0;
-      if (type === 'income') {
+      if (type === "income") {
         transaction = await Transaction.query()
           .update({
             iswithdrawable: false,
@@ -219,7 +231,8 @@ class TransactionController {
           })
           .where("ordercode", ordercode)
           .andWhere("type", type);
-      } else{
+          return res.redirect("/process-transaction")
+      } else {
         transaction = await Transaction.query()
           .update({
             iswithdrawable: false,
@@ -231,6 +244,23 @@ class TransactionController {
       return res.status(200).send({
         message: "success",
         data: transaction,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  public processTransaction = async (req: any, res: any) => {
+    try {
+      const transactions = await Transaction.query()
+        .select("transaction.*", "suppliers.name")
+        .join("suppliers", "suppliers.id", "transaction.supplierid")
+        .where("transaction.type", "income")
+        .andWhere("transaction.status", "waiting");
+      console.log(transactions);
+      return res.render("transaction", {
+        body: "hello",
+        transactions,
       });
     } catch (error) {
       console.log(error);

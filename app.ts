@@ -31,7 +31,7 @@ import retailOrderRouter from "./routes/history";
 import transactionRouter from "./routes/transaction";
 import systemRouter from "./routes/system";
 import notifRouter from "./routes/notif";
-
+import serverPage from "./routes/serverpage";
 
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
@@ -61,6 +61,8 @@ const morganMiddleware = morgan(
 );
 
 chat.run();
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "/public/views"));
 
 app.use(morganMiddleware);
 app.use(bodyParser.json());
@@ -96,7 +98,7 @@ app.use("/api/history", retailOrderRouter);
 app.use("/api/transaction", transactionRouter);
 app.use("/api/system", systemRouter);
 app.use("/api/notif", notifRouter);
-
+app.use("/", serverPage);
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {

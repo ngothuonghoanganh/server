@@ -20,7 +20,6 @@ import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 
-
 class OrderController {
   public createOrder = async (req: any, res: any) => {
     try {
@@ -74,13 +73,13 @@ class OrderController {
         });
 
         for (const product of products) {
-          await Products.query()
-            .update({
-              quantity: Products.raw(`
-              quantity - ${product.quantity}
-            `),
-            })
-            .where("id", product.productId);
+          // await Products.query()
+          //   .update({
+          //     quantity: Products.raw(`
+          //     quantity - ${product.quantity}
+          //   `),
+          //   })
+          //   .where("id", product.productId);
           await OrderDetail.query().delete().where("id", product.cartId);
         }
         transactionController.createTransaction({
@@ -325,8 +324,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
+                  p.discountpercent > c.discountpercent ? p : c
+                )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -588,13 +587,22 @@ class OrderController {
         image,
         description,
         cancelLinkRequestor,
-        supplierId
+        supplierId,
       } = req.body;
-      if (cancelLinkRequestor === 'Supplier') {
-        const order: any = (await Order.query().select().where('ordercode', orderCode).first()) || (await CampaignOrder.query().select().where('ordercode', orderCode).first())
-        if (order && order.status === 'processing') {
+      if (cancelLinkRequestor === "Supplier") {
+        const order: any =
+          (await Order.query()
+            .select()
+            .where("ordercode", orderCode)
+            .first()) ||
+          (await CampaignOrder.query()
+            .select()
+            .where("ordercode", orderCode)
+            .first());
+        if (order && order.status === "processing") {
           transactionController.createTransaction({
-            description: 'charge money because Supplier cancel order in status: processing',
+            description:
+              "charge money because Supplier cancel order in status: processing",
             iswithdrawable: false,
             type: "penalty",
             supplierid: supplierId,
@@ -992,25 +1000,19 @@ class OrderController {
 
   public updateStatusFromReturningToDeliveredForRejectReturn = async (
     req: any,
-    res: any,
+    res: any
   ) => {
     try {
-      let {
-        orderCode,
-        type,
-        orderId,
-        description,
-        image,
-      } = req.body;
+      let { orderCode, type, orderId, description, image } = req.body;
       const requestReturnTime = await OrderStatusHistory.query()
         .select()
         .where("ordercode", orderCode)
         .andWhere("statushistory", "returning");
       let status;
       if (requestReturnTime.length === 1) {
-        status = 'delivered'
+        status = "delivered";
       } else {
-        status = 'completed'
+        status = "completed";
       }
       let update: any = await Order.query()
         .update({
