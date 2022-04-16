@@ -2,6 +2,7 @@ import * as express from "express";
 import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 import CampaignController from "../controllers/campaign";
+import { Products } from "../models/products";
 import {
   paramsSchema,
   querySchema,
@@ -19,6 +20,11 @@ router.post(
   CampaignController.createCampaign
 );
 
+router.post(
+  '/searchCampaign',
+  CampaignController.searchCampaign
+)
+
 
 router.put(
   '/update/active',
@@ -34,6 +40,11 @@ router.get(
   Authentication.checkRole(["Supplier"]),
   CampaignController.getAllCampaignsInSupplier
 );
+
+router.get(
+  '/getEndingCampaignList',
+  CampaignController.getEndingCampaignList
+  )
 
 router.get(
   "/",

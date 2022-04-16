@@ -80,11 +80,11 @@ router.post(
   Product.getAllProductByStatus
 )
 
-// router.post(
-//   '/searching/staus',
-//   // validator.query(getAllProdWithStatus),
-//   Product.getAllProdWithStatus
-// )
+
+router.get(
+  '/getProductCreatedThisWeek',
+  Product.getProductCreatedThisWeek
+)
 
 // ở đây cũng lấy toàn bộ product ra nhưng để cho supplier quản lý nên là cần authentication
 // và check cả role của nó nên là userId lấy từ request
@@ -93,6 +93,8 @@ router.get(
   '/getProductWithOrderCompleted',
   Product.getProductWithOrderCompleted
 )
+
+
 router.get(
   "/All",
   Authentication.protected,
