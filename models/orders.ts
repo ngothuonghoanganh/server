@@ -31,4 +31,5 @@ export class Order extends Model {
   paymentmethod?: string;
   reasonforcancel?:string;
   imageproof?: string;
+  loyalcustomerdiscountpercent?: number
 }

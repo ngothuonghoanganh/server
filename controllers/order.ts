@@ -35,6 +35,7 @@ class OrderController {
         customerDiscountCodeId = null,
         inCart = false,
         paymentMethod = "cod",
+        loyalcustomerdiscountpercent = 0,
       } = req.body;
 
       const address: Address = await Address.query()
@@ -324,8 +325,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountpercent > c.discountpercent ? p : c
-                )
+                p.discountpercent > c.discountpercent ? p : c
+              )
               : { discountpercent: 0 };
 
           await LoyalCustomer.query()
@@ -1592,6 +1593,8 @@ class OrderController {
         vnp_TxnRef,
         type,
         orderCode,
+        isShare = false,
+        currentPrice = 0
       } = req.body;
 
       if (!isAdvanced) {
@@ -1619,7 +1622,7 @@ class OrderController {
           .first();
         const campaignId = order.campaignid;
 
-        const ordersInCampaign = await CampaignOrder.query()
+        const ordersInCampaign: any = await CampaignOrder.query()
           .select()
 
           .where("campaignid", campaignId)
@@ -1629,12 +1632,35 @@ class OrderController {
           (acc: any, curr: any) => parseInt(acc) + parseInt(curr.quantity),
           0
         );
-        const campaign = await Campaigns.query()
-          .select()
-          .where("id", campaignId)
-          .andWhere("quantity", "<=", currentQuantity)
-          .first();
+        let campaign;
+        if (isShare) {
+          campaign = await Campaigns.query()
+            .select()
+            .where("id", campaignId)
+            .andWhere("maxquantity", "<=", currentQuantity)
+            .first();
+        } else {
+          campaign = await Campaigns.query()
+            .select()
+            .where("id", campaignId)
+            .andWhere("quantity", "<=", currentQuantity)
+            .first();
+        }
         if (campaign) {
+          // let dataSuppId = await Products.query().select('categories.supplierid')
+          //   .join('categories', 'products.categoryid', 'categories.id')
+          //   .where('products.id', campaign.productid).first();
+          if (isShare) {
+            // const loyalCustomerId = await LoyalCustomer.query().select('customerid').where('supplierid', dataSuppId.supplierid);
+            for (const item of ordersInCampaign) {
+              let discountPrice = (item.totalprice) - (currentPrice * (item.quantity));
+              discountPrice += (discountPrice * item.loyalcustomerdiscountpercent) / 100;
+              let updateCampaignOrder: any = await CampaignOrder.query().update({
+                discountprice: discountPrice
+              })
+              .where('id', item.id);
+            }
+          }
           const orderId = ordersInCampaign.map((item: any) => item.id);
           await Promise.all([
             CampaignOrder.query()
