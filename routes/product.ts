@@ -94,6 +94,10 @@ router.get(
   Product.getProductWithOrderCompleted
 )
 
+router.get(
+  '/getAllProductCreatedByEveryMonth',
+  Product.getAllProductCreatedByEveryMonth
+)
 
 router.get(
   "/All",
