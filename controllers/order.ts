@@ -221,12 +221,20 @@ class OrderController {
           .where("id", product.productId);
       }
 
-      transactionController.createTransaction({
-        ordercode: orderCode,
-        iswithdrawable: false,
-        type: "income",
-        supplierid: supplierId,
-      } as Transaction);
+      const transaction = await Transaction.query()
+        .select()
+        .where("supplierid", supplierId)
+        .andWhere("type", "income")
+        .andWhere("status", "active")
+        .first();
+
+      if (!transaction)
+        transactionController.createTransaction({
+          // ordercode: orderCode,
+          iswithdrawable: false,
+          type: "income",
+          supplierid: supplierId,
+        } as Transaction);
       return res.status(200).send({
         message: "successful",
         data: {
@@ -352,6 +360,7 @@ class OrderController {
 
       transactionController.update({
         // ordercode: order.ordercode,
+        supplierid: order.supplierid,
         advancefee: Transaction.raw(`advancefee + ${order.advancefee || 0}`),
         platformfee: Transaction.raw(
           `platformfee + ${
