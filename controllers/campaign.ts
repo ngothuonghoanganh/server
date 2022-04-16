@@ -93,6 +93,7 @@ class Campaign {
         maxQuantity = 0,
         isShare = false,
         advanceFee = 0,
+        range = [],
       } = req.body;
       let campaign: any = null;
       campaign = await Campaigns.query()
@@ -101,18 +102,24 @@ class Campaign {
         .where("todate", ">=", Campaigns.raw("now()"))
         .andWhere("productid", productId)
         .andWhere("status", "active")
+        .andWhere("id", "<>", campaignId)
         .first();
-      if (!campaign.maxquantitycampaign) campaign.maxquantitycampaign = 0;
+      // if (!campaign.maxquantitycampaign) {
+      //   campaign.maxquantitycampaign = 0 + maxQuantity;
+      // } else {
+      campaign.maxquantitycampaign =
+        (campaign.maxquantitycampaign || 0) + maxQuantity;
+      // }
       const product = await Products.query()
         .select()
         .where("id", productId)
-        .andWhere(
-          "quantity",
-          ">=",
-          parseInt(campaign.maxquantitycampaign) + maxQuantity
-        );
+        .andWhere("quantity", ">=", parseInt(campaign.maxquantitycampaign));
       let numRecordUpdated = 0;
       if (product && product.length > 0) {
+        const campaignReadyUpdate = await Campaigns.query()
+          .select()
+          .where("id", campaignId)
+          .first();
         numRecordUpdated = await Campaigns.query()
           .update({
             productid: productId,
@@ -126,6 +133,19 @@ class Campaign {
           })
           .where("id", campaignId)
           .andWhere("status", "ready");
+
+        if (campaignReadyUpdate.status === "ready" && isShare) {
+          for (const element of range) {
+            if (element.id) {
+              await CampaignDetail.query()
+                .update({ quantity: element.quantity, price: element.price })
+                .where("id", element.id);
+            } else {
+              element.campaignId = campaignId;
+              await CampaignDetail.query().insert(element);
+            }
+          }
+        }
       } else {
         return res.status(200).send({
           message: "Max quantity in campaign is exceeded quantity of product",
