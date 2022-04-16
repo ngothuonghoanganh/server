@@ -93,13 +93,15 @@ class TransactionController {
 
   public update = async (transaction: Transaction) => {
     try {
-      await Transaction.query()
+      const updateTransaction = await Transaction.query()
         .update({
           ...transaction,
         })
         .where("supplierid", transaction.supplierid)
         .andWhere("type", transaction.type)
         .andWhere("status", transaction.status);
+
+      console.log(transaction);
     } catch (error) {
       console.log(error);
     }
