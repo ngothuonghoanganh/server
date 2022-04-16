@@ -93,12 +93,15 @@ class TransactionController {
 
   public update = async (transaction: Transaction) => {
     try {
-      await Transaction.query()
+      const updateTransaction = await Transaction.query()
         .update({
           ...transaction,
         })
-        .where("ordercode", transaction.ordercode)
-        .andWhere("type", transaction.type);
+        .where("supplierid", transaction.supplierid)
+        .andWhere("type", transaction.type)
+        .andWhere("status", transaction.status);
+
+      console.log(transaction);
     } catch (error) {
       console.log(error);
     }
@@ -228,11 +231,11 @@ class TransactionController {
           .update({
             iswithdrawable: false,
             status: "done",
-            description: 'This transaction has been completed'
+            description: "This transaction has been completed",
           })
           .where("ordercode", ordercode)
           .andWhere("type", type);
-          return res.redirect("/process-transaction")
+        return res.redirect("/process-transaction");
       } else {
         transaction = await Transaction.query()
           .update({

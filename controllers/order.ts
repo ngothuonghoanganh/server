@@ -83,12 +83,20 @@ class OrderController {
           //   .where("id", product.productId);
           await OrderDetail.query().delete().where("id", product.cartId);
         }
-        transactionController.createTransaction({
-          ordercode: orderCode,
-          iswithdrawable: false,
-          type: "income",
-          supplierid: supplierId,
-        } as Transaction);
+        const transaction = await Transaction.query()
+          .select()
+          .where("supplierid", supplierId)
+          .andWhere("type", "income")
+          .andWhere("status", "active")
+          .first();
+
+        if (!transaction)
+          transactionController.createTransaction({
+            // ordercode: orderCode,
+            iswithdrawable: false,
+            type: "income",
+            supplierid: supplierId,
+          } as Transaction);
 
         // orderStatusHistoryController.createHistory({
         //   statushistory: "created",
@@ -214,12 +222,20 @@ class OrderController {
           .where("id", product.productId);
       }
 
-      transactionController.createTransaction({
-        ordercode: orderCode,
-        iswithdrawable: false,
-        type: "income",
-        supplierid: supplierId,
-      } as Transaction);
+      const transaction = await Transaction.query()
+        .select()
+        .where("supplierid", supplierId)
+        .andWhere("type", "income")
+        .andWhere("status", "active")
+        .first();
+
+      if (!transaction)
+        transactionController.createTransaction({
+          // ordercode: orderCode,
+          iswithdrawable: false,
+          type: "income",
+          supplierid: supplierId,
+        } as Transaction);
       return res.status(200).send({
         message: "successful",
         data: {
@@ -344,18 +360,31 @@ class OrderController {
       }
 
       transactionController.update({
-        ordercode: order.ordercode,
-        platformfee:
-          ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
-        paymentfee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
-        ordervalue:
-          order.totalprice -
-          (order.discountprice || 0) -
-          (order.advancefee || 0),
+        // ordercode: order.ordercode,
+        supplierid: order.supplierid,
+        advancefee: Transaction.raw(`advancefee + ${order.advancefee || 0}`),
+        platformfee: Transaction.raw(
+          `platformfee + ${
+            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          }`
+        ),
+        paymentfee: Transaction.raw(
+          `paymentfee + ${
+            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          }`
+        ),
+        ordervalue: Transaction.raw(
+          `ordervalue + ${
+            order.totalprice -
+            (order.discountprice || 0) -
+            (order.advancefee || 0)
+          }`
+        ),
         iswithdrawable: true,
         type: "income",
         description:
           "The order is completed. Vendor is able to withdraw money.",
+        status: "active",
       } as any);
 
       orderStatusHistoryController.createHistory({
@@ -1730,12 +1759,6 @@ class OrderController {
             status: "unread",
           });
         }
-
-        transactionController.update({
-          ordercode: order.ordercode,
-          advancefee: order.advancefee,
-          type: "income",
-        } as Transaction);
       }
 
       //insert data vào order history
