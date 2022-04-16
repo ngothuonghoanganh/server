@@ -228,6 +228,7 @@ class TransactionController {
           .update({
             iswithdrawable: false,
             status: "done",
+            description: 'This transaction has been completed'
           })
           .where("ordercode", ordercode)
           .andWhere("type", type);
