@@ -589,18 +589,40 @@ class ProductsController {
       const data = await Products.query().select('products.*', ...ListSupplierEntity)
         .join("categories", "categories.id", "products.categoryid")
         .join("suppliers", "suppliers.id", "categories.supplierid")
-        .whereBetween("products.createdat", [monday, sunday]);
-
+        .whereBetween("products.createdat", [monday, sunday])
+        .andWhere('products.status', '<>', 'deactivated')
       if (monday && sunday) {
         return res.status(200).send({
           message: 'successful',
-          data: data
+          data: data 
         })
       }
     } catch (error) {
       console.log(error)
     }
   };
+
+  public getAllProductCreatedByEveryMonth = async (req: any, res: any) => {
+    try {
+      console.log('testttt')
+      const query = ` SELECT
+                      DATE_TRUNC('month', "createdat") AS "month",
+                      COUNT(*)
+                      FROM "events"
+                      GROUP BY DATE_TRUNC('month', "event_timestamp")`;
+
+      const data= await Products.raw(query);
+      console.log(data)
+
+      return res.status(200).send({
+        message: 'successful',
+        data: data
+      })
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 export default new ProductsController();
