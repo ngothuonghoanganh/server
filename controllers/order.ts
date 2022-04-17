@@ -65,6 +65,7 @@ class OrderController {
           paymentmethod: paymentMethod,
           campaignid: campaignId,
           status: "notAdvanced",
+          loyalcustomerdiscountpercent: loyalcustomerdiscountpercent,
           productid: products[0].productId,
           productname: products[0].productName,
           quantity: products[0].quantity,
@@ -131,6 +132,7 @@ class OrderController {
         shippingfee: shippingFee,
         paymentmethod: paymentMethod,
         status: paymentMethod === "cod" ? "created" : "unpaid",
+        loyalcustomerdiscountpercent: loyalcustomerdiscountpercent,
         totalprice: products
           .map((item: any) => item.totalPrice)
           .reduce((prev: any, next: any) => {
@@ -364,20 +366,17 @@ class OrderController {
         supplierid: order.supplierid,
         advancefee: Transaction.raw(`advancefee + ${order.advancefee || 0}`),
         platformfee: Transaction.raw(
-          `platformfee + ${
-            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `platformfee + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
           }`
         ),
         paymentfee: Transaction.raw(
-          `paymentfee + ${
-            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `paymentfee + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
           }`
         ),
         ordervalue: Transaction.raw(
-          `ordervalue + ${
-            order.totalprice -
-            (order.discountprice || 0) -
-            (order.advancefee || 0)
+          `ordervalue + ${order.totalprice -
+          (order.discountprice || 0) -
+          (order.advancefee || 0)
           }`
         ),
         iswithdrawable: true,
@@ -1687,7 +1686,7 @@ class OrderController {
               let updateCampaignOrder: any = await CampaignOrder.query().update({
                 discountprice: discountPrice
               })
-              .where('id', item.id);
+                .where('id', item.id);
             }
           }
           const orderId = ordersInCampaign.map((item: any) => item.id);

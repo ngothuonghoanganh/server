@@ -1,4 +1,5 @@
 import { Model } from "objection";
+import { Tracing } from "trace_events";
 import * as connection from "./db/connection";
 
 Model.knex(connection.knex);
@@ -33,4 +34,5 @@ export class CampaignOrder extends Model {
   reasonforcancel?: string;
   comment?: string;
   rating?: Number;
+  loyalcustomerdiscountpercent?:string;
 }
