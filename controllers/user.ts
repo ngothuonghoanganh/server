@@ -38,9 +38,40 @@ class User {
 
   public getMe = async (req: any, res: any, next: any) => {
     try {
-      return res
-        .status(200)
-        .send({ data: req.user, message: "get successfully" });
+      const listEntity = [
+        'accounts.id as accountid',
+        'accounts.roleid as roleid',
+        'accounts.username as username',
+        'accounts.googleid as googleid',
+        'accounts.phone as phone',
+        'accounts.isdeleted as accountisdeleted',
+      ]
+      const accountId = req.user.accountid;
+
+      const supplierData = await Accounts.query()
+        .select(...listEntity, 'suppliers.*')
+        .join('suppliers', 'accounts.id', 'suppliers.accountid')
+        .where('accounts.id', accountId)
+
+      const customerData = await Accounts.query()
+        .select('customers.*', ...listEntity)
+        .join('customers', 'accounts.id', 'customers.accountid')
+        .where('accounts.id', accountId)
+
+      const systemProfileData = await Accounts.query()
+        .select('systemprofile.*', ...listEntity)
+        .join('systemprofile', 'accounts.id', 'systemprofile.accountid')
+        .where('accounts.id', accountId)
+
+      return res.status(200).send({
+        message: "get successfully",
+        data: ({
+          user: req.user,
+          supplierData: supplierData,
+          customerData: customerData,
+          systemProfileData: systemProfileData,
+        })
+      })
     } catch (error) {
       console.error(error);
     }
@@ -278,8 +309,5 @@ class User {
       console.log(error);
     }
   };
-
-  
-
 }
 export default new User();

@@ -1353,7 +1353,10 @@ class OrderController {
           "orders.*",
 
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),
+            (select suppliers.avt as supplieravatar from suppliers where suppliers.id = orders.supplierid),
+            (select suppliers.address as supplieraddress from suppliers where suppliers.id = orders.supplierid),
+            json_agg(to_jsonb(orderdetail) - 'orderid') as details`
           )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
@@ -1367,6 +1370,8 @@ class OrderController {
           "campaigns.supplierid",
           CampaignOrder.raw(
             `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            (select suppliers.avt as supplieravatar from suppliers where suppliers.id = campaigns.supplierid),
+            (select suppliers.address as supplieraddress from suppliers where suppliers.id = campaigns.supplierid),
             array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,
@@ -1632,6 +1637,46 @@ class OrderController {
             status: status,
           })
           .where("id", orderId);
+
+          orderStatusHistoryController.createHistory({
+            retailorderid: type === "retail" ? orderId : null,
+            campaignorderid: type === "campaign" ? orderId : null,
+            statushistory: "created",
+            ordercode: orderCode,
+            type: type,
+            description: "is created",
+          } as OrderStatusHistory);
+  
+          let supplierDataForRetail;
+          let supplierDataForCampaign;
+          let accountIdSupp;
+          if (type === "retail") {
+            supplierDataForRetail = await Order.query()
+              .select("supplierid")
+              .where("id", orderId)
+              .first();
+            accountIdSupp = await Suppliers.query()
+              .select("accountid")
+              .where("id", supplierDataForRetail.supplierid)
+              .first();
+          } else {
+            supplierDataForCampaign = await Products.query()
+              .select("products.supplierid")
+              .join("campaignorder", "campaignorder.productid", "products.id")
+              .where("campaignorder.id", orderId)
+              .first();
+            accountIdSupp = await Suppliers.query()
+              .select("accountid")
+              .where("id", supplierDataForCampaign.supplierid)
+              .first();
+          }
+          notif.sendNotiForWeb({
+            userid: accountIdSupp.accountid,
+            link: orderCode,
+            message: "changed to " + "created",
+            status: "unread",
+          });
+
         await CampaignOrder.query()
           .update({ paymentid: vnp_TxnRef, status: status })
           .where("id", orderId);
@@ -1644,6 +1689,32 @@ class OrderController {
           })
           .where("id", orderId);
 
+          orderStatusHistoryController.createHistory({
+            retailorderid: type === "retail" ? orderId : null,
+            campaignorderid: type === "campaign" ? orderId : null,
+            statushistory: "advanced",
+            ordercode: orderCode,
+            type: "campaign",
+            description: "has completed advanced payment via VNPAY E-Wallet",
+          } as OrderStatusHistory);
+          // TODO
+          //type = campaign
+          let supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId)
+            .first();
+          let accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForCampaign.supplierid)
+            .first();
+          notif.sendNotiForWeb({
+            userid: accountIdSupp.accountid,
+            link: orderCode,
+            message: "changed to " + "advanced",
+            status: "unread",
+          });
+          
         const order = await CampaignOrder.query()
           .select()
           .where("id", orderId)
@@ -1761,100 +1832,39 @@ class OrderController {
       }
 
       //insert data vào order history
-      if (status === "created") {
-        orderStatusHistoryController.createHistory({
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
-          statushistory: "created",
-          ordercode: orderCode,
-          type: type,
-          description: "is created",
-        } as OrderStatusHistory);
+      // if (status === "created") {
+        
+      // } else if (status === "advanced") {
+      //   if (isAdvanced) {
+          
+      //   } else {
+      //     orderStatusHistoryController.createHistory({
+      //       retailorderid: type === "retail" ? orderId : null,
+      //       campaignorderid: type === "campaign" ? orderId : null,
+      //       statushistory: "advanced",
+      //       ordercode: orderCode,
+      //       type: "campaign",
+      //       description: "has completed full payment via VNPAY E-Wallet",
+      //     } as OrderStatusHistory);
 
-        let supplierDataForRetail;
-        let supplierDataForCampaign;
-        let accountIdSupp;
-        if (type === "retail") {
-          supplierDataForRetail = await Order.query()
-            .select("supplierid")
-            .where("id", orderId)
-            .first();
-          accountIdSupp = await Suppliers.query()
-            .select("accountid")
-            .where("id", supplierDataForRetail.supplierid)
-            .first();
-        } else {
-          supplierDataForCampaign = await Products.query()
-            .select("products.supplierid")
-            .join("campaignorder", "campaignorder.productid", "products.id")
-            .where("campaignorder.id", orderId)
-            .first();
-          accountIdSupp = await Suppliers.query()
-            .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
-            .first();
-        }
-        notif.sendNotiForWeb({
-          userid: accountIdSupp.accountid,
-          link: orderCode,
-          message: "changed to " + "created",
-          status: "unread",
-        });
-      } else if (status === "advanced") {
-        if (isAdvanced) {
-          orderStatusHistoryController.createHistory({
-            retailorderid: type === "retail" ? orderId : null,
-            campaignorderid: type === "campaign" ? orderId : null,
-            statushistory: "advanced",
-            ordercode: orderCode,
-            type: "campaign",
-            description: "has completed advanced payment via VNPAY E-Wallet",
-          } as OrderStatusHistory);
-          // TODO
-          //type = campaign
-          let supplierDataForCampaign = await Products.query()
-            .select("products.supplierid")
-            .join("campaignorder", "campaignorder.productid", "products.id")
-            .where("campaignorder.id", orderId)
-            .first();
-          let accountIdSupp = await Suppliers.query()
-            .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
-            .first();
-          notif.sendNotiForWeb({
-            userid: accountIdSupp.accountid,
-            link: orderCode,
-            message: "changed to " + "advanced",
-            status: "unread",
-          });
-        } else {
-          orderStatusHistoryController.createHistory({
-            retailorderid: type === "retail" ? orderId : null,
-            campaignorderid: type === "campaign" ? orderId : null,
-            statushistory: "advanced",
-            ordercode: orderCode,
-            type: "campaign",
-            description: "has completed full payment via VNPAY E-Wallet",
-          } as OrderStatusHistory);
-
-          //insert send notif
-          let supplierDataForCampaign = await Products.query()
-            .select("products.supplierid")
-            .join("campaignorder", "campaignorder.productid", "products.id")
-            .where("campaignorder.id", orderId)
-            .first();
-          let accountIdSupp = await Suppliers.query()
-            .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
-            .first();
-          notif.sendNotiForWeb({
-            userid: accountIdSupp.accountid,
-            link: orderCode,
-            message: "changed to " + "advanced",
-            status: "unread",
-          });
-        }
-      }
+      //     //insert send notif
+      //     let supplierDataForCampaign = await Products.query()
+      //       .select("products.supplierid")
+      //       .join("campaignorder", "campaignorder.productid", "products.id")
+      //       .where("campaignorder.id", orderId)
+      //       .first();
+      //     let accountIdSupp = await Suppliers.query()
+      //       .select("accountid")
+      //       .where("id", supplierDataForCampaign.supplierid)
+      //       .first();
+      //     notif.sendNotiForWeb({
+      //       userid: accountIdSupp.accountid,
+      //       link: orderCode,
+      //       message: "changed to " + "advanced",
+      //       status: "unread",
+      //     });
+      //   }
+      // }
 
       return res.status(200).send({
         message: "successful",
@@ -1872,7 +1882,10 @@ class OrderController {
         .select(
           "orders.*",
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),
+            (select suppliers.avt as supplieravatar from suppliers where suppliers.id = orders.supplierid),
+            (select suppliers.address as supplieraddress from suppliers where suppliers.id = orders.supplierid),
+             json_agg(to_jsonb(orderdetail) - 'orderid') as details`
           )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
@@ -1885,6 +1898,8 @@ class OrderController {
           "campaigns.supplierid",
           CampaignOrder.raw(
             `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            (select suppliers.avt as supplieravatar from suppliers where suppliers.id = campaigns.supplierid),
+            (select suppliers.address as supplieraddress from suppliers where suppliers.id = campaigns.supplierid),
             array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,
@@ -1926,7 +1941,10 @@ class OrderController {
         .select(
           "orders.*",
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid), json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),
+            (select suppliers.avt as supplieravatar from suppliers where suppliers.id = orders.supplierid),
+            (select suppliers.address as supplieraddress from suppliers where suppliers.id = orders.supplierid),
+             json_agg(to_jsonb(orderdetail) - 'orderid') as details`
           )
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
@@ -1940,6 +1958,8 @@ class OrderController {
           "campaigns.supplierid",
           CampaignOrder.raw(
             `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            (select suppliers.avt as supplieravatar from suppliers where suppliers.id = campaigns.supplierid),
+            (select suppliers.address as supplieraddress from suppliers where suppliers.id = campaigns.supplierid),
           array_to_json(array_agg(json_build_object(
           'id','',
           'image', image,

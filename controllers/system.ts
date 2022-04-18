@@ -548,6 +548,24 @@ class System {
       console.log(error);
     }
   };
+
+  public activeProduct = async (req: any, res: any) => {
+    try {
+      const productId = req.body.productId;
+
+      const update = await Products.query().select().update({
+        status: 'active'
+      })
+        .where('id', productId).first();
+
+      return res.status(200).send({
+        message: "successful",
+        data: update
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
 }
 
 export default new System();

@@ -70,7 +70,7 @@ class ProductsController {
           image: JSON.stringify(image),
         })
         .where("id", productId)
-        .andWhere("status", "<>", "incampaign");
+      // .andWhere("status", "<>", "incampaign");
 
       if (productUpdated === 0) {
         return res.status(200).send({
@@ -86,6 +86,24 @@ class ProductsController {
       console.log(error);
     }
   };
+
+  public activeProduct = async (req: any, res: any) => {
+    try {
+      const productId = req.body.productId;
+
+      const update = await Products.query().select().update({
+        status: 'active'
+      })
+        .where('id', productId).first();
+
+      return res.status(200).send({
+        message: "successful",
+        data: update
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   public getAllProductAndSupplierInformation = async (
     req: any,
@@ -136,7 +154,7 @@ class ProductsController {
       let prods: any = await Products.query()
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
-        .where("products.status", "<>", "deactivated")
+        // .where("products.status", "<>", "deactivated")
         .andWhere("categories.supplierid", req.user.id);
 
       for (const prod of prods) {
@@ -594,7 +612,7 @@ class ProductsController {
       if (monday && sunday) {
         return res.status(200).send({
           message: 'successful',
-          data: data 
+          data: data
         })
       }
     } catch (error) {
@@ -611,7 +629,7 @@ class ProductsController {
                       FROM "events"
                       GROUP BY DATE_TRUNC('month', "event_timestamp")`;
 
-      const data= await Products.raw(query);
+      const data = await Products.raw(query);
       console.log(data)
 
       return res.status(200).send({

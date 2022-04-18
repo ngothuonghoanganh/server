@@ -27,13 +27,11 @@ router.get(
 );
 
 router.put(
-  "/:productId",
+  '/active',
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
-  validator.params(paramProductIdSchema),
-  validator.body(updateBodyProductSchema),
-  Product.updateProduct
-);
+  Product.activeProduct
+)
 
 router.post(
   "/",
@@ -104,6 +102,15 @@ router.get(
   Authentication.protected,
   Authentication.checkRole(["Supplier"]),
   Product.getAllProductsAndCates
+);
+
+router.put(
+  "/:productId",
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  validator.params(paramProductIdSchema),
+  validator.body(updateBodyProductSchema),
+  Product.updateProduct
 );
 
 router.get(

@@ -29,4 +29,11 @@ router.post(
 )
 
 
+router.put(
+    '/active',
+    // Authentication.protected,
+    // Authentication.checkRole(["Supplier"]),
+    systemControllers.activeProduct
+  );
+
 export default router;
