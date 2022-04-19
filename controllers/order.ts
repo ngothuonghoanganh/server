@@ -159,6 +159,13 @@ class OrderController {
             orderid: newOrder.id,
             incampaign: !campaignId ? false : true,
           });
+          await Products.query()
+            .update({
+              quantity: Products.raw(`
+                quantity - ${product.quantity}
+              `),
+            })
+            .where("id", product.productId);
         }
 
         newOrderDetails = await OrderDetail.query().insert(details);
@@ -178,10 +185,18 @@ class OrderController {
               orderid: newOrder.id,
             })
             .where("id", product.cartId);
+          await Products.query()
+            .update({
+              quantity: Products.raw(`
+                quantity - ${product.quantity}
+              `),
+            })
+            .where("id", product.productId);
         }
         newOrderDetails = await OrderDetail.query()
           .select()
           .where("ordercode", orderCode);
+
       }
       // insert into history
 
@@ -1638,44 +1653,44 @@ class OrderController {
           })
           .where("id", orderId);
 
-          orderStatusHistoryController.createHistory({
-            retailorderid: type === "retail" ? orderId : null,
-            campaignorderid: type === "campaign" ? orderId : null,
-            statushistory: "created",
-            ordercode: orderCode,
-            type: type,
-            description: "is created",
-          } as OrderStatusHistory);
-  
-          let supplierDataForRetail;
-          let supplierDataForCampaign;
-          let accountIdSupp;
-          if (type === "retail") {
-            supplierDataForRetail = await Order.query()
-              .select("supplierid")
-              .where("id", orderId)
-              .first();
-            accountIdSupp = await Suppliers.query()
-              .select("accountid")
-              .where("id", supplierDataForRetail.supplierid)
-              .first();
-          } else {
-            supplierDataForCampaign = await Products.query()
-              .select("products.supplierid")
-              .join("campaignorder", "campaignorder.productid", "products.id")
-              .where("campaignorder.id", orderId)
-              .first();
-            accountIdSupp = await Suppliers.query()
-              .select("accountid")
-              .where("id", supplierDataForCampaign.supplierid)
-              .first();
-          }
-          notif.sendNotiForWeb({
-            userid: accountIdSupp.accountid,
-            link: orderCode,
-            message: "changed to " + "created",
-            status: "unread",
-          });
+        orderStatusHistoryController.createHistory({
+          retailorderid: type === "retail" ? orderId : null,
+          campaignorderid: type === "campaign" ? orderId : null,
+          statushistory: "created",
+          ordercode: orderCode,
+          type: type,
+          description: "is created",
+        } as OrderStatusHistory);
+
+        let supplierDataForRetail;
+        let supplierDataForCampaign;
+        let accountIdSupp;
+        if (type === "retail") {
+          supplierDataForRetail = await Order.query()
+            .select("supplierid")
+            .where("id", orderId)
+            .first();
+          accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForRetail.supplierid)
+            .first();
+        } else {
+          supplierDataForCampaign = await Products.query()
+            .select("products.supplierid")
+            .join("campaignorder", "campaignorder.productid", "products.id")
+            .where("campaignorder.id", orderId)
+            .first();
+          accountIdSupp = await Suppliers.query()
+            .select("accountid")
+            .where("id", supplierDataForCampaign.supplierid)
+            .first();
+        }
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.accountid,
+          link: orderCode,
+          message: "changed to " + "created",
+          status: "unread",
+        });
 
         await CampaignOrder.query()
           .update({ paymentid: vnp_TxnRef, status: status })
@@ -1689,37 +1704,43 @@ class OrderController {
           })
           .where("id", orderId);
 
-          orderStatusHistoryController.createHistory({
-            retailorderid: type === "retail" ? orderId : null,
-            campaignorderid: type === "campaign" ? orderId : null,
-            statushistory: "advanced",
-            ordercode: orderCode,
-            type: "campaign",
-            description: "has completed advanced payment via VNPAY E-Wallet",
-          } as OrderStatusHistory);
-          // TODO
-          //type = campaign
-          let supplierDataForCampaign = await Products.query()
-            .select("products.supplierid")
-            .join("campaignorder", "campaignorder.productid", "products.id")
-            .where("campaignorder.id", orderId)
-            .first();
-          let accountIdSupp = await Suppliers.query()
-            .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
-            .first();
-          notif.sendNotiForWeb({
-            userid: accountIdSupp.accountid,
-            link: orderCode,
-            message: "changed to " + "advanced",
-            status: "unread",
-          });
-          
+        orderStatusHistoryController.createHistory({
+          retailorderid: type === "retail" ? orderId : null,
+          campaignorderid: type === "campaign" ? orderId : null,
+          statushistory: "advanced",
+          ordercode: orderCode,
+          type: "campaign",
+          description: "has completed advanced payment via VNPAY E-Wallet",
+        } as OrderStatusHistory);
+        // TODO
+        //type = campaign
+        let supplierDataForCampaign = await Products.query()
+          .select("products.supplierid")
+          .join("campaignorder", "campaignorder.productid", "products.id")
+          .where("campaignorder.id", orderId)
+          .first();
+        let accountIdSupp = await Suppliers.query()
+          .select("accountid")
+          .where("id", supplierDataForCampaign.supplierid)
+          .first();
+        notif.sendNotiForWeb({
+          userid: accountIdSupp.accountid,
+          link: orderCode,
+          message: "changed to " + "advanced",
+          status: "unread",
+        });
+
         const order = await CampaignOrder.query()
           .select()
           .where("id", orderId)
           .first();
         const campaignId = order.campaignid;
+        const campaignToUpdateQuantity = await Campaigns.query().select()
+          .where('id', campaignId).first();
+        const reduceProductQuantity = await Products.query().update({
+          quantity: Products.raw(`quantity - ${order.quantity}`)
+        })
+          .where('id', campaignToUpdateQuantity.productid)
 
         const ordersInCampaign: any = await CampaignOrder.query()
           .select()
@@ -1833,10 +1854,10 @@ class OrderController {
 
       //insert data vào order history
       // if (status === "created") {
-        
+
       // } else if (status === "advanced") {
       //   if (isAdvanced) {
-          
+
       //   } else {
       //     orderStatusHistoryController.createHistory({
       //       retailorderid: type === "retail" ? orderId : null,
