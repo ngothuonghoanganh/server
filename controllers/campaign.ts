@@ -420,9 +420,22 @@ class Campaign {
         .groupBy("campaigns.id")
         .groupBy("products.id");
 
+        let campaignDetails;
+        for (const element of campaign) {
+          if (element.isshare) {
+             campaignDetails = await CampaignDetail.query()
+              .select()
+              .where("campaignId", element.id);
+            element.range = campaignDetails;
+          }
+        }
+
       return res.status(200).send({
         message: "successful",
-        data: campaign,
+        data:({
+          campaign: campaign,
+          CampaignDetails: campaignDetails
+        })
       });
     } catch (error) {
       console.log(error);
