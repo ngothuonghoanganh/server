@@ -229,15 +229,15 @@ class OrderController {
           status: "unread",
         });
       }
-      for (const product of products) {
-        await Products.query()
-          .update({
-            quantity: Products.raw(`
-            quantity - ${product.quantity}
-          `),
-          })
-          .where("id", product.productId);
-      }
+      // for (const product of products) {
+      //   await Products.query()
+      //     .update({
+      //       quantity: Products.raw(`
+      //       quantity - ${product.quantity}
+      //     `),
+      //     })
+      //     .where("id", product.productId);
+      // }
 
       const transaction = await Transaction.query()
         .select()
