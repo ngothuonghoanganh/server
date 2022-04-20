@@ -5,7 +5,6 @@ import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import moment from "moment";
-import { CampaignDetail } from "../models/campaigndetail";
 
 class Campaign {
   async createCampaign(req: any, res: any, next: any) {
@@ -57,15 +56,18 @@ class Campaign {
           advancefee: advanceFee,
           status: status,
           description: description,
+          range: JSON.stringify(range),
         });
-        if (isShare) {
-          for (const element of range) {
-            element.campaignId = newCampaign.id;
-          }
+        // if (isShare) {
+        //   for (const element of range) {
+        //     element.campaignId = newCampaign.id;
+        //   }
 
-          const newDetails = await CampaignDetail.query().insert(range);
-          newCampaign.range = newDetails;
-        }
+        //   const newDetails = await CampaignDetail.query().insert(range);
+        //   newCampaign.range = newDetails;
+        // }
+
+
 
         return res.status(200).send({
           data: newCampaign,
@@ -130,19 +132,21 @@ class Campaign {
             maxquantity: maxQuantity,
             isshare: isShare,
             advancefee: advanceFee,
+            range: JSON.stringify(range),
+
           })
           .where("id", campaignId)
           .andWhere("status", "ready");
 
-        if (campaignReadyUpdate.status === "ready" && isShare) {
+        // if (campaignReadyUpdate.status === "ready" && isShare) {
 
-          await CampaignDetail.query().delete().where('campaignId', campaignId)
-          for (const item of range) {
-            item.campaignId = campaignId
-          }
-          console.log(range)
-          await CampaignDetail.query().insert(range);
-        }
+        //   await CampaignDetail.query().delete().where('campaignId', campaignId)
+        //   for (const item of range) {
+        //     item.campaignId = campaignId
+        //   }
+        //   console.log(range)
+        //   await CampaignDetail.query().insert(range);
+        // }
 
 
       } else {
@@ -247,14 +251,14 @@ class Campaign {
         .whereIn("campaigns.productid", productIds)
         .andWhere("campaigns.status", status)
         .groupBy("campaigns.id");
-      for (const element of campaigns) {
-        if (element.isshare) {
-          const campaignDetails = await CampaignDetail.query()
-            .select()
-            .where("campaignId", element.id);
-          element.range = campaignDetails;
-        }
-      }
+      // for (const element of campaigns) {
+      //   if (element.isshare) {
+      //     const campaignDetails = await CampaignDetail.query()
+      //       .select()
+      //       .where("campaignId", element.id);
+      //     element.range = campaignDetails;
+      //   }
+      // }
       return res.status(200).send({
         data: campaigns,
         message: "get successfully",
@@ -319,11 +323,11 @@ class Campaign {
         .where("campaigns.id", campaignId)
         .groupBy("campaigns.id");
 
-      const campaignDetails = await CampaignDetail.query()
-        .select()
-        .where("campaignId", campaign[0].id);
+      // const campaignDetails = await CampaignDetail.query()
+      //   .select()
+      //   .where("campaignId", campaign[0].id);
 
-      campaign[0].range = campaignDetails;
+      // campaign[0].range = campaignDetails;
       return res.status(200).send({
         data: campaign,
         message: "get successfully",
@@ -424,21 +428,20 @@ class Campaign {
         .groupBy("campaigns.id")
         .groupBy("products.id");
 
-      let campaignDetails;
-      for (const element of campaign) {
-        if (element.isshare) {
-          campaignDetails = await CampaignDetail.query()
-            .select()
-            .where("campaignId", element.id);
-          element.range = campaignDetails;
-        }
-      }
+      // let campaignDetails;
+      // for (const element of campaign) {
+      //   if (element.isshare) {
+      //     campaignDetails = await CampaignDetail.query()
+      //       .select()
+      //       .where("campaignId", element.id);
+      //     element.range = campaignDetails;
+      //   }
+      // }
 
       return res.status(200).send({
         message: "successful",
         data: ({
           campaign: campaign,
-          CampaignDetails: campaignDetails
         })
       });
     } catch (error) {
