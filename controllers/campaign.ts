@@ -135,17 +135,16 @@ class Campaign {
           .andWhere("status", "ready");
 
         if (campaignReadyUpdate.status === "ready" && isShare) {
-          for (const element of range) {
-            if (element.id) {
-              await CampaignDetail.query()
-                .update({ quantity: element.quantity, price: element.price })
-                .where("id", element.id);
-            } else {
-              element.campaignId = campaignId;
-              await CampaignDetail.query().insert(element);
-            }
+
+          await CampaignDetail.query().delete().where('campaignId', campaignId)
+          for (const item of range) {
+            item.campaignId = campaignId
           }
+          console.log(range)
+          await CampaignDetail.query().insert(range);
         }
+
+
       } else {
         return res.status(200).send({
           message: "Max quantity in campaign is exceeded quantity of product",
