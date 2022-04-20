@@ -155,18 +155,23 @@ class ProductsController {
         .select(...listEntity)
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
         // .where("products.status", "<>", "deactivated")
-        .andWhere("categories.supplierid", req.user.id);
+        .where("categories.supplierid", req.user.id)
+        .andWhere(cd=>{
+          if(req.query.categoryId){
+            cd.where('categories.id', req.query.categoryId)
+          }
+        })
 
-      for (const prod of prods) {
-        const totalMaxQuantity: any = (await Campaigns.query()
-          .select()
-          .sum("maxquantity")
-          .where("productid", prod.id)
-          .groupBy("campaigns.id")
-          .first()) || { sum: 0 };
+      // for (const prod of prods) {
+      //   const totalMaxQuantity: any = (await Campaigns.query()
+      //     .select()
+      //     .sum("maxquantity")
+      //     .where("productid", prod.id)
+      //     .groupBy("campaigns.id")
+      //     .first()) || { sum: 0 };
 
-        prod.maxquantity = totalMaxQuantity.sum;
-      }
+      //   prod.maxquantity = totalMaxQuantity.sum;
+      // }
 
       return res.status(200).send({
         message: "get success",

@@ -1735,12 +1735,12 @@ class OrderController {
           .where("id", orderId)
           .first();
         const campaignId = order.campaignid;
-        const campaignToUpdateQuantity = await Campaigns.query().select()
-          .where('id', campaignId).first();
-        const reduceProductQuantity = await Products.query().update({
-          quantity: Products.raw(`quantity - ${order.quantity}`)
-        })
-          .where('id', campaignToUpdateQuantity.productid)
+        // const campaignToUpdateQuantity = await Campaigns.query().select()
+        //   .where('id', campaignId).first();
+        // const reduceProductQuantity = await Products.query().update({
+        //   quantity: Products.raw(`quantity - ${order.quantity}`)
+        // })
+        //   .where('id', campaignToUpdateQuantity.productid)
 
         const ordersInCampaign: any = await CampaignOrder.query()
           .select()
@@ -1836,7 +1836,12 @@ class OrderController {
               status: "unread",
             });
 
-            //type =campaign
+            //update quantity of product
+            await Products.query().update({
+              quantity: Products.raw(`quantity - ${item.quantity}`)
+            })
+            .where('id', campaign.productid)
+            
           }
           let supplierId;
           supplierId = await Suppliers.query()

@@ -190,36 +190,36 @@ class Campaign {
 
       const campaigns = supplierId
         ? await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
-              )
             )
-            .leftJoin(
-              "campaignorder",
-              "campaigns.id",
-              "campaignorder.campaignid"
-            )
-            .where("campaigns.supplierid", supplierId)
+          )
+          .leftJoin(
+            "campaignorder",
+            "campaigns.id",
+            "campaignorder.campaignid"
+          )
+          .where("campaigns.supplierid", supplierId)
 
-            .groupBy("campaigns.id")
+          .groupBy("campaigns.id")
         : await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
-              )
             )
-            .leftJoin(
-              "campaignorder",
-              "campaignorder.id",
-              "campaignorder.campaignid"
-            )
+          )
+          .leftJoin(
+            "campaignorder",
+            "campaignorder.id",
+            "campaignorder.campaignid"
+          )
 
-            .groupBy("campaigns.id");
+          .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
@@ -286,7 +286,12 @@ class Campaign {
           )
         )
         .join("products", "campaigns.productid", "products.id")
-        .where("campaigns.supplierid", supplierId);
+        .where("campaigns.supplierid", supplierId)
+        .andWhere(cd => {
+          if (req.query.productId) {
+            cd.where('products.id', req.query.productId)
+          }
+        })
 
       return res.status(200).send({
         data: campaigns,
@@ -420,19 +425,19 @@ class Campaign {
         .groupBy("campaigns.id")
         .groupBy("products.id");
 
-        let campaignDetails;
-        for (const element of campaign) {
-          if (element.isshare) {
-             campaignDetails = await CampaignDetail.query()
-              .select()
-              .where("campaignId", element.id);
-            element.range = campaignDetails;
-          }
+      let campaignDetails;
+      for (const element of campaign) {
+        if (element.isshare) {
+          campaignDetails = await CampaignDetail.query()
+            .select()
+            .where("campaignId", element.id);
+          element.range = campaignDetails;
         }
+      }
 
       return res.status(200).send({
         message: "successful",
-        data:({
+        data: ({
           campaign: campaign,
           CampaignDetails: campaignDetails
         })
