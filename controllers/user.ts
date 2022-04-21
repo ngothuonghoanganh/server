@@ -169,7 +169,6 @@ class User {
   public updateCustomerAccountByCustomerId = async (
     req: any,
     res: any,
-    next: any
   ) => {
     try {
       const customerid = req.user.id;
@@ -179,8 +178,8 @@ class User {
         email,
         avt = "",
         phone,
-        ewalletaccount = "",
-        ewalletprovider = "",
+        eWalletCode = "",
+        eWalletSecret = "",
       } = req.body;
 
       const update = await Customers.query()
@@ -189,8 +188,8 @@ class User {
           lastname: lastName,
           email: email,
           avt: avt,
-          ewalletaccount: ewalletaccount,
-          ewalletprovider: ewalletprovider,
+          ewalletcode: eWalletCode,
+          ewalletsecret: eWalletSecret,
         })
         .where("id", customerid);
 
