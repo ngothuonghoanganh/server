@@ -185,22 +185,30 @@ class Comment {
     try {
       const productIds = req.body.productIds;
       const status = "completed";
-      const ListEntity = [
-        "orderdetail.id as orderDetailId",
-        "orders.status as orderStatus",
-        "orderdetail.productid as productId",
-      ];
-      const numOfOrderCompletedByProductId = await OrderDetail.query()
-        .select(...ListEntity)
+      // const ListEntity = [
+      //   "orderdetail.id as orderDetailId",
+      //   "orders.status as orderStatus",
+      //   "orderdetail.productid as productId",
+      // ];
+      const numOfOrderCompletedOrderDetail: any = await OrderDetail.query()
+        .select('orderdetail.productid as productId')
         .join("orders", "orderdetail.orderid", "orders.id")
         .whereIn("orderdetail.productid", productIds)
-        .andWhere("orders.status", status)
-        .groupBy("orderdetail.id")
-        .groupBy("orders.id");
+        .andWhere("orders.status", status);
+
+      const numOfOrderCompletedCampaignOrder: any = await CampaignOrder.query().select('campaigns.productid as productId')
+        .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
+        .whereIn('campaigns.productid', productIds)
+        .andWhere('campaignorder.status', status)
+
+      numOfOrderCompletedOrderDetail.push(...numOfOrderCompletedCampaignOrder);
+
+      console.log(numOfOrderCompletedOrderDetail)
+      console.log(numOfOrderCompletedCampaignOrder)
 
       // console.log(numOfOrderCompletedByProductId)
       // const counts = numOfOrderCompletedByProductId.reduce((c, { productId : key }) => (c[key] = (c[key] || 0) + 1, c), {});
-      const result = numOfOrderCompletedByProductId.reduce((r, a: any) => {
+      const result = numOfOrderCompletedOrderDetail.reduce((r: any, a: any) => {
         r[a.productId] = r[a.productId] || [];
         r[a.productId].push(a);
         return r;
@@ -208,7 +216,7 @@ class Comment {
 
       return res.status(200).send({
         message: "successful",
-        data: { result },
+        data: ({result: result})
       });
     } catch (error) {
       console.log(error);
