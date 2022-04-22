@@ -188,8 +188,8 @@ class User {
           lastname: lastName,
           email: email,
           avt: avt,
-          ewalletcode: eWalletCode,
-          ewalletsecret: eWalletSecret,
+          eWalletCode: eWalletCode,
+          eWalletSecret: eWalletSecret,
         })
         .where("id", customerid);
 

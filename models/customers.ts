@@ -15,8 +15,8 @@ export class Customers extends Model {
   email?: string;
   avt?: string;
   isdeleted?: boolean;
-  ewalletcode?:string;
-  ewalletsecret?:string;
+  eWalletCode?:string;
+  eWalletSecret?:string;
   createdat?: Date;
   updatedat?: Date;
 }
