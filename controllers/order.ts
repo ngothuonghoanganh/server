@@ -1579,7 +1579,6 @@ class OrderController {
 
   public getOrderById = async (req: any, res: any) => {
     try {
-      const userId = req.user.id;
       const { orderId } = req.params;
 
       let orders: any = await Order.query()
@@ -1588,12 +1587,11 @@ class OrderController {
           Order.raw(`json_agg(to_jsonb(orderdetail) - 'orderid') as details`)
         )
         .join("orderdetail", "orders.id", "orderdetail.orderid")
-        .where("orders.customerid", userId)
-        .andWhere("orders.id", orderId)
+        .where("orders.id", orderId)
         .groupBy("orders.id");
       if (orders.length === 0) {
         orders = await CampaignOrder.query().select().where("id", orderId);
-        // console.log(orders)
+        console.log(orders)
 
         orders[0].details = [];
         orders[0].details.push({

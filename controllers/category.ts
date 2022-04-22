@@ -26,10 +26,16 @@ class CategoriesController {
   public getAllCate = async (req: any, res: any, next: any) => {
     try {
       const { id } = req.user;
-      const List = await Categories.query()
+      const List: any = await Categories.query()
         .select("categories.*")
         .where("isdeleted", false)
         .andWhere("supplierid", id);
+
+
+      for (const item of List) {
+        const numOfProduct: any = await Products.query().select().count().where('categoryid', item.id).first();
+        item.numOfProduct = numOfProduct.count;
+      }
       return res.status(200).send({
         data: List,
         message: "successful",
@@ -43,12 +49,16 @@ class CategoriesController {
     try {
       const { userId } = req.query;
       // console.log(userId)
-      const List = await Categories.query()
+      const List: any = await Categories.query()
         .select('categories.*')
         .where('isdeleted', false)
         .andWhere('supplierid', userId)
 
       // console.log(List)
+      for (const item of List) {
+        const numOfProduct: any = await Products.query().select().count().where('categoryid', item.id).first();
+        item.numOfProduct = numOfProduct.count;
+      }
 
       return res.status(200).send({
         message: 'successful',
@@ -69,13 +79,13 @@ class CategoriesController {
             isdeleted: true
           })
           .where('id', categoryId)
-         return res.status(200).send({
-            message: 'deactivated a cate',
-          })
-      }else{
-       return res.status(200).send('Please delete all products belong to this catalog before deleting the catalog!')
+        return res.status(200).send({
+          message: 'deactivated a cate',
+        })
+      } else {
+        return res.status(200).send('Please delete all products belong to this catalog before deleting the catalog!')
       }
-      
+
     } catch (error) {
       console.log(error)
     }

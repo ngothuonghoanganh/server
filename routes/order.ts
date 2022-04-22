@@ -151,7 +151,7 @@ router.put(
 router.get(
   "/customer/:orderId",
   Authentication.protected,
-  Authentication.checkRole(["Customer"]),
+  // Authentication.checkRole(["Customer"]),
   validator.params(getOrderByIdSchema),
   order.getOrderById
 );
