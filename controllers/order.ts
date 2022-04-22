@@ -633,16 +633,16 @@ class OrderController {
         cancelLinkRequestor,
         supplierId,
       } = req.body;
+      const order: any =
+        (await Order.query()
+          .select()
+          .where("ordercode", orderCode)
+          .first()) ||
+        (await CampaignOrder.query()
+          .select()
+          .where("ordercode", orderCode)
+          .first());
       if (cancelLinkRequestor === "Supplier") {
-        const order: any =
-          (await Order.query()
-            .select()
-            .where("ordercode", orderCode)
-            .first()) ||
-          (await CampaignOrder.query()
-            .select()
-            .where("ordercode", orderCode)
-            .first());
         if (order && order.status === "processing") {
           transactionController.createTransaction({
             description:
@@ -681,6 +681,7 @@ class OrderController {
           })
           .andWhere("ordercode", orderCode);
       }
+      //insert history for cancel
       orderStatusHistoryController.createHistory({
         statushistory: status,
         type: type,
@@ -712,12 +713,67 @@ class OrderController {
           .where("id", customerObj.customerid)
           .first();
       }
-      notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
-        link: orderCode,
-        message: "changed to " + status,
-        status: "unread",
-      });
+      //supplier cancel order
+      if (cancelLinkRequestor !== 'Customer') {
+        orderStatusHistoryController.createHistory({
+          statushistory: 'requestRefund',
+          type: type,
+          retailorderid: type === "retail" ? orderId : null,
+          campaignorderid: type === "campaign" ? orderId : null,
+          // image: JSON.stringify(image),
+          ordercode: orderCode,
+          description: 'waiting for refund',
+        } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "has been " + status + ". \n Your payment will be refunded. ",
+          status: "unread",
+        });
+      } else if (type === 'retail') {
+        //customer cancel order retail
+        orderStatusHistoryController.createHistory({
+          statushistory: 'requestRefund',
+          type: type,
+          retailorderid: type === "retail" ? orderId : null,
+          campaignorderid: type === "campaign" ? orderId : null,
+          // image: JSON.stringify(image),
+          ordercode: orderCode,
+          description: 'waiting for refund',
+        } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "has been " + status + ". \n Your payment will be refunded.",
+          status: "unread",
+        });
+      } else if (order.status === 'created' || order.status === 'processing') {
+        //customer cancel order campaign in status = created or processing
+        orderStatusHistoryController.createHistory({
+          statushistory: 'requestRefund',
+          type: type,
+          retailorderid: type === "retail" ? orderId : null,
+          campaignorderid: type === "campaign" ? orderId : null,
+          // image: JSON.stringify(image),
+          ordercode: orderCode,
+          description: 'waiting for refund',
+        } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "has been " + status + ". \n Your payment will be refunded.",
+          status: "unread",
+        });
+      } else {
+        //customer cancel campaign
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "has been " + status,
+          status: "unread",
+        });
+      }
+
       if (update === 0) {
         return res.status(200).send({
           message: "not yet updated",
@@ -1292,6 +1348,15 @@ class OrderController {
         orderId,
         /* image,*/ description,
       } = req.body;
+      const order: any =
+        (await Order.query()
+          .select()
+          .where("ordercode", orderCode)
+          .first()) ||
+        (await CampaignOrder.query()
+          .select()
+          .where("ordercode", orderCode)
+          .first());
       let update: any = await Order.query()
         .update({
           status: status,
@@ -1312,15 +1377,7 @@ class OrderController {
           message: "not yet updated",
         });
       }
-      orderStatusHistoryController.createHistory({
-        statushistory: status,
-        type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
-        // image: JSON.stringify(image),
-        ordercode: orderCode,
-        description: description,
-      } as OrderStatusHistory);
+
       //send notif for customer
       let customerObj;
       let accountIdCus;
@@ -1343,12 +1400,32 @@ class OrderController {
           .where("id", customerObj.customerid)
           .first();
       }
-      notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
-        link: orderCode,
-        message: "changed to " + status,
-        status: "unread",
-      });
+
+      orderStatusHistoryController.createHistory({
+        statushistory: status,
+        type: type,
+        retailorderid: type === "retail" ? orderId : null,
+        campaignorderid: type === "campaign" ? orderId : null,
+        // image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: description,
+      } as OrderStatusHistory);
+
+        orderStatusHistoryController.createHistory({
+          statushistory: 'requestRefund',
+          type: type,
+          retailorderid: type === "retail" ? orderId : null,
+          campaignorderid: type === "campaign" ? orderId : null,
+          // image: JSON.stringify(image),
+          ordercode: orderCode,
+          description: 'waiting for refund',
+        } as OrderStatusHistory);
+        notif.sendNotiForWeb({
+          userid: accountIdCus.accountid,
+          link: orderCode,
+          message: "has been " + status + ". \n Your payment will be refunded.",
+          status: "unread",
+        });
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -1838,8 +1915,8 @@ class OrderController {
             await Products.query().update({
               quantity: Products.raw(`quantity - ${item.quantity}`)
             })
-            .where('id', campaign.productid)
-            
+              .where('id', campaign.productid)
+
           }
           let supplierId;
           supplierId = await Suppliers.query()
