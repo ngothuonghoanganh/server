@@ -193,41 +193,22 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-
-      const orderCampaign: any = await CampaignOrder.query().select('campaignid',
-        CampaignOrder.raw('SUM(quantity) as totalQuantity')
-      ).where('status', 'advanced').groupBy('campaignid')
-      //  CampaignOrder.raw('SUM(quantity)')
-      // const campaignIds = orderCampaign.map((item: any) => item.campaignid);
-
-      const data = [];
-      for (const item of orderCampaign) {
-        let campaign: any = await Campaigns.query()
-          .select(
-            "campaigns.*",
-            // 'products.name as productname',
-            Campaigns.raw(`
-          sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
-            count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
-          `)
-          )
-          .join('products', 'campaigns.productid', 'products.id')
-          .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
-          // const campaign: any = await Campaigns.query().select()
-          .where('id', item.campaignid).first();
-        // console.log(campaign.quantity * 0.8 as Number)
-        console.log(((campaign.quantity * 0.8) as Number) < item['totalQuantity']) // -> so sánh đc
-        // console.log(item['totalQuantity'] as Number)
-        if (((campaign.quantity * 0.8) as Number) < item['totalQuantity']) {
-          // data.push(campaign)
-          console.log('okay')
-        }
-      }
-      // moment().add(15,'days').format('DD-MM-YYYY')
-
+      let availableCampaign = null;
+      availableCampaign = await Campaigns.query().select()
+        .where('productid', 'af0befa3-0e76-457d-b8bd-9dabcf7bd964')
+        .andWhere('isshare', true)
+        .andWhere('todate', '>', '06/26/2022')
+        .andWhere('fromdate', '<', '06/27/2022')
+        .andWhere((cd) => {
+          cd.where('status', 'ready')
+          .orWhere('status', 'active')
+        })
+      // if(availableCampaign){
+      //   return res.status(200).send('have another campaign, choose date again!')
+      // }
       return res.status(200).send({
         message: 'successful',
-        data: null
+        data: availableCampaign
       })
     } catch (error) {
       console.log(error)

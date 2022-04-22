@@ -24,6 +24,22 @@ class Campaign {
         range = [],
       } = req.body;
 
+      if (isShare) {
+        let availableCampaign = null;
+        availableCampaign = await Campaigns.query().select()
+          .where('productid', productId)
+          .andWhere('isshare', true)
+          .andWhere('todate', '>', fromDate)
+          .andWhere('fromdate', '<', toDate)
+          .andWhere((cd) => {
+            cd.where('status', 'ready')
+              .orWhere('status', 'active')
+          })
+        if (availableCampaign.length > 0) {
+          return res.status(200).send('have other campaigns, choose date again!')
+        }
+      }
+
       let newCampaign: any,
         campaign: any = null;
       campaign = await Campaigns.query()

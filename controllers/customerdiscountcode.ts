@@ -94,22 +94,22 @@ class CustomerDiscountCodeController {
 
                 // console.log(currentDiscountCodeId['discountcodeid'])
 
-            const currentQuantityOfDiscountCode: any = await DiscountCode.query()
-                .select('quantity')
-                .where('id', currentDiscountCodeId['discountcodeid'])
-                .first()
+            // const currentQuantityOfDiscountCode: any = await DiscountCode.query()
+            //     .select('quantity')
+            //     .where('id', currentDiscountCodeId['discountcodeid'])
+            //     .first()
             // console.log(currentQuantityOfDiscountCode['quantity']);
-            const updateQuantity: any = await DiscountCode.query()
-                .update({
-                    quantity: currentQuantityOfDiscountCode['quantity'] - 1
-                })
-                .where('id', currentDiscountCodeId['discountcodeid'])
+            // const updateQuantity: any = await DiscountCode.query()
+            //     .update({
+            //         quantity: currentQuantityOfDiscountCode['quantity'] - 1
+            //     })
+            //     .where('id', currentDiscountCodeId['discountcodeid'])
             // console.log(updateQuantity)
 
             
             return res.status(200).send({
                 message: 'successful',
-                data: updateQuantity
+                data: currentDiscountCodeId
             })
         } catch (error) {
             console.log(error)

@@ -124,6 +124,11 @@ class TransactionController {
       const returnUrl = process.env.vnp_ReturnUrl;
 
       const amount = req.body.amount * 100;
+      if(req.body.amount < 10000){
+        return res.status(200).send({
+          message: 'can not withdraw with amount under 10,000 VND',
+        })
+      }
       const bankCode = req.body.bankCode;
 
       const orderInfo = req.body.orderDescription;

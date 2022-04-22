@@ -1,24 +1,32 @@
 import console from "console";
+import { CustomerDiscountCode } from "../models/customerdiscountcode";
+import { Customers } from "../models/customers";
 import { DiscountCode } from "../models/discountcode";
-import router from "../routes";
-import product from "./product";
+import { LoyalCustomer } from "../models/loyalCustomer";
+import notif from "../services/realtime/notification";
 
 class DiscountCodeController {
     public createDiscountCode = async (req: any, res: any, next: any) => {
         try {
+
+
             const { id } = req.user;
-            // console.log(id + "test")
+            //query list loyal customer
+            const listLoyalCustomer = await LoyalCustomer.query().select().where('supplierid', id);
+            // if (listLoyalCustomer.length === 0) {
+            //     return res.status(200).send('No loyal customer found');
+            // }
             let {
                 code,
                 description,
                 startDate,
                 endDate,
-                quantity,
                 status = "ready",
                 productId,
                 minimunPriceCondition,
                 discountPrice
             } = req.body;
+            let quantity = listLoyalCustomer.length;
 
             const newDiscountcode: any = await DiscountCode.query()
                 .insert({
@@ -33,7 +41,20 @@ class DiscountCodeController {
                     minimunpricecondition: minimunPriceCondition,
                     discountprice: discountPrice
                 })
-
+            for (const item of listLoyalCustomer) {
+                await CustomerDiscountCode.query().insert({
+                    customerid: item.customerid,
+                    discountcodeid: newDiscountcode.id,
+                    status: 'read'
+                })
+                const customerId = await Customers.query().select('accountid').where('id', item.customerid).first();
+                notif.sendNotiForWeb({
+                    userid: customerId.accountid,
+                    link: id, //supplier id
+                    message: "new discount code: " + code,
+                    status: "unread",
+                });
+            }
             return res.status(200).send({
                 data: newDiscountcode,
                 message: 'successful'
@@ -50,7 +71,7 @@ class DiscountCodeController {
                 });
             }
         }
-        
+
 
     };
 
