@@ -193,22 +193,11 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      let availableCampaign = null;
-      availableCampaign = await Campaigns.query().select()
-        .where('productid', 'af0befa3-0e76-457d-b8bd-9dabcf7bd964')
-        .andWhere('isshare', true)
-        .andWhere('todate', '>', '06/26/2022')
-        .andWhere('fromdate', '<', '06/27/2022')
-        .andWhere((cd) => {
-          cd.where('status', 'ready')
-          .orWhere('status', 'active')
-        })
-      // if(availableCampaign){
-      //   return res.status(200).send('have another campaign, choose date again!')
-      // }
+      var currentDate = moment().format();
+
       return res.status(200).send({
         message: 'successful',
-        data: availableCampaign
+        data: currentDate
       })
     } catch (error) {
       console.log(error)

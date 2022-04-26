@@ -211,7 +211,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: supplierData.accountid,
           link: newOrder.ordercode,
-          message: "changed to " + "created",
+          message: "Order " + newOrder.ordercode + "has been set to created",
           status: "unread",
         });
       } else {
@@ -225,7 +225,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: supplierData.accountid,
           link: newOrder.ordercode,
-          message: "changed to " + "unpaid",
+          message: "Order " + newOrder.ordercode + "has been set to unpaid",
           status: "unread",
         });
       }
@@ -352,8 +352,11 @@ class OrderController {
           const condition = await LoyalCustomerCondition.query()
             .select()
             .where("supplierid", order.supplierid)
-            .andWhere("minorder", "<=", newLoyalCustomer.numoforder)
-            .andWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
+            .andWhere(cd => {
+              cd.where("minorder", "<=", newLoyalCustomer.numoforder)
+                .orWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
+            })
+
 
           const maxPercent =
             condition.length > 0
@@ -438,7 +441,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userid: accountIdSupp.accountid,
         link: orderCode,
-        message: "changed to " + status,
+        message: "Order " + orderCode + "has been set to " + status,
         status: "unread",
       });
       return res.status(200).send({
@@ -555,7 +558,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userid: accountIdCus.accountid,
         link: orderCode,
-        message: "changed to " + status,
+        message: "Order " + orderCode + "has been set to " + status,
         status: "unread",
       });
       return res.status(200).send({
@@ -727,7 +730,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "has been " + status + ". \n Your payment will be refunded. ",
+          message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
           status: "unread",
         });
       } else if (type === 'retail') {
@@ -744,7 +747,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "has been " + status + ". \n Your payment will be refunded.",
+          message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
           status: "unread",
         });
       } else if (order.status === 'created' || order.status === 'processing') {
@@ -761,7 +764,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "has been " + status + ". \n Your payment will be refunded.",
+          message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
           status: "unread",
         });
       } else {
@@ -769,7 +772,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "has been " + status,
+          message: "Order has been set to " + status,
           status: "unread",
         });
       }
@@ -856,7 +859,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userid: accountIdCus.accountid,
         link: orderCode,
-        message: "changed to " + status,
+        message: "Order has been set to " + status,
         status: "unread",
       });
       return res.status(200).send({
@@ -935,7 +938,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userid: accountIdCus.accountid,
         link: orderCode,
-        message: "changed to " + status,
+        message: "Order has been set to " + status,
         status: "unread",
       });
 
@@ -953,7 +956,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdSupp.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       } else {
@@ -970,7 +973,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: supp.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       }
@@ -1051,7 +1054,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userid: accountIdCus.accountid,
         link: orderCode,
-        message: "changed to " + status,
+        message: "Order " + orderCode + "has been set to " + status,
         status: "unread",
       });
 
@@ -1069,7 +1072,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdSupp.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       } else {
@@ -1085,7 +1088,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: supp.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       }
@@ -1222,7 +1225,7 @@ class OrderController {
           notif.sendNotiForWeb({
             userid: accountIdSupp.accountid,
             link: orderCode,
-            message: "changed to " + "requestRejected",
+            message: "Return request for order " + orderCode + " has been rejected",
             status: "unread",
           });
         } else {
@@ -1238,7 +1241,7 @@ class OrderController {
           notif.sendNotiForWeb({
             userid: supp.accountid,
             link: orderCode,
-            message: "changed to " + "requestRejected",
+            message: "Return request for order " + orderCode + " has been rejected",
             status: "unread",
           });
         }
@@ -1309,7 +1312,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdSupp.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       } else {
@@ -1325,7 +1328,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: supp.accountid,
           link: orderCode,
-          message: "changed to " + status,
+          message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       }
@@ -1411,21 +1414,21 @@ class OrderController {
         description: description,
       } as OrderStatusHistory);
 
-        orderStatusHistoryController.createHistory({
-          statushistory: 'requestRefund',
-          type: type,
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
-          // image: JSON.stringify(image),
-          ordercode: orderCode,
-          description: 'waiting for refund',
-        } as OrderStatusHistory);
-        notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
-          link: orderCode,
-          message: "has been " + status + ". \n Your payment will be refunded.",
-          status: "unread",
-        });
+      orderStatusHistoryController.createHistory({
+        statushistory: 'requestRefund',
+        type: type,
+        retailorderid: type === "retail" ? orderId : null,
+        campaignorderid: type === "campaign" ? orderId : null,
+        // image: JSON.stringify(image),
+        ordercode: orderCode,
+        description: 'waiting for refund',
+      } as OrderStatusHistory);
+      notif.sendNotiForWeb({
+        userid: accountIdCus.accountid,
+        link: orderCode,
+        message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
+        status: "unread",
+      });
       return res.status(200).send({
         message: "successful",
         data: update,
@@ -1763,7 +1766,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdSupp.accountid,
           link: orderCode,
-          message: "changed to " + "created",
+          message: "Order " + orderCode + "has been set to created",
           status: "unread",
         });
 
@@ -1801,7 +1804,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdSupp.accountid,
           link: orderCode,
-          message: "changed to " + "advanced",
+          message: "Order " + orderCode + "has been set to advanced",
           status: "unread",
         });
 
@@ -1904,12 +1907,21 @@ class OrderController {
               .where("id", item.customerid)
               .first();
 
-            notif.sendNotiForWeb({
-              userid: customer.accountid,
-              link: item.ordercode,
-              message: `campaign with code: ${campaign.code} is done`,
-              status: "unread",
-            });
+            if (item.paymentMethod === "online") {
+              notif.sendNotiForWeb({
+                userid: customer.accountid,
+                link: item.ordercode,
+                message: "Order " + orderCode + "has been set to unpaid",
+                status: "unread",
+              });
+            } else {
+              notif.sendNotiForWeb({
+                userid: customer.accountid,
+                link: item.ordercode,
+                message: "Order " + orderCode + "has been set to created",
+                status: "unread",
+              });
+            }
 
             //update quantity of product
             await Products.query().update({
@@ -1925,47 +1937,12 @@ class OrderController {
             .first();
           notif.sendNotiForWeb({
             userid: supplierId.accountid,
-            link: null,
-            message: `campaign with code: ${campaign.code} is done`,
+            link: campaign.code,
+            message: `Campaign with code: ${campaign.code} has ended`,
             status: "unread",
           });
         }
       }
-
-      //insert data vào order history
-      // if (status === "created") {
-
-      // } else if (status === "advanced") {
-      //   if (isAdvanced) {
-
-      //   } else {
-      //     orderStatusHistoryController.createHistory({
-      //       retailorderid: type === "retail" ? orderId : null,
-      //       campaignorderid: type === "campaign" ? orderId : null,
-      //       statushistory: "advanced",
-      //       ordercode: orderCode,
-      //       type: "campaign",
-      //       description: "has completed full payment via VNPAY E-Wallet",
-      //     } as OrderStatusHistory);
-
-      //     //insert send notif
-      //     let supplierDataForCampaign = await Products.query()
-      //       .select("products.supplierid")
-      //       .join("campaignorder", "campaignorder.productid", "products.id")
-      //       .where("campaignorder.id", orderId)
-      //       .first();
-      //     let accountIdSupp = await Suppliers.query()
-      //       .select("accountid")
-      //       .where("id", supplierDataForCampaign.supplierid)
-      //       .first();
-      //     notif.sendNotiForWeb({
-      //       userid: accountIdSupp.accountid,
-      //       link: orderCode,
-      //       message: "changed to " + "advanced",
-      //       status: "unread",
-      //     });
-      //   }
-      // }
 
       return res.status(200).send({
         message: "successful",

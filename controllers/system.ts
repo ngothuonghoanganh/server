@@ -248,7 +248,7 @@ class System {
         notif.sendNotiForWeb({
           userid: customer.accountid,
           link: item.ordercode,
-          message: "changed to " + "cancelled",
+          message: "Order " + item.ordercode + " has been cancelled",
           status: "cancelled",
         });
         //type= retail
@@ -275,7 +275,7 @@ class System {
         notif.sendNotiForWeb({
           userid: customer.accountid,
           link: item.ordercode,
-          message: "changed to " + "cancelled",
+          message: "Order " + item.ordercode + " has been cancelled",
           status: "cancelled",
         });
 
@@ -378,9 +378,7 @@ class System {
             userid: suppAccountId.accountid,
             link: item.ordercode,
             message:
-              "Order " +
-              item.ordercode +
-              " has been cancelled because customer account has been disabled",
+              "Order " + item.ordercode + " has been cancelled because customer account has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({

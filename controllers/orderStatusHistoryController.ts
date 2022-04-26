@@ -107,7 +107,7 @@ class OrderHistoryController {
                 notif.sendNotiForWeb({
                     userid: accountIdCus.accountid,
                     link: orderCode,
-                    message: "changed to " + status,
+                    message: "Order " + orderCode + " has been set to " + status,
                     status: "unread"
                 })
                 //send notif for supplier
@@ -127,7 +127,7 @@ class OrderHistoryController {
                 notif.sendNotiForWeb({
                     userid: accountIdSupp.accountid,
                     link: orderCode,
-                    message: "changed to " + status,
+                    message: "Order " + orderCode + " has been set to " + status,
                     status: "unread"
                 })
             } else if (status === 'requestAccepted') {
@@ -146,7 +146,7 @@ class OrderHistoryController {
                     notif.sendNotiForWeb({
                         userid: accountIdCus.accountid,
                         link: orderCode,
-                        message: "changed to " + status,
+                        message: "Order " + orderCode + " has been set to " + status,
                         status: "unread"
                     })
                 } else {
@@ -165,7 +165,7 @@ class OrderHistoryController {
                     notif.sendNotiForWeb({
                         userid: accountIdCus.accountid,
                         link: orderCode,
-                        message: "changed to " + status,
+                        message: "Order " + orderCode + " has been set to " + status,
                         status: "unread"
                     });
 
@@ -186,7 +186,7 @@ class OrderHistoryController {
                     notif.sendNotiForWeb({
                         userid: accountIdSupp.accountid,
                         link: orderCode,
-                        message: "changed to " + status,
+                        message: "Order " + orderCode + " has been set to " + status,
                         status: "unread"
                     })
                 }
