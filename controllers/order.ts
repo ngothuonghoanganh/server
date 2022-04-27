@@ -19,6 +19,7 @@ import { Accounts } from "../models/accounts";
 import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
+import { join } from "path";
 
 class OrderController {
   public createOrder = async (req: any, res: any) => {
@@ -1808,11 +1809,51 @@ class OrderController {
           status: "unread",
         });
 
-        const order = await CampaignOrder.query()
-          .select()
-          .where("id", orderId)
+        const currentCampaign = await Campaigns.query()
+          .select("campaigns.*")
+          .join("campaignorder", "campaignorder.campaignid", "campaigns.id")
+          .where("campaignorder.id", orderId)
           .first();
-        const campaignId = order.campaignid;
+        const campaignId = currentCampaign.id;
+
+        if (currentCampaign.isshare) {
+          // update price for order order in campaign
+          const advancedOrdersInCampaign: any = await CampaignOrder.query()
+            .select()
+            .where("campaignid", campaignId)
+            .andWhere("status", "advanced")
+            .andWhere("id", "<>", orderId);
+
+          if (advancedOrdersInCampaign) {
+            const advancedOrder = advancedOrdersInCampaign[0];
+            let discountPrice = (advancedOrder.totalprice) - (currentPrice * (advancedOrder.quantity));
+            discountPrice += ((currentPrice * (advancedOrder.quantity)) * advancedOrder.loyalcustomerdiscountpercent) / 100;
+            if (discountPrice > advancedOrder.discountprice) {
+              for (const item of advancedOrdersInCampaign) {
+                discountPrice = (item.totalprice) - (currentPrice * (item.quantity));
+                discountPrice += ((currentPrice * (item.quantity)) * item.loyalcustomerdiscountpercent) / 100;
+                let updateCampaignOrder: any = await CampaignOrder.query().update({
+                  discountprice: discountPrice
+                })
+                  .where('id', item.id);
+
+                const customer = await Customers.query()
+                  .select()
+                  .where("id", item.customerid)
+                  .first();
+                  
+                notif.sendNotiForWeb({
+                  userid: customer.accountid,
+                  link: item.ordercode,
+                  message: "Order " + item.ordercode + " has reached a new milestone",
+                  status: "unread",
+                });
+              }
+            }
+
+          }
+        }
+
         // const campaignToUpdateQuantity = await Campaigns.query().select()
         //   .where('id', campaignId).first();
         // const reduceProductQuantity = await Products.query().update({
@@ -1845,20 +1886,20 @@ class OrderController {
             .first();
         }
         if (campaign) {
-          // let dataSuppId = await Products.query().select('categories.supplierid')
-          //   .join('categories', 'products.categoryid', 'categories.id')
-          //   .where('products.id', campaign.productid).first();
-          if (isShare) {
-            // const loyalCustomerId = await LoyalCustomer.query().select('customerid').where('supplierid', dataSuppId.supplierid);
-            for (const item of ordersInCampaign) {
-              let discountPrice = (item.totalprice) - (currentPrice * (item.quantity));
-              discountPrice += (discountPrice * item.loyalcustomerdiscountpercent) / 100;
-              let updateCampaignOrder: any = await CampaignOrder.query().update({
-                discountprice: discountPrice
-              })
-                .where('id', item.id);
-            }
-          }
+          // // let dataSuppId = await Products.query().select('categories.supplierid')
+          // //   .join('categories', 'products.categoryid', 'categories.id')
+          // //   .where('products.id', campaign.productid).first();
+          // if (isShare) {
+          //   // const loyalCustomerId = await LoyalCustomer.query().select('customerid').where('supplierid', dataSuppId.supplierid);
+          //   for (const item of ordersInCampaign) {
+          //     let discountPrice = (item.totalprice) - (currentPrice * (item.quantity));
+          //     discountPrice += (discountPrice * item.loyalcustomerdiscountpercent) / 100;
+          //     let updateCampaignOrder: any = await CampaignOrder.query().update({
+          //       discountprice: discountPrice
+          //     })
+          //       .where('id', item.id);
+          //   }
+          // }
           const orderId = ordersInCampaign.map((item: any) => item.id);
           await Promise.all([
             CampaignOrder.query()
@@ -1911,14 +1952,14 @@ class OrderController {
               notif.sendNotiForWeb({
                 userid: customer.accountid,
                 link: item.ordercode,
-                message: "Order " + orderCode + "has been set to unpaid",
+                message: "Order " + item.ordercode + "has been set to unpaid",
                 status: "unread",
               });
             } else {
               notif.sendNotiForWeb({
                 userid: customer.accountid,
                 link: item.ordercode,
-                message: "Order " + orderCode + "has been set to created",
+                message: "Order " + item.ordercode + "has been set to created",
                 status: "unread",
               });
             }
@@ -1946,7 +1987,7 @@ class OrderController {
 
       return res.status(200).send({
         message: "successful",
-      });
+      })
     } catch (error) {
       console.log(error);
     }

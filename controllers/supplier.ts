@@ -193,8 +193,10 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      var currentDate = moment().format();
-
+      var currentDate = ''
+      if (currentDate.length > 0) {
+        console.log(currentDate)
+      }
       return res.status(200).send({
         message: 'successful',
         data: currentDate

@@ -37,7 +37,7 @@ class Campaign {
           })
         if (availableCampaign.length > 0) {
           return res.status(200).send({
-            message: "have other campaigns, choose date again!",
+            message: 'There is another campaign set during this time'
           });
         }
       }
@@ -115,6 +115,24 @@ class Campaign {
         advanceFee = 0,
         range = [],
       } = req.body;
+      if (isShare) {
+        let availableCampaign = null;
+        availableCampaign = await Campaigns.query().select()
+          .where('productid', productId)
+          .andWhere('isshare', true)
+          .andWhere('todate', '>', fromDate)
+          .andWhere('fromdate', '<', toDate)
+          .andWhere((cd) => {
+            cd.where('status', 'ready')
+              .orWhere('status', 'active')
+          })
+        if (availableCampaign.length > 0) {
+          return res.status(200).send({
+            message: 'There is another campaign set during this time'
+          });
+        }
+      }
+      
       let campaign: any = null;
       campaign = await Campaigns.query()
         .select()
@@ -370,7 +388,7 @@ class Campaign {
 
           if (campaignShare) {
             startable = false;
-            reason = 'There are overlapping sharing campaigns';
+            reason = 'There is another campaign set during this time';
           }
 
         }
@@ -406,7 +424,7 @@ class Campaign {
 
       if (campaign.status !== 'ready') {
         return res.status.send({
-          message: "can not start campaign"
+          message: 'Only ready campaign can be started'
         })
       } else if (campaign.isshare) {
         const campaignShare = await Campaigns.query().select()
@@ -416,7 +434,8 @@ class Campaign {
 
         if (campaignShare) {
           return res.status.send({
-            message: "can not start campaign"
+            message: 'Another sharing campaign is ongoing'
+
           })
         } else {
           var currentDate = moment().format();
@@ -428,7 +447,7 @@ class Campaign {
             .andWhere('fromdate', '>', currentDate)
 
           if (campaignShare) return res.status.send({
-            message: "can not start campaign"
+            message: 'There is another campaign set during this time'
           })
         }
       }
