@@ -1824,7 +1824,7 @@ class OrderController {
             .andWhere("status", "advanced")
             .andWhere("id", "<>", orderId);
 
-          if (advancedOrdersInCampaign) {
+          if (advancedOrdersInCampaign.length > 0) {
             const advancedOrder = advancedOrdersInCampaign[0];
             let discountPrice = (advancedOrder.totalprice) - (currentPrice * (advancedOrder.quantity));
             discountPrice += ((currentPrice * (advancedOrder.quantity)) * advancedOrder.loyalcustomerdiscountpercent) / 100;
@@ -1841,7 +1841,7 @@ class OrderController {
                   .select()
                   .where("id", item.customerid)
                   .first();
-                  
+
                 notif.sendNotiForWeb({
                   userid: customer.accountid,
                   link: item.ordercode,
@@ -1990,6 +1990,9 @@ class OrderController {
       })
     } catch (error) {
       console.log(error);
+      return res.status(200).send({
+        message: error
+      })
     }
   };
 
