@@ -153,7 +153,7 @@ class TransactionController {
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
-        returnUrl + `/transaction/payment?supplierid=${id}&type=income`;
+        returnUrl + `/transaction/payment?supplierId=${id}&type=income`;
       vnp_Params["vnp_Amount"] = amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss");
