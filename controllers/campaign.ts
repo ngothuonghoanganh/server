@@ -28,18 +28,18 @@ class Campaign {
 
       if (isShare) {
         let availableCampaign = null;
-        availableCampaign = await Campaigns.query().select()
-          .where('productid', productId)
-          .andWhere('isshare', true)
-          .andWhere('todate', '>', fromDate)
-          .andWhere('fromdate', '<', toDate)
+        availableCampaign = await Campaigns.query()
+          .select()
+          .where("productid", productId)
+          .andWhere("isshare", true)
+          .andWhere("todate", ">", fromDate)
+          .andWhere("fromdate", "<", toDate)
           .andWhere((cd) => {
-            cd.where('status', 'ready')
-              .orWhere('status', 'active')
-          })
+            cd.where("status", "ready").orWhere("status", "active");
+          });
         if (availableCampaign.length > 0) {
           return res.status(200).send({
-            message: 'There is another campaign set during this time'
+            message: "There is another campaign set during this time",
           });
         }
       }
@@ -87,8 +87,6 @@ class Campaign {
         //   newCampaign.range = newDetails;
         // }
 
-
-
         return res.status(200).send({
           data: newCampaign,
           message: "campaign is created successfully",
@@ -119,18 +117,18 @@ class Campaign {
       } = req.body;
       if (isShare) {
         let availableCampaign = null;
-        availableCampaign = await Campaigns.query().select()
-          .where('productid', productId)
-          .andWhere('isshare', true)
-          .andWhere('todate', '>', fromDate)
-          .andWhere('fromdate', '<', toDate)
+        availableCampaign = await Campaigns.query()
+          .select()
+          .where("productid", productId)
+          .andWhere("isshare", true)
+          .andWhere("todate", ">", fromDate)
+          .andWhere("fromdate", "<", toDate)
           .andWhere((cd) => {
-            cd.where('status', 'ready')
-              .orWhere('status', 'active')
-          })
+            cd.where("status", "ready").orWhere("status", "active");
+          });
         if (availableCampaign.length > 0) {
           return res.status(200).send({
-            message: 'There is another campaign set during this time'
+            message: "There is another campaign set during this time",
           });
         }
       }
@@ -171,7 +169,6 @@ class Campaign {
             isshare: isShare,
             advancefee: advanceFee,
             range: JSON.stringify(range),
-
           })
           .where("id", campaignId)
           .andWhere("status", "ready");
@@ -185,8 +182,6 @@ class Campaign {
         //   console.log(range)
         //   await CampaignDetail.query().insert(range);
         // }
-
-
       } else {
         return res.status(200).send({
           message: "Max quantity in campaign is exceeded quantity of product",
@@ -231,36 +226,36 @@ class Campaign {
 
       const campaigns = supplierId
         ? await Campaigns.query()
-          .select(
-            "campaigns.*",
-            Campaigns.raw(
-              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
+              )
             )
-          )
-          .leftJoin(
-            "campaignorder",
-            "campaigns.id",
-            "campaignorder.campaignid"
-          )
-          .where("campaigns.supplierid", supplierId)
+            .leftJoin(
+              "campaignorder",
+              "campaigns.id",
+              "campaignorder.campaignid"
+            )
+            .where("campaigns.supplierid", supplierId)
 
-          .groupBy("campaigns.id")
+            .groupBy("campaigns.id")
         : await Campaigns.query()
-          .select(
-            "campaigns.*",
-            Campaigns.raw(
-              `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
+            .select(
+              "campaigns.*",
+              Campaigns.raw(
+                `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
                 count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
+              )
             )
-          )
-          .leftJoin(
-            "campaignorder",
-            "campaignorder.id",
-            "campaignorder.campaignid"
-          )
+            .leftJoin(
+              "campaignorder",
+              "campaignorder.id",
+              "campaignorder.campaignid"
+            )
 
-          .groupBy("campaigns.id");
+            .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
@@ -328,11 +323,11 @@ class Campaign {
         )
         .join("products", "campaigns.productid", "products.id")
         .where("campaigns.supplierid", supplierId)
-        .andWhere(cd => {
+        .andWhere((cd) => {
           if (req.query.productId) {
-            cd.where('products.id', req.query.productId)
+            cd.where("products.id", req.query.productId);
           }
-        })
+        });
 
       return res.status(200).send({
         data: campaigns,
@@ -350,7 +345,6 @@ class Campaign {
       const campaign: any = await Campaigns.query()
         .select(
           "campaigns.*",
-
           Campaigns.raw(`
           sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
             count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting
@@ -359,55 +353,52 @@ class Campaign {
 
         .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
         .where("campaigns.id", campaignId)
-        .groupBy("campaigns.id").first();
+        .groupBy("campaigns.id")
+        .first();
 
       let startable = true;
-      let reason = '';
-      console.log(campaign.status)
-      if (campaign.status !== 'ready') {
+      let reason = "";
+      console.log(campaign.status);
+      if (campaign.status !== "ready") {
         startable = false;
-        reason = 'Only ready campaign can be started'
-      } else if (campaign.isshare === 'true') {
-        const campaignShare = await Campaigns.query().select()
-          .where('productid', campaign.productid)
-          .andWhere('isshare', true)
-          .andWhere('status', 'active')
-        // console.log("1")
-        console.log(campaignShare)
+        reason = "Only ready campaign can be started";
+      } else if (campaign.isshare === "true") {
+        const campaignShare = await Campaigns.query()
+          .select()
+          .where("productid", campaign.productid)
+          .andWhere("isshare", true)
+          .andWhere("status", "active");
         if (campaignShare) {
           startable = false;
-          reason = 'Another sharing campaign is ongoing';
-
+          reason = "Another sharing campaign is ongoing";
         } else {
           var currentDate = moment().format();
-          const campaignShare = await Campaigns.query().select()
-            .where('productid', campaign.productid)
-            .andWhere('isshare', true)
-            .andWhere('status', 'ready')
-            .andWhere('fromdate', '<', campaign.fromdate)
-            .andWhere('fromdate', '>', currentDate)
-          console.log(campaignShare)
-
+          const campaignShare = await Campaigns.query()
+            .select()
+            .where("productid", campaign.productid)
+            .andWhere("isshare", true)
+            .andWhere("status", "ready")
+            .andWhere("fromdate", "<", campaign.fromdate)
+            .andWhere("fromdate", ">", currentDate);
           if (campaignShare) {
             startable = false;
-            reason = 'There is another campaign set during this time';
+            reason = "There is another campaign set during this time";
           }
-
         }
       }
 
-      // const campaignDetails = await CampaignDetail.query()
-      //   .select()
-      //   .where("campaignId", campaign[0].id);
-
-      // campaign[0].range = campaignDetails;
+      const product = await Products.query()
+        .select()
+        .where("id", campaign.productid)
+        .first();
       return res.status(200).send({
         message: "successfully",
-        data: ({
+        data: {
           campaign: campaign,
           startable: startable,
-          reason: reason
-        })
+          product: product,
+          reason: reason,
+        },
       });
     } catch (error) {
       console.log(error);
@@ -421,44 +412,47 @@ class Campaign {
 
       var currentDate = moment().format();
 
-      const campaign = await Campaigns.query().select()
-        .where("id", campaignId).first();
+      const campaign = await Campaigns.query()
+        .select()
+        .where("id", campaignId)
+        .first();
 
-      if (campaign.status !== 'ready') {
+      if (campaign.status !== "ready") {
         return res.status.send({
-          message: 'Only ready campaign can be started'
-        })
+          message: "Only ready campaign can be started",
+        });
       } else if (campaign.isshare) {
-        const campaignShare = await Campaigns.query().select()
-          .where('productid', campaign.productid)
-          .andWhere('isshare', true)
-          .andWhere('status', 'active')
+        const campaignShare = await Campaigns.query()
+          .select()
+          .where("productid", campaign.productid)
+          .andWhere("isshare", true)
+          .andWhere("status", "active");
 
         if (campaignShare) {
           return res.status.send({
-            message: 'Another sharing campaign is ongoing'
-
-          })
+            message: "Another sharing campaign is ongoing",
+          });
         } else {
           var currentDate = moment().format();
-          const campaignShare = await Campaigns.query().select()
-            .where('productid', campaign.productid)
-            .andWhere('isshare', true)
-            .andWhere('status', 'ready')
-            .andWhere('fromdate', '<', campaign.fromdate)
-            .andWhere('fromdate', '>', currentDate)
+          const campaignShare = await Campaigns.query()
+            .select()
+            .where("productid", campaign.productid)
+            .andWhere("isshare", true)
+            .andWhere("status", "ready")
+            .andWhere("fromdate", "<", campaign.fromdate)
+            .andWhere("fromdate", ">", currentDate);
 
-          if (campaignShare) return res.status.send({
-            message: 'There is another campaign set during this time'
-          })
+          if (campaignShare)
+            return res.status.send({
+              message: "There is another campaign set during this time",
+            });
         }
       }
-
 
       const updateCampaignStatus = await Campaigns.query()
         .update({
           status: statusActive,
-          fromdate: currentDate
+          fromdate: currentDate,
         })
         .where("id", campaignId)
         .andWhere("status", "ready");
@@ -554,9 +548,9 @@ class Campaign {
 
       return res.status(200).send({
         message: "successful",
-        data: ({
+        data: {
           campaign: campaign,
-        })
+        },
       });
     } catch (error) {
       console.log(error);
