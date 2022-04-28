@@ -381,7 +381,7 @@ class Campaign {
             .andWhere("status", "ready")
             .andWhere("fromdate", "<", campaign.fromdate)
             .andWhere("fromdate", ">", currentDate);
-          if (campaignShare) {
+          if (campaignShare.length > 0) {
             startable = false;
             reason = "There is another campaign set during this time";
           }
@@ -444,8 +444,8 @@ class Campaign {
             .andWhere("fromdate", "<", campaign.fromdate)
             .andWhere("fromdate", ">", currentDate);
 
-          if (campaignShare)
-            return res.status.send({
+          if (campaignShare.length > 0)
+            return res.status(200).send({
               message: "There is another campaign set during this time",
             });
         }
