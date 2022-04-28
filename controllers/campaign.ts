@@ -367,7 +367,8 @@ class Campaign {
           .select()
           .where("productid", campaign.productid)
           .andWhere("isshare", true)
-          .andWhere("status", "active");
+          .andWhere("status", "active")
+          .first();
         if (campaignShare) {
           startable = false;
           reason = "Another sharing campaign is ongoing";
@@ -426,7 +427,8 @@ class Campaign {
           .select()
           .where("productid", campaign.productid)
           .andWhere("isshare", true)
-          .andWhere("status", "active");
+          .andWhere("status", "active")
+          .first();
 
         if (campaignShare) {
           return res.status(200).send({
@@ -626,18 +628,18 @@ class Campaign {
 
   public doneCampaignBySupp = async (req: any, res: any) => {
     try {
-      let {
-        campaignId
-      } = req.body;
+      let { campaignId } = req.body;
       // let campaign = null;
-     const campaign = await Campaigns.query().select()
-        .where('id', campaignId)
-        .andWhere('status', 'active').first();
-      console.log(campaign)
+      const campaign = await Campaigns.query()
+        .select()
+        .where("id", campaignId)
+        .andWhere("status", "active")
+        .first();
+      console.log(campaign);
       if (campaign === undefined) {
         return res.status(200).send({
-          message: 'Campaign not found',
-        })
+          message: "Campaign not found",
+        });
       }
       const ordersInCampaign: any = await CampaignOrder.query()
         .select()
@@ -645,7 +647,6 @@ class Campaign {
         .andWhere("status", "advanced");
 
       if (ordersInCampaign) {
-
         const orderId = ordersInCampaign.map((item: any) => item.id);
         await Promise.all([
           CampaignOrder.query()
@@ -711,11 +712,11 @@ class Campaign {
           }
 
           //update quantity of product
-          await Products.query().update({
-            quantity: Products.raw(`quantity - ${item.quantity}`)
-          })
-            .where('id', campaign.productid)
-
+          await Products.query()
+            .update({
+              quantity: Products.raw(`quantity - ${item.quantity}`),
+            })
+            .where("id", campaign.productid);
         }
         let supplierId;
         supplierId = await Suppliers.query()
@@ -728,17 +729,14 @@ class Campaign {
           message: `Campaign with code: ${campaign.code} has ended`,
           status: "unread",
         });
-
       }
       return res.status(200).send({
         message: "successful",
-      })
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
-
 }
-
 
 export default new Campaign();
