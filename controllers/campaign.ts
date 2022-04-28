@@ -367,7 +367,8 @@ class Campaign {
           .select()
           .where("productid", campaign.productid)
           .andWhere("isshare", true)
-          .andWhere("status", "active");
+          .andWhere("status", "active")
+          .first();
         if (campaignShare) {
           startable = false;
           reason = "Another sharing campaign is ongoing";
