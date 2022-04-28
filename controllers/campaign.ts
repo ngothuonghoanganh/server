@@ -418,7 +418,7 @@ class Campaign {
         .first();
 
       if (campaign.status !== "ready") {
-        return res.status.send({
+        return res.status(200).send({
           message: "Only ready campaign can be started",
         });
       } else if (campaign.isshare) {
@@ -429,7 +429,7 @@ class Campaign {
           .andWhere("status", "active");
 
         if (campaignShare) {
-          return res.status.send({
+          return res.status(200).send({
             message: "Another sharing campaign is ongoing",
           });
         } else {
