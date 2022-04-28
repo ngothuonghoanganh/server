@@ -75,6 +75,14 @@ router.put(
   CampaignController.updateCampaign
 );
 
+router.put(
+  '/supplier/doneCampaign',
+  Authentication.protected,
+  Authentication.checkRole(["Supplier"]),
+  CampaignController.doneCampaignBySupp
+
+)
+
 
 router.post("/product", CampaignController.getAllCampaignsAllowProductId);
 

@@ -1,10 +1,12 @@
 import { Campaigns } from "../models/campaigns";
-import knex from "knex";
 import { Products } from "../models/products";
 import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import moment from "moment";
+import { Suppliers } from "../models/suppliers";
+import { OrderStatusHistory } from "../models/orderstatushistory";
+import orderStatusHistoryController from "./orderStatusHistoryController";
 
 class Campaign {
   async createCampaign(req: any, res: any, next: any) {
@@ -132,7 +134,7 @@ class Campaign {
           });
         }
       }
-      
+
       let campaign: any = null;
       campaign = await Campaigns.query()
         .select()
@@ -627,6 +629,122 @@ class Campaign {
       console.log(error);
     }
   };
+
+  public doneCampaignBySupp = async (req: any, res: any) => {
+    try {
+      let {
+        campaignId
+      } = req.body;
+      // let campaign = null;
+     const campaign = await Campaigns.query().select()
+        .where('id', campaignId)
+        .andWhere('status', 'active').first();
+      console.log(campaign)
+      if (campaign === undefined) {
+        return res.status(200).send({
+          message: 'Campaign not found',
+        })
+      }
+      const ordersInCampaign: any = await CampaignOrder.query()
+        .select()
+        .where("campaignid", campaignId)
+        .andWhere("status", "advanced");
+
+      if (ordersInCampaign) {
+
+        const orderId = ordersInCampaign.map((item: any) => item.id);
+        await Promise.all([
+          CampaignOrder.query()
+            .update({
+              status: "unpaid",
+            })
+            .whereIn("id", orderId)
+            .andWhere("paymentmethod", "online"),
+          CampaignOrder.query()
+            .update({
+              status: "created",
+            })
+            .whereIn("id", orderId)
+            .andWhere("paymentmethod", "cod"),
+        ]);
+
+        await Campaigns.query()
+          .update({ status: "done" })
+          .where("id", campaignId);
+        const getCampaigns = await Campaigns.query()
+          .select()
+          .where("productid", campaign.productid)
+          .andWhere("status", "active");
+
+        if (getCampaigns.length === 0) {
+          await Products.query()
+            .update({ status: "active" })
+            .where("id", campaign.productid);
+        }
+
+        for (const item of ordersInCampaign) {
+          orderStatusHistoryController.createHistory({
+            statushistory:
+              item.paymentmethod === "online" ? "unpaid" : "created",
+            type: "campaign",
+            campaignorderid: item.id,
+            ordercode: item.ordercode,
+            description:
+              item.paymentmethod === "online"
+                ? "requires full payment via VNPAY E-Wallet"
+                : "is created",
+          } as OrderStatusHistory);
+
+          const customer = await Customers.query()
+            .select()
+            .where("id", item.customerid)
+            .first();
+
+          if (item.paymentMethod === "online") {
+            notif.sendNotiForWeb({
+              userid: customer.accountid,
+              link: item.ordercode,
+              message: "Order " + item.ordercode + "has been set to unpaid",
+              status: "unread",
+            });
+          } else {
+            notif.sendNotiForWeb({
+              userid: customer.accountid,
+              link: item.ordercode,
+              message: "Order " + item.ordercode + "has been set to created",
+              status: "unread",
+            });
+          }
+
+          //update quantity of product
+          await Products.query().update({
+            quantity: Products.raw(`quantity - ${item.quantity}`)
+          })
+            .where('id', campaign.productid)
+
+        }
+        let supplierId;
+        supplierId = await Suppliers.query()
+          .select()
+          .where("id", campaign.supplierid)
+          .first();
+        notif.sendNotiForWeb({
+          userid: supplierId.accountid,
+          link: campaign.code,
+          message: `Campaign with code: ${campaign.code} has ended`,
+          status: "unread",
+        });
+
+      }
+      return res.status(200).send({
+        message: "successful",
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
 }
+
 
 export default new Campaign();
