@@ -156,8 +156,8 @@ class ProductsController {
         .leftOuterJoin("categories", "categories.id", "products.categoryid")
         // .where("products.status", "<>", "deactivated")
         .where("categories.supplierid", req.user.id)
-        .andWhere(cd=>{
-          if(req.query.categoryId){
+        .andWhere(cd => {
+          if (req.query.categoryId) {
             cd.where('categories.id', req.query.categoryId)
           }
         })
@@ -257,10 +257,10 @@ class ProductsController {
 
       const inCampaignByProductId: any = await Campaigns.query().select()
         .where("productid", productId)
-      // .andWhere((cd) => {
-      //   cd.where("status", "ready")
-      //     .orWhere("status", "active")
-      // })
+        .andWhere((cd) => {
+          cd.where("status", "ready")
+            .orWhere("status", "active")
+        })
 
       if (inCampaignByProductId.length > 0) {
         for (const item of inCampaignByProductId) {

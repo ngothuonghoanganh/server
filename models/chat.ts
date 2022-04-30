@@ -14,5 +14,6 @@ export class Chat extends Model {
     message?: string;
     file?: string;
     status?: string;
-    createdat?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

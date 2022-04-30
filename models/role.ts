@@ -7,8 +7,6 @@ export class Role extends Model {
     return "roles";
   }
   id?: string;
-  rolename!: string;
-  description?: string;
-  isdeleted?: boolean;
-  createdat?: Date;
+  roleName?: string;
+  
 }

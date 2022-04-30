@@ -8,10 +8,11 @@ export class Notification extends Model {
     return "notif";
   }
   id?: string;
-  userid?:string;
-  link?:string;
+  userId?: string;
+  link?: string;
   message?: string;
   status?: string;
-  created?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 
 }

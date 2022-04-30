@@ -10,19 +10,17 @@ export class OrderDetail extends Model {
   }
 
   id?: string;
-  productid?: string;
-  productname?: string;
+  productName?: string;
   quantity?: number;
   price?: number;
-  totalprice?: number;
-  notes?: string;
-  typeofproduct?: string;
-  ordercode?: string;
-  orderid?: string;
+  note?: string;
+  orderCode?: string;
+  productId?: string;
+  totalPrice?: number;
   image?: string;
-  customerid?: string;
-  incampaign?: boolean;
-  campaignid?: string;
+  orderId?: string;
   comment?: string;
   rating?: Number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

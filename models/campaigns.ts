@@ -9,20 +9,21 @@ export class Campaigns extends Model {
   }
 
   id?: string;
-  supplierid?: string;
-  productid?: string;
-  code?: string;
-  fromdate?: Date;
-  todate?: Date;
+  productId?: string;
+  status?: string;
+  fromDate?: Date;
+  toDate?: Date;
   quantity?: number;
   price?: number;
-  status?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  reasonforupdatestatus?: string;
-  maxquantity?: number;
-  isshare?: boolean;
-  advancefee?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  code?: string;
   description?: string;
+  maxQuantity?: number;
+  isShare?: boolean;
+  advanceFee?: number;
+  productName?: string;
+  image?: string;
   range?: string;
+
 }

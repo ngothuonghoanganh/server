@@ -9,10 +9,9 @@ export class CustomerDiscountCode extends Model {
     }
 
     id?: string;
-    customerid?: string;
-    discountcodeid?: string;
-    quantity?: Number;
-    createdat?: Date;
-    updatedat?: Date;
+    customerId?: string;
+    discountCodeId?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
     status?: string;
 }

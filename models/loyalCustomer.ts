@@ -8,11 +8,12 @@ export class LoyalCustomer extends Model {
     return "loyalcustomer";
   }
   id?: string;
-  supplierid?: string;
-  customerid?: string;
-  numoforder?: number;
-  numofproduct?: string;
-  discountpercent?: number;
-  created?: Date;
+  supplierId?: string;
+  customerId?: string;
+  numOfOrder?: number;
+  numOfProduct?: string;
+  discountPercent?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
   status?: string;
 }

@@ -9,10 +9,10 @@ export class SystemProfile extends Model {
   }
 
   id?: string;
-  accountid?: string;
   name?: string;
   avt?: string;
-  isdeleted?: boolean;
-  createdat?: Date;
-  updatedat?: Date;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  accountId?: string;
 }

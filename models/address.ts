@@ -9,11 +9,11 @@ export class Address extends Model {
     }
 
     id?: string;
-    customerid?: string;
+    customerId?: string;
     province?: string;
     street?: string;
-    isdefault?:boolean;
-    createdat?: Date;
-    updatedat?: Date;
+    isDefault?:boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 
 }

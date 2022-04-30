@@ -22,7 +22,7 @@ class DiscountCodeController {
                 startDate,
                 endDate,
                 status = "ready",
-                productId,
+                // productId,
                 minimunPriceCondition,
                 discountPrice
             } = req.body;
@@ -37,7 +37,7 @@ class DiscountCodeController {
                     enddate: endDate,
                     quantity: quantity,
                     status: status,
-                    productid: productId,
+                    // productid: productId,
                     minimunpricecondition: minimunPriceCondition,
                     discountprice: discountPrice
                 })

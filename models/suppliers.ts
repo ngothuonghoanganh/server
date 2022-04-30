@@ -8,17 +8,16 @@ export class Suppliers extends Model {
     return "suppliers";
   }
   id?: string;
-  accountid?: string;
+  accountId?: string;
   name?: string;
   email?: string;
-  address?: string;
   avt?: string;
-  isdeleted?: boolean;
-  createdat?: Date;
-  updatedat?: Date;
-  identificationcard?: string;
-  identificationimage?: string;
-  ewalletcode?: string;
-  ewalletsecrect?: string;
-
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  address?: string;
+  eWalletCode?: string;
+  eWalletSecrect?: string;
+  identificationCard?: string;
+  identificationImage?: string;
 }

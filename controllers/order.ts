@@ -1179,7 +1179,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "changed to " + "requestRejected",
+          message: "Order " + orderCode + " changed to " + "requestRejected",
           status: "unread",
         });
       } else {
@@ -1208,7 +1208,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userid: accountIdCus.accountid,
           link: orderCode,
-          message: "changed to " + "requestRejected",
+          message: "Order " + orderCode + " changed to " + "requestRejected",
           status: "unread",
         });
 
@@ -2059,6 +2059,8 @@ class OrderController {
       let supplierId;
       const orderCode = req.query.orderCode;
 
+      const customerData = await Customers.query().select().where('id', customerId).first();
+
       const orderRetail: any = await Order.query()
         .select(
           "orders.*",
@@ -2129,6 +2131,7 @@ class OrderController {
           order: orderRetail || orderCampaign,
           customerId: { ...customerId },
           supplierId: { ...supplierId },
+          customerData: customerData
         },
       });
     } catch (error) {

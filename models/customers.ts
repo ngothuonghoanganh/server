@@ -9,14 +9,15 @@ export class Customers extends Model {
   }
 
   id?: string;
-  accountid?: string;
-  firstname?: string;
-  lastname?: string;
+  accountId?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   avt?: string;
-  isdeleted?: boolean;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
   eWalletCode?:string;
   eWalletSecret?:string;
-  createdat?: Date;
-  updatedat?: Date;
+  
 }
