@@ -124,10 +124,10 @@ class TransactionController {
       const returnUrl = process.env.vnp_ReturnUrl;
 
       const amount = req.body.amount * 100;
-      if(req.body.amount < 10000){
+      if (req.body.amount < 10000) {
         return res.status(200).send({
-          message: 'can not withdraw with amount under 10,000 VND',
-        })
+          message: "can not withdraw with amount under 10,000 VND",
+        });
       }
       const bankCode = req.body.bankCode;
 
@@ -153,7 +153,7 @@ class TransactionController {
       vnp_Params["vnp_OrderInfo"] = orderInfo;
       vnp_Params["vnp_OrderType"] = orderType;
       vnp_Params["vnp_ReturnUrl"] =
-        returnUrl + `/transaction/payment?ordercode=${ordercode}&type=income`;
+        returnUrl + `/transaction/payment?supplierId=${id}&type=income`;
       vnp_Params["vnp_Amount"] = amount;
       vnp_Params["vnp_IpAddr"] = ipAddr;
       vnp_Params["vnp_CreateDate"] = moment(date).format("yyyyMMDDHHmmss");
@@ -167,7 +167,6 @@ class TransactionController {
       let signed = hmac.update(new Buffer(signData, "utf-8")).digest("hex");
       vnp_Params["vnp_SecureHash"] = signed;
       vnpUrl += "?" + QueryString.stringify(vnp_Params, { encode: false });
-
       await Transaction.query()
         .update({
           iswithdrawable: false,
@@ -228,7 +227,7 @@ class TransactionController {
 
   public confirmTransactionRequest = async (req: any, res: any) => {
     try {
-      const { ordercode, type, penaltyId } = req.query;
+      const { ordercode, type, penaltyId, supplierId } = req.query;
 
       let transaction = 0;
       if (type === "income") {
@@ -238,7 +237,7 @@ class TransactionController {
             status: "done",
             description: "This transaction has been completed",
           })
-          .where("ordercode", ordercode)
+          .where("supplierid", supplierId)
           .andWhere("type", type);
         return res.redirect("/process-transaction");
       } else {
@@ -266,7 +265,6 @@ class TransactionController {
         .join("suppliers", "suppliers.id", "transaction.supplierid")
         .where("transaction.type", "income")
         .andWhere("transaction.status", "waiting");
-      console.log(transactions);
       return res.render("transaction", {
         body: "hello",
         transactions,
