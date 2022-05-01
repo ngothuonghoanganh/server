@@ -16,6 +16,7 @@ import transactionController from "./transaction";
 import { Transaction } from "objection";
 import { OrderDetail } from "../models/orderdetail";
 import moment from "moment";
+import dbEntity from "../services/dbEntity";
 
 
 
@@ -50,6 +51,9 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
+
     }
   };
 
@@ -83,6 +87,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -100,7 +106,9 @@ class ProductsController {
         data: update
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   }
 
@@ -113,25 +121,25 @@ class ProductsController {
       let ListSupplierEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
 
       const List = supplierId
         ? await Categories.query()
           .select("products.*", ...ListSupplierEntity)
-          .join("suppliers", "suppliers.id", "categories.supplierid")
+          .join("suppliers", "suppliers.id", "categories.supplierId")
           .join("products", "products.categoryid", "categories.id")
           .where("products.status", "<>", "deactivated")
-          .andWhere("categories.supplierid", supplierId)
+          .andWhere("categories.supplierId", supplierId)
         : await Categories.query()
           .select("products.*", ...ListSupplierEntity)
-          .join("suppliers", "suppliers.id", "categories.supplierid")
-          .join("products", "products.categoryid", "categories.id")
+          .join("suppliers", "suppliers.id", "categories.supplierId")
+          .join("products", "products.categoryId", "categories.id")
           .where("products.status", "<>", "deactivated");
 
       return res.status(200).send({
@@ -140,6 +148,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -178,6 +188,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -241,6 +253,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -365,6 +379,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -383,7 +399,9 @@ class ProductsController {
         data: update
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   }
 
@@ -419,6 +437,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -458,6 +478,8 @@ class ProductsController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -467,21 +489,18 @@ class ProductsController {
       // console.log(listCategories)
       const data: any = await Products.query()
         .select()
-        .whereIn("categoryid", listCategories)
+        .whereIn("categoryId", listCategories)
         // .andWhere('status', 'active')
         // .andWhere('status', 'incampaign')
         .andWhere("status", "<>", "deactivated");
-      // console.log('test')
-      // console.log(data)
-      // if (data === '' || data === null) {
-      //   return res.status(200).send('no product found')
-      // }
       return res.status(200).send({
         message: "successful",
         data: data,
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -492,21 +511,21 @@ class ProductsController {
       let ListSupplierEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
 
-      const products = await Campaigns.query().select('productid').where('status', campaignStatus).groupBy('productid');
+      const products = await Campaigns.query().select('productId').where('status', campaignStatus).groupBy('productId');
       const productIds = products.map((item: any) => item.productid);
 
       const List = await Products.query()
-        .select("products.*", ...ListSupplierEntity)
-        .join("categories", "categories.id", "products.categoryid")
-        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .select(dbEntity.productEntity, ...ListSupplierEntity)
+        .join("categories", "categories.id", "products.categoryId")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
         .whereIn('products.id', productIds)
         .where('products.status', '<>', 'deactivated')
       // .groupBy('products.id')
@@ -518,7 +537,9 @@ class ProductsController {
         data: List
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -557,7 +578,9 @@ class ProductsController {
         data: List
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
@@ -567,16 +590,16 @@ class ProductsController {
       let ListSupplierEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       const data = await Products.query().select(...ListSupplierEntity, 'products.*')
-        .join("categories", "categories.id", "products.categoryid")
-        .join("suppliers", "suppliers.id", "categories.supplierid")
+        .join("categories", "categories.id", "products.categoryId")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
         .where('status', status)
 
       return res.status(200).send({
@@ -593,58 +616,67 @@ class ProductsController {
       let ListSupplierEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       var now = moment();
-      var monday = now.clone().weekday(1);
-      var sunday = now.clone().weekday(7);
+      var sunday = moment().startOf('week');
+      var saturday = moment().endOf('week');
+
+      // console.log(monday)
+      // console.log(sunday)
+
       // var isNowWeekday = now.isBetween(monday, friday, null, '[]');
 
       // console.log(`now: ${now}`);
       // console.log(`monday: ${monday}`);
       // console.log(`sunday: ${sunday}`);
-      const data = await Products.query().select('products.*', ...ListSupplierEntity)
-        .join("categories", "categories.id", "products.categoryid")
-        .join("suppliers", "suppliers.id", "categories.supplierid")
-        .whereBetween("products.createdat", [monday, sunday])
+      const data = await Products.query().select(...dbEntity.productEntity, ...ListSupplierEntity)
+        .join("categories", "categories.id", "products.categoryId")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
+        .whereBetween("products.createdAt", [sunday, saturday])
         .andWhere('products.status', '<>', 'deactivated')
-      if (monday && sunday) {
+      console.log(data)
+      // if (monday && sunday) {
         return res.status(200).send({
           message: 'successful',
           data: data
         })
-      }
+      // }
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
-  public getAllProductCreatedByEveryMonth = async (req: any, res: any) => {
-    try {
-      console.log('testttt')
-      const query = ` SELECT
-                      DATE_TRUNC('month', "createdat") AS "month",
-                      COUNT(*)
-                      FROM "events"
-                      GROUP BY DATE_TRUNC('month', "event_timestamp")`;
+  // public getAllProductCreatedByEveryMonth = async (req: any, res: any) => {
+  //   try {
+  //     console.log('testttt')
+  //     const query = ` SELECT
+  //                     DATE_TRUNC('month', "createdat") AS "month",
+  //                     COUNT(*)
+  //                     FROM "events"
+  //                     GROUP BY DATE_TRUNC('month', "event_timestamp")`;
 
-      const data = await Products.raw(query);
-      console.log(data)
+  //     const data = await Products.raw(query);
+  //     console.log(data)
 
-      return res.status(200).send({
-        message: 'successful',
-        data: data
-      })
+  //     return res.status(200).send({
+  //       message: 'successful',
+  //       data: data
+  //     })
 
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(400).send({ message: error })
+
+  //   }
+  // };
 }
 
 export default new ProductsController();

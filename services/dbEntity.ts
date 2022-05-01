@@ -81,5 +81,17 @@ class Entity {
     "campaigns.image as image",
     "campaigns.range as range",
   ];
+
+  productEntity = [
+    "products.id as id",
+    "products.name as name",
+    "products.retailPrice as retailprice",
+    "products.quantity as quantity",
+    "products.image as image",
+    "products.categoryId as categoryid",
+    "products.status as status",
+    "products.createdAt as createdat",
+    "products.updatedAt as updatedat",
+  ];
 }
 export default new Entity();
