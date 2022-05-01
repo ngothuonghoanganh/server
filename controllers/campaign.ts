@@ -731,7 +731,6 @@ class Campaign {
             })
             .where("id", campaign.productId);
         }
-        //todo
         // let supplierId;
         // supplierId = await Suppliers.query()
         //   .select()
