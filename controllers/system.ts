@@ -18,7 +18,8 @@ class System {
         .select(
           "orders.*",
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId),json_agg(to_jsonb(orderDetails) - 'orderId') as details`
+            //TODO ORDER SUPPLIER ID
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = "orders"."supplierId"),json_agg(to_jsonb(orderDetails) - 'orderId') as details`
           )
         )
         .join("orderDetails", "orders.id", "orderDetails.orderId")
@@ -127,7 +128,7 @@ class System {
         "suppliers.identificationCard as identificationcard",
         "suppliers.identificationImage as identificationimage",
         "suppliers.eWalletCode as ewalletcode",
-        "suppliers.eWalletSecrect as ewalletsecrect",
+        "suppliers.eWalletSecret as ewalletsecret",
       ];
       const suppliername = req.query.supplierName;
       const suppliers = await Suppliers.query()
@@ -158,13 +159,13 @@ class System {
         "customers.isDeleted as customerisdeleted",
         "customers.createdAt as createdat",
         "customers.updatedAt as updatedat",
-        "customers.eWalletAccount as ewalletaccount",
-        "customers.eWalletProvider as ewalletprovider",
+        "customers.eWalletCode as ewalletcode",
+        "customers.eWalletSecret as ewalletsecret",
       ];
       const ListEntityAccount = [
         "accounts.roleId as roleid",
         "accounts.username as username",
-        "accounts.googleid as googleid",
+        "accounts.googleId as googleid",
         "accounts.phone as phone",
         "accounts.isDeleted as accountisdeleted",
       ];
