@@ -1,14 +1,11 @@
 import { Products } from "../models/products";
 import console from "console";
 import { Suppliers } from "../models/suppliers";
-import { rmSync } from "fs";
-import { any } from "joi";
 import { Categories } from "../models/category";
 import { Campaigns } from "../models/campaigns";
 import { CampaignOrder } from "../models/campaingorder";
 import notif from "../services/realtime/notification";
 import { Order } from "../models/orders";
-import { Accounts } from "../models/accounts";
 import { Customers } from "../models/customers";
 import orderStatusHistoryController from "./orderStatusHistoryController";
 import { OrderStatusHistory } from "../models/orderstatushistory";
@@ -607,7 +604,9 @@ class ProductsController {
         data: data
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error })
+
     }
   };
 
