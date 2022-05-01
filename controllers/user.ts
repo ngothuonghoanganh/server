@@ -3,13 +3,14 @@ import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
 import bcrypt from "bcrypt";
 import { Notification } from "../models/notification";
+import dbEntity from "../services/dbEntity";
 
 class User {
   public async listSupplier(req: any, res: any, next: any) {
     try {
       const supplier = await Suppliers.query()
-        .select()
-        .where("isdeleted", false);
+        .select(...dbEntity.supplierEntity)
+        .where("isDeleted", false);
       return res.status(200).send({
         data: supplier,
         message: "get successfully",
@@ -23,8 +24,8 @@ class User {
     try {
       const supplierId = req.params.supplierId;
       const supplier = await Suppliers.query()
-        .select()
-        .where("isdeleted", false)
+        .select(...dbEntity.supplierEntity)
+        .where("isDeleted", false)
         .andWhere("id", supplierId)
         .first();
       return res.status(200).send({
@@ -39,39 +40,39 @@ class User {
   public getMe = async (req: any, res: any, next: any) => {
     try {
       const listEntity = [
-        'accounts.id as accountid',
-        'accounts.roleid as roleid',
-        'accounts.username as username',
-        'accounts.googleid as googleid',
-        'accounts.phone as phone',
-        'accounts.isdeleted as accountisdeleted',
-      ]
+        "accounts.id as accountid",
+        "accounts.roleId as roleid",
+        "accounts.username as username",
+        "accounts.googleId as googleid",
+        "accounts.phone as phone",
+        "accounts.isDeleted as accountisdeleted",
+      ];
       const accountId = req.user.accountid;
-
+      console.log(req.user);
       const supplierData = await Accounts.query()
-        .select(...listEntity, 'suppliers.*')
-        .join('suppliers', 'accounts.id', 'suppliers.accountid')
-        .where('accounts.id', accountId)
+        .select(...listEntity, ...dbEntity.supplierEntity)
+        .join("suppliers", "accounts.id", "suppliers.accountId")
+        .where("accounts.id", accountId);
 
       const customerData = await Accounts.query()
-        .select('customers.*', ...listEntity)
-        .join('customers', 'accounts.id', 'customers.accountid')
-        .where('accounts.id', accountId)
+        .select(...dbEntity.customerEntity, ...listEntity)
+        .join("customers", "accounts.id", "customers.accountId")
+        .where("accounts.id", accountId);
 
       const systemProfileData = await Accounts.query()
-        .select('systemprofile.*', ...listEntity)
-        .join('systemprofile', 'accounts.id', 'systemprofile.accountid')
-        .where('accounts.id', accountId)
+        .select(...dbEntity.systemProfileEntity, ...listEntity)
+        .join("systemProfiles", "accounts.id", "systemProfiles.accountId")
+        .where("accounts.id", accountId);
 
       return res.status(200).send({
         message: "get successfully",
-        data: ({
+        data: {
           user: req.user,
           supplierData: supplierData,
           customerData: customerData,
           systemProfileData: systemProfileData,
-        })
-      })
+        },
+      });
     } catch (error) {
       console.error(error);
     }
@@ -89,7 +90,7 @@ class User {
           avt: avt,
           address: address,
         })
-        .where("accountid", supplierId);
+        .where("accountId", supplierId);
 
       return res.status(200).send({
         data: updateSupp,
@@ -105,15 +106,27 @@ class User {
       const supplierId = req.params.supplierId;
 
       const isDeleted = true;
+      const supplier: any = await Suppliers.query()
+        .select(...dbEntity.supplierEntity)
+        .where("id", supplierId)
+        .first();
       const isDeactivate: any = await Suppliers.query()
         .update({
           isDeleted: isDeleted,
         })
         .where("id", supplierId);
+      const deactivatedAccount = await Accounts.query()
+        .update({
+          isDeleted: isDeleted,
+        })
+        .where("id", supplier.accountid);
 
       return res.status(200).send({
         message: "deactivated user",
-        Data: isDeactivate,
+        Data: {
+          info: isDeactivate,
+          accountid: deactivatedAccount,
+        },
       });
     } catch (error) {
       console.log(error);
@@ -123,8 +136,8 @@ class User {
   public getAllCustomer = async (req: any, res: any, next: any) => {
     try {
       const List: any = await Customers.query()
-        .select()
-        .where("isdeleted", false);
+        .select(...dbEntity.customerEntity)
+        .where("isDeleted", false);
 
       return res.status(200).send({
         message: "successful",
@@ -135,26 +148,26 @@ class User {
     }
   };
 
-  public deactivateCustomerAccount = async (req: any, res: any, next: any) => {
-    try {
-      const { customerId } = req.params;
-      await Customers.query()
-        .update({
-          isDeleted: true,
-        })
-        .where("id", customerId);
+  // public deactivateCustomerAccount = async (req: any, res: any, next: any) => {
+  //   try {
+  //     const { customerId } = req.params;
+  //     await Customers.query()
+  //       .update({
+  //         isDeleted: true,
+  //       })
+  //       .where("id", customerId);
 
-      return res.status(200).send("successful");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     return res.status(200).send("successful");
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   public getUserByPhone = async (req: any, res: any, next: any) => {
     try {
       const { phone } = req.params;
       const account: any = await Accounts.query()
-        .select()
+        .select(...dbEntity.accountEntity)
         .where("phone", phone);
 
       return res.status(200).send({
@@ -166,10 +179,7 @@ class User {
     }
   };
 
-  public updateCustomerAccountByCustomerId = async (
-    req: any,
-    res: any,
-  ) => {
+  public updateCustomerAccountByCustomerId = async (req: any, res: any) => {
     try {
       const customerid = req.user.id;
       let {
@@ -194,7 +204,7 @@ class User {
         .where("id", customerid);
 
       const accountId = await Customers.query()
-        .select("accountid")
+        .select("accountId")
         .where("id", customerid)
         .first();
 
@@ -241,7 +251,7 @@ class User {
   public getNotiByUserId = async (req: any, res: any, next: any) => {
     try {
       const userId = req.user.id;
-      const data = await Notification.query().select().where("userid", userId);
+      const data = await Notification.query().select().where("userId", userId);
 
       return res.status(200).send({
         message: "successful",
@@ -259,11 +269,10 @@ class User {
   ) => {
     try {
       const listAccountIds = req.body.listAccountIds;
-      console.log(listAccountIds);
       const data = await Suppliers.query()
-        .select()
-        .whereIn("accountid", listAccountIds)
-        .andWhere("isdeleted", false);
+        .select(...dbEntity.supplierEntity)
+        .whereIn("accountId", listAccountIds)
+        .andWhere("isDeleted", false);
 
       return res.status(200).send({
         message: "successful",
@@ -283,22 +292,21 @@ class User {
       const listCustomerIds = req.body.listCustomerIds;
       const customerEntity = [
         "customers.id as customerid",
-        "customers.accountid as accountid",
-        "customers.firstname as fistname",
-        "customers.lastname as lastname",
+        "customers.accountId as accountid",
+        "customers.firstName as fistname",
+        "customers.lastName as lastname",
         "customers.email as email",
         "customers.avt as avt",
-        "customers.lastname as isdeleted",
-        "customers.createdat as createdat",
-        "customers.updatedat as updatedat",
+        "customers.lastName as isdeleted",
+        "customers.createdAt as createdat",
+        "customers.updatedAt as updatedat",
         "accounts.username as username",
         "accounts.phone as phone",
       ];
 
-      const customerId = req.params.customerId;
       const data = await Customers.query()
         .select(...customerEntity)
-        .join("accounts", "accounts.id", "customers.accountid")
+        .join("accounts", "accounts.id", "customers.accountId")
         .whereIn("customers.id", listCustomerIds);
       return res.status(200).send({
         message: "successful",
