@@ -60,7 +60,7 @@ class CustomerDiscountCodeController {
                 "suppliers.id as supplierid",
                 "suppliers.accountId as accountid",
                 "suppliers.name as suppliername",
-                "suppliers.email as supplieremai",
+                "suppliers.email as supplieremail",
                 "suppliers.avt as supplieravt",
                 "suppliers.isDeleted as supplierisdeleted",
                 "suppliers.address as supplieraddress",
@@ -68,8 +68,8 @@ class CustomerDiscountCodeController {
             // console.log(status)
             const listDiscountCode: any = await CustomerDiscountCode.query()
                 .select(...discountCodeEntit, ...ListEntity, ...ListSupplierEntity)
-                .join('discountCode', 'discountCode.id', 'customerDiscountCodes.discountCodeId')
-                .join('suppliers', 'suppliers.id', 'discountCode.supplierId')
+                .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
+                .join('suppliers', 'suppliers.id', 'discountCodes.supplierId')
                 .where('customerDiscountCodes.status', status)
                 .andWhere('customerId', customerId)
             // const supplierData=await Suppliers.query().select().where('id', listDiscountCode)
@@ -230,7 +230,7 @@ class CustomerDiscountCodeController {
                 "suppliers.id as supplierid",
                 "suppliers.accountId as accountid",
                 "suppliers.name as suppliername",
-                "suppliers.email as supplieremai",
+                "suppliers.email as supplieremail",
                 "suppliers.avt as supplieravt",
                 "suppliers.isDeleted as supplierisdeleted",
                 "suppliers.address as supplieraddress",

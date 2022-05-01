@@ -106,6 +106,89 @@ class Entity {
     "loyalCustomers.status as status",
   ];
 
+  orderEntity =[
+    "orders.id as id",
+    "orders.status as status",
+    "orders.address as address",
+    "orders.paymentMethod as paymentmethod",
+    "orders.customerId as customerid",
+    "orders.paymentId as paymentid",
+    "orders.createdAt as createdat",
+    "orders.updatedAt as updatedat",
+    "orders.discountPrice as discountprice",
+    "orders.shippingFee as shippingfee",
+    "orders.orderCode as ordercode",
+    "orders.totalPrice as totalprice",
+    "orders.customerDiscountCodeId as customerdiscountcodeid",
+  ]
+
+  campaignOrderEntity= [
+    "campaignorders.id as id",
+    "campaignorders.quantity as quantity",
+    "campaignorders.price as price",
+    "campaignorders.note as note",
+    "campaignorders.customerId as customerId",
+    "campaignorders.status as status",
+    "campaignorders.address as address",
+    "campaignorders.paymentId as paymentid",
+    "campaignorders.shippingFee as shippingfee",
+    "campaignorders.addvanceId as addvanceid",
+    "campaignorders.advanceFee as advancefee",
+    "campaignorders.createdAt as createdat",
+    "campaignorders.updatedAt as updatedat",
+    "campaignorders.orderCode as ordercode",
+    "campaignorders.discountPrice as discountprice",
+    "campaignorders.totalPrice as totalprice",
+    "campaignorders.paymentMethod as paymentmethod",
+    "campaignorders.campaignId as campaignid",
+    "campaignorders.comment as comment",
+    "campaignorders.rating as rating",
+  ]
+
+  orderDetailEntity = [
+    "orderDetails.id as id",
+    "orderDetails.productName as productname",
+    "orderDetails.quantity as quantity",
+    "orderDetails.price as price",
+    "orderDetails.note as note",
+    "orderDetails.orderCode as ordercode",
+    "orderDetails.productId as productid",
+    "orderDetails.totalPrice as totalprice",
+    "orderDetails.image as image",
+    "orderDetails.orderId as orderid",
+    "orderDetails.comment as comment",
+    "orderDetails.rating as rating",
+    "orderDetails.createdAt as createdat",
+    "orderDetails.updatedAt as updatedat",
+  ]
+
+  orderStatusHistoriesEntity = [
+    "orderStatusHistories.id as id",
+    "orderStatusHistories.campaignOrderId as campaignorderid",
+    "orderStatusHistories.orderCode as ordercode",
+    "orderStatusHistories.orderStatus as orderstatus",
+    "orderStatusHistories.image as image",
+    "orderStatusHistories.description as description",
+    "orderStatusHistories.createdAt as createdat",
+    "orderStatusHistories.updatedAt as updatedat",
+    "orderStatusHistories.retailOrderId as retailorderid",
+    "orderStatusHistories.type as type",
+  ]
+
+  discountCodeEntity=[
+    "discountCodes.id as id",
+    "discountCodes.supplierId as supplierid",
+    "discountCodes.code as code",
+    "discountCodes.description as description",
+    "discountCodes.minimumPriceCondition as minimumpricecondition",
+    "discountCodes.startDate as startdate",
+    "discountCodes.endDate as enddate",
+    "discountCodes.quantity as quantity",
+    "discountCodes.createdAt as createdat",
+    "discountCodes.updatedAt as updatedat",
+    "discountCodes.status as status",
+    "discountCodes.discountPrice as discountprice",
+  ]
   transactionEntity = [
     "transactions.id as id",
     "transactions.supplierId as supplierid",
