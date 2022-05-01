@@ -2,6 +2,7 @@ import { Transaction } from "../models/transaction";
 import QueryString from "qs";
 import crypto from "crypto";
 import moment from "moment";
+import dbEntity from "../services/dbEntity";
 
 class TransactionController {
   public createTransaction = async (transaction: Transaction) => {
@@ -97,7 +98,7 @@ class TransactionController {
         .update({
           ...transaction,
         })
-        .where("supplierid", transaction.supplierId)
+        .where("supplierId", transaction.supplierId)
         .andWhere("type", transaction.type)
         .andWhere("status", transaction.status);
 
@@ -204,12 +205,12 @@ class TransactionController {
     try {
       const [income, penalty] = await Promise.all([
         Transaction.query()
-          .select()
-          .where("supplierid", req.user.id)
+          .select(...dbEntity.transactionEntity)
+          .where("supplierId", req.user.id)
           .andWhere("type", "income"),
         Transaction.query()
-          .select()
-          .where("supplierid", req.user.id)
+          .select(...dbEntity.transactionEntity)
+          .where("supplierId", req.user.id)
           .andWhere("type", "penalty"),
       ]);
 
@@ -237,7 +238,7 @@ class TransactionController {
             status: "done",
             description: "This transaction has been completed",
           })
-          .where("supplierid", supplierId)
+          .where("supplierId", supplierId)
           .andWhere("type", type);
         return res.redirect("/process-transaction");
       } else {
@@ -261,8 +262,8 @@ class TransactionController {
   public processTransaction = async (req: any, res: any) => {
     try {
       const transactions = await Transaction.query()
-        .select("transaction.*", "suppliers.name")
-        .join("suppliers", "suppliers.id", "transaction.supplierid")
+        .select(...dbEntity.transactionEntity, "suppliers.name")
+        .join("suppliers", "suppliers.id", "transaction.supplierId")
         .where("transaction.type", "income")
         .andWhere("transaction.status", "waiting");
       return res.render("transaction", {
