@@ -189,5 +189,24 @@ class Entity {
     "discountCodes.status as status",
     "discountCodes.discountPrice as discountprice",
   ]
+  transactionEntity = [
+    "transactions.id as id",
+    "transactions.supplierId as supplierid",
+    "transactions.amount as amount",
+    "transactions.orderCode as ordercode",
+    "transactions.advanceFee as advancefee",
+    "transactions.orderValue as ordervalue",
+    "transactions.paymentFee as paymentfee",
+    "transactions.platformFee as platformfee",
+    "transactions.penaltyFee as penaltyfee",
+    "transactions.type as type",
+    "transactions.isWithdrawable as iswithdrawable",
+    "transactions.description as description",
+    "transactions.content as content",
+    "transactions.status as status",
+    "transactions.createdAt as createdat",
+    "transactions.updatedAt as updatedat",
+    "transactions.paymentLink as paymentlink",
+  ];
 }
 export default new Entity();
