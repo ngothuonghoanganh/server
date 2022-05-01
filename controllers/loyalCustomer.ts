@@ -93,7 +93,7 @@ class LoyalcustomerController {
 
   public getAll = async (req: any, res: any, next: any) => {
     try {
-      const data = await LoyalCustomerCondition.query().select();
+      const data = await LoyalCustomerCondition.query().select(...dbEntity.loyalCustomerEntity);
 
       return res.status(200).send({
         data: data,
@@ -159,7 +159,7 @@ class LoyalcustomerController {
       // console.log(supplierId)
 
       const data = await LoyalCustomer.query()
-        .select()
+        .select(...dbEntity.loyalCustomerEntity)
         .where('supplierId', supplierId)
         .andWhere('customerId', customerId)
         .andWhere('status', status)
@@ -180,12 +180,12 @@ class LoyalcustomerController {
       const customerId = req.user.id;
       // console.log('testtttttttttt')
 
-      const data = await LoyalCustomer.query().select()
+      const data = await LoyalCustomer.query().select(...dbEntity.loyalCustomerEntity)
         .where('customerId', customerId).first();
 
       // console.log(data.supplierId)
 
-      const supplierInfor = await Suppliers.query().select().where('id', data.supplierId);
+      const supplierInfor = await Suppliers.query().select(...dbEntity.supplierEntity).where('id', data.supplierId);
 
       return res.status(200).send({
         message: 'successful',
