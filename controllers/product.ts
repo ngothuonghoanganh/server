@@ -131,13 +131,13 @@ class ProductsController {
 
       const List = supplierId
         ? await Categories.query()
-          .select("products.*", ...ListSupplierEntity)
+          .select(...dbEntity.productEntity, ...ListSupplierEntity)
           .join("suppliers", "suppliers.id", "categories.supplierId")
-          .join("products", "products.categoryid", "categories.id")
+          .join("products", "products.categoryiId", "categories.id")
           .where("products.status", "<>", "deactivated")
           .andWhere("categories.supplierId", supplierId)
         : await Categories.query()
-          .select("products.*", ...ListSupplierEntity)
+          .select(...dbEntity.productEntity, ...ListSupplierEntity)
           .join("suppliers", "suppliers.id", "categories.supplierId")
           .join("products", "products.categoryId", "categories.id")
           .where("products.status", "<>", "deactivated");
@@ -156,15 +156,15 @@ class ProductsController {
   public getAllProductsAndCates = async (req: any, res: any, next: any) => {
     try {
       let listEntity = [
-        "products.*",
-        "categories.categoryname as categoryname",
+        ...dbEntity.productEntity,
+        "categories.categoryName as categoryname",
         "categories.id as categoryid",
       ];
       let prods: any = await Products.query()
         .select(...listEntity)
-        .leftOuterJoin("categories", "categories.id", "products.categoryid")
+        .leftOuterJoin("categories", "categories.id", "products.categoryId")
         // .where("products.status", "<>", "deactivated")
-        .where("categories.supplierid", req.user.id)
+        .where("categories.supplierId", req.user.id)
         .andWhere(cd => {
           if (req.query.categoryId) {
             cd.where('categories.id', req.query.categoryId)
@@ -232,15 +232,15 @@ class ProductsController {
       const listEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       const data = await Categories.query()
-        .select("products.*", ...listEntity)
+        .select(...dbEntity.productEntity, ...listEntity)
         .join("suppliers", "suppliers.id", "categories.supplierid")
         .join("products", "products.categoryid", "categories.id")
         .where("products.id", productId)
@@ -269,7 +269,7 @@ class ProductsController {
         .where("id", productId)
 
       const inCampaignByProductId: any = await Campaigns.query().select()
-        .where("productid", productId)
+        .where("productId", productId)
         .andWhere((cd) => {
           cd.where("status", "ready")
             .orWhere("status", "active")
@@ -285,8 +285,8 @@ class ProductsController {
       }
 
       const orderRetail: any = await Order.query().select()
-        .join('orderdetail', 'orders.id', 'orderdetail.orderid')
-        .where('orderdetail.productid', productId)
+        .join('orderDetails', 'orders.id', 'orderDetails.orderId')
+        .where('orderDetails.productId', productId)
         .andWhere((cd) => {
           cd.where("orders.status", "advanced")
             .orWhere("orders.status", "created")
@@ -294,7 +294,7 @@ class ProductsController {
         })
 
       const orderCampaign: any = await CampaignOrder.query().select()
-        .where('productid', productId)
+        .where('productId', productId)
         .andWhere((cd) => {
           cd.where("status", "advanced")
             .orWhere("status", "created")
@@ -308,7 +308,7 @@ class ProductsController {
             status: "cancelled",
           })
             .where('id', item.id);
-          const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
+          const cusAccountId = await Customers.query().select('accountId').where('id', item.customerid).first();
           notif.sendNotiForWeb({
             userid: cusAccountId.accountId,
             link: item.ordercode,
@@ -333,7 +333,7 @@ class ProductsController {
             status: "cancelled",
           })
             .where('id', item.id);
-          const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
+          const cusAccountId = await Customers.query().select('accountId').where('id', item.customerid).first();
 
           notif.sendNotiForWeb({
             userid: cusAccountId.accountId,
@@ -352,12 +352,12 @@ class ProductsController {
         }
       }
 
-      const suppId: any = await Products.query().select('categories.supplierid')
-        .join('categories', "categories.id", "products.categoryid")
+      const suppId: any = await Products.query().select('categories.supplierId')
+        .join('categories', "categories.id", "products.categoryId")
         .where('products.id', productId).first();
 
       //send notif for supp abt
-      const suppAccountId = await Suppliers.query().select('accountid').where('id', suppId.supplierid).first();
+      const suppAccountId = await Suppliers.query().select('accountId').where('id', suppId.supplierid).first();
 
       notif.sendNotiForWeb({
         userid: suppAccountId.accountId,
@@ -410,22 +410,22 @@ class ProductsController {
       const productIds = req.body.productIds;
       const nullValue = '';
       const campaignOrder: any = await CampaignOrder.query()
-        .select('campaignorder.productid',
-          CampaignOrder.raw('COUNT(campaignorder.id) as count'),
+        .select('campaignOrders.productId',
+          CampaignOrder.raw('COUNT(campaignOrders.id) as count'),
           CampaignOrder.raw(`SUM (rating) AS rating`)
         )
-        .whereIn('campaignorder.productid', productIds)
-        .andWhere('campaignorder.comment', "<>", nullValue)
-        .groupBy('productid');
+        .whereIn('campaignOrders.productId', productIds)
+        .andWhere('campaignOrders.comment', "<>", nullValue)
+        .groupBy('productId');
 
       const retailOrder: any = await OrderDetail.query()
-        .select('orderdetail.productid',
-          OrderDetail.raw('COUNT(orderdetail.id) as count'),
+        .select('orderDetails.productId',
+          OrderDetail.raw('COUNT(orderDetails.id) as count'),
           OrderDetail.raw(`SUM (rating) AS rating`)
         )
-        .whereIn('orderdetail.productid', productIds)
-        .andWhere('orderdetail.comment', "<>", nullValue)
-        .groupBy('productid');
+        .whereIn('orderDetails.productId', productIds)
+        .andWhere('orderDetails.comment', "<>", nullValue)
+        .groupBy('productId');
 
       // const listRating = await Comments.query()
       //   .select("productid", Comments.raw(`AVG(rating) as rating`))
@@ -448,17 +448,17 @@ class ProductsController {
       const listEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremai",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       const prod: any = await Categories.query()
         .select("products.*", ...listEntity)
-        .join("suppliers", "suppliers.id", "categories.supplierid")
-        .join("products", "products.categoryid", "categories.id")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
+        .join("products", "products.categoryId", "categories.id")
         .where("products.name", "like", "%" + value + "%")
         .orWhere("suppliers.name", "like", "%" + value + "%")
         .andWhere("products.status", "<>", "deactivated");
@@ -551,7 +551,7 @@ class ProductsController {
         "suppliers.id as supplierid",
         "suppliers.accountid as accountid",
         "suppliers.name as suppliername",
-        "suppliers.email as supplieremai",
+        "suppliers.email as supplieremail",
         "suppliers.avt as supplieravt",
         "suppliers.isdeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
