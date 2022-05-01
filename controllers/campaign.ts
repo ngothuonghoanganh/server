@@ -403,7 +403,7 @@ class Campaign {
       }
 
       const product = await Products.query()
-        .select()
+        .select(...dbEntity.productEntity)
         .where("id", campaign.productid)
         .first();
       return res.status(200).send({
