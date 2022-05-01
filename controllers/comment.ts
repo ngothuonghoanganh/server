@@ -1,6 +1,7 @@
 import { CampaignOrder } from "../models/campaingorder";
 import { OrderDetail } from "../models/orderdetail";
 import { Order } from "../models/orders";
+import dbEntity from "../services/dbEntity";
 import order from "./order";
 
 class Comment {
@@ -48,24 +49,12 @@ class Comment {
       let data = [];
       if (isCampaign) {
         data = await CampaignOrder.query()
-          .select(
-            //TODO ENTITY
-            "campaignorder.*",
-            "campaignOrders.comment",
-            ...ListEntity,
-            "campaignOrders.rating"
-          )
+          .select(...dbEntity.campaignOrderEntity, ...ListEntity)
           .join("customers", "customers.id", "campaignOrders.customerId")
           .where("campaignOrders.id", orderId);
       } else {
         data = await OrderDetail.query()
-          .select(
-            //TODO ENTITY
-            "orderdetail.*",
-            "orderDetails.comment",
-            ...ListEntity,
-            "orderDetails.rating"
-          )
+          .select(...dbEntity.orderDetailEntity, ...ListEntity)
           .join("orders", "orders.id", "orderDetails.orderId")
           .join("customers", "customers.id", "orders.customerId")
           .where("orderDetails.id", orderId);
@@ -96,14 +85,7 @@ class Comment {
       // where campaignorder.productid =${productId}
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
       const campaignOrder: any = await CampaignOrder.query()
-        .select(
-            //TODO ENTITY
-
-          "campaignorder.*",
-          "campaignOrders.comment",
-          ...ListEntity,
-          "campaignOrders.rating"
-        )
+        .select(...dbEntity.campaignOrderEntity, ...ListEntity)
         .join("customers", "customers.id", "campaignOrders.customerId")
         .where("campaignOrders.productId", productId)
         .andWhere((cd) => {
@@ -115,14 +97,7 @@ class Comment {
         });
 
       const retailOrder: any = await OrderDetail.query()
-        .select(
-            //TODO ENTITY
-
-          "orderdetail.*",
-          "orderDetails.comment",
-          ...ListEntity,
-          "orderDetails.rating"
-        )
+        .select(...dbEntity.orderDetailEntity, ...ListEntity)
         .join("orders", "orders.id", "orderDetails.orderId")
         .join("customers", "customers.id", "orders.customerId")
         .where("orderDetails.productId", productId)
@@ -199,20 +174,21 @@ class Comment {
       //   "orderdetail.productid as productId",
       // ];
       const numOfOrderCompletedOrderDetail: any = await OrderDetail.query()
-        .select('orderDetails.productId as productId')
+        .select("orderDetails.productId as productId")
         .join("orders", "orderDetails.orderId", "orders.id")
         .whereIn("orderDetails.productId", productIds)
         .andWhere("orders.status", status);
 
-      const numOfOrderCompletedCampaignOrder: any = await CampaignOrder.query().select('campaigns.productId as productId')
-        .join('campaigns', 'campaigns.id', 'campaignOrders.campaignId')
-        .whereIn('campaigns.productId', productIds)
-        .andWhere('campaignOrders.status', status)
+      const numOfOrderCompletedCampaignOrder: any = await CampaignOrder.query()
+        .select("campaigns.productId as productId")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
+        .whereIn("campaigns.productId", productIds)
+        .andWhere("campaignOrders.status", status);
 
       numOfOrderCompletedOrderDetail.push(...numOfOrderCompletedCampaignOrder);
 
-      console.log(numOfOrderCompletedOrderDetail)
-      console.log(numOfOrderCompletedCampaignOrder)
+      console.log(numOfOrderCompletedOrderDetail);
+      console.log(numOfOrderCompletedCampaignOrder);
 
       // console.log(numOfOrderCompletedByProductId)
       // const counts = numOfOrderCompletedByProductId.reduce((c, { productId : key }) => (c[key] = (c[key] || 0) + 1, c), {});
@@ -224,7 +200,7 @@ class Comment {
 
       return res.status(200).send({
         message: "successful",
-        data: ({result: result})
+        data: { result: result },
       });
     } catch (error) {
       console.log(error);
