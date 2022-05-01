@@ -53,16 +53,36 @@ class Entity {
 
   roleEntity = ["roles.id as id", "roles.roleName as rolename"];
 
-  categoryEntity=[
+  categoryEntity = [
     "categories.id as id",
     "categories.categoryName as categoryname",
     "categories.supplierId as supplierid",
     "categories.isDeleted as isdeleted",
     "categories.createdAt as createdat",
     "categories.updatedAt as updatedat",
-  ]
+  ];
 
-  productEntity=[
+  campaignEntity = [
+    "campaigns.id as id",
+    "campaigns.productId as productid",
+    "campaigns.status as status",
+    "campaigns.createdAt as createdat",
+    "campaigns.updatedAt as updatedat",
+    "campaigns.fromDate as fromdate",
+    "campaigns.toDate as todate",
+    "campaigns.quantity as quantity",
+    "campaigns.price as price",
+    "campaigns.code as code",
+    "campaigns.description as description",
+    "campaigns.maxQuantity as maxquantity",
+    "campaigns.isShare as isshare",
+    "campaigns.advanceFee as advancefee",
+    "campaigns.productName as productname",
+    "campaigns.image as image",
+    "campaigns.range as range",
+  ];
+
+  productEntity = [
     "products.id as id",
     "products.name as name",
     "products.retailPrice as retailprice",
@@ -72,11 +92,9 @@ class Entity {
     "products.status as status",
     "products.createdAt as createdat",
     "products.updatedAt as updatedat",
+  ];
 
-
-  ]
-
-  loyalCustomerEntity= [
+  loyalCustomerEntity = [
     "loyalCustomers.id as id",
     "loyalCustomers.supplierId as supplierid",
     "loyalCustomers.customerId as customerid",
@@ -86,7 +104,6 @@ class Entity {
     "loyalCustomers.createdAt as createdat",
     "loyalCustomers.updatedAt as updatedat",
     "loyalCustomers.status as status",
-
-  ]
+  ];
 }
 export default new Entity();
