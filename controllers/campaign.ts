@@ -282,14 +282,13 @@ class Campaign {
 
       const campaigns: any = await Campaigns.query()
         .select(
-          "campaigns.*",
+          ...dbEntity.campaignEntity,
           Campaigns.raw(
-            `sum(case when campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced' then campaignorder.quantity else 0 end) as quantityorderwaiting,
-            count(campaignorder.id) filter (where campaignorder.status <> 'cancelled' and campaignorder.status <> 'returned' and campaignorder.status <> 'notAdvanced') as numorderwaiting`
+            `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
+            count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting`
           )
         )
-        .leftJoin("campaignorder", "campaigns.id", "campaignorder.campaignid")
-
+        .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
         .whereIn("campaigns.productId", productIds)
         .andWhere("campaigns.status", status)
         .groupBy("campaigns.id");
