@@ -21,10 +21,10 @@ class AddressController {
             // console.log(currentAddress.length)
             const newAddress: any = await Address.query()
                 .insert({
-                    customerid: customerId,
+                    customerId: customerId,
                     province: province,
                     street: street,
-                    isdefault: isdefault
+                    isDefault: isdefault
                 })
             return res.status(200).send({
                 message: 'successful',

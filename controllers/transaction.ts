@@ -14,13 +14,13 @@ class TransactionController {
           "NCB",
           transaction.description,
           transaction.type,
-          transaction.penaltyfee,
+          transaction.penaltyFee,
           "",
           transaction.id
         );
         await Transaction.query()
           .update({
-            paymentlink: paymentlink,
+            paymentLink: paymentlink,
           })
           .where("id", newTransaction.id);
       }
@@ -97,7 +97,7 @@ class TransactionController {
         .update({
           ...transaction,
         })
-        .where("supplierid", transaction.supplierid)
+        .where("supplierid", transaction.supplierId)
         .andWhere("type", transaction.type)
         .andWhere("status", transaction.status);
 
@@ -169,9 +169,9 @@ class TransactionController {
       vnpUrl += "?" + QueryString.stringify(vnp_Params, { encode: false });
       await Transaction.query()
         .update({
-          iswithdrawable: false,
+          isWithdrawable: false,
           status: "waiting",
-          paymentlink: vnpUrl,
+          paymentLink: vnpUrl,
         })
         .where("ordercode", ordercode)
         .andWhere("type", "income");
@@ -233,7 +233,7 @@ class TransactionController {
       if (type === "income") {
         transaction = await Transaction.query()
           .update({
-            iswithdrawable: false,
+            isWithdrawable: false,
             status: "done",
             description: "This transaction has been completed",
           })
@@ -243,7 +243,7 @@ class TransactionController {
       } else {
         transaction = await Transaction.query()
           .update({
-            iswithdrawable: false,
+            isWithdrawable: false,
             status: "done",
           })
           .where("id", penaltyId)

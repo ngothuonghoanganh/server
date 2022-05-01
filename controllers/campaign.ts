@@ -65,15 +65,15 @@ class Campaign {
 
       if (product && product.length > 0) {
         newCampaign = await Campaigns.query().insert({
-          supplierid: userId,
-          productid: productId,
+          // supplierId: userId,
+          productId: productId,
           quantity: quantity,
           price: price,
-          fromdate: fromDate,
-          todate: toDate,
-          isshare: isShare,
-          maxquantity: maxQuantity,
-          advancefee: advanceFee,
+          fromDate: fromDate,
+          toDate: toDate,
+          isShare: isShare,
+          maxQuantity: maxQuantity,
+          advanceFee: advanceFee,
           status: status,
           description: description,
           range: JSON.stringify(range),
@@ -160,14 +160,14 @@ class Campaign {
           .first();
         numRecordUpdated = await Campaigns.query()
           .update({
-            productid: productId,
+            productId: productId,
             quantity: quantity,
             price: price,
-            fromdate: fromDate,
-            todate: toDate,
-            maxquantity: maxQuantity,
-            isshare: isShare,
-            advancefee: advanceFee,
+            fromDate: fromDate,
+            toDate: toDate,
+            maxQuantity: maxQuantity,
+            isShare: isShare,
+            advanceFee: advanceFee,
             range: JSON.stringify(range),
           })
           .where("id", campaignId)
@@ -422,10 +422,10 @@ class Campaign {
         return res.status(200).send({
           message: "Only ready campaign can be started",
         });
-      } else if (campaign.isshare) {
+      } else if (campaign.isShare) {
         const campaignShare = await Campaigns.query()
           .select()
-          .where("productid", campaign.productid)
+          .where("productid", campaign.productId)
           .andWhere("isshare", true)
           .andWhere("status", "active")
           .first();
@@ -438,10 +438,10 @@ class Campaign {
           var currentDate = moment().format();
           const campaignShare = await Campaigns.query()
             .select()
-            .where("productid", campaign.productid)
+            .where("productid", campaign.productId)
             .andWhere("isshare", true)
             .andWhere("status", "ready")
-            .andWhere("fromdate", "<", campaign.fromdate)
+            .andWhere("fromdate", "<", campaign.fromDate)
             .andWhere("fromdate", ">", currentDate);
 
           if (campaignShare.length > 0)
@@ -454,7 +454,7 @@ class Campaign {
       const updateCampaignStatus = await Campaigns.query()
         .update({
           status: statusActive,
-          fromdate: currentDate,
+          fromDate: currentDate,
         })
         .where("id", campaignId)
         .andWhere("status", "ready");
@@ -468,11 +468,11 @@ class Campaign {
         .update({
           status: "incampaign",
         })
-        .where("id", product.productid);
+        .where("id", product.productId);
       const supplierId: any = Products.query()
         .select("categories.supplierid")
         .join("categories", "categories.id", "products.categoryid")
-        .where("products.id", product.productid);
+        .where("products.id", product.productId);
 
       const accountCustomer: any = await Customers.query()
         .select("customers.accountid")
@@ -668,22 +668,22 @@ class Campaign {
           .where("id", campaignId);
         const getCampaigns = await Campaigns.query()
           .select()
-          .where("productid", campaign.productid)
+          .where("productid", campaign.productId)
           .andWhere("status", "active");
 
         if (getCampaigns.length === 0) {
           await Products.query()
             .update({ status: "active" })
-            .where("id", campaign.productid);
+            .where("id", campaign.productId);
         }
 
         for (const item of ordersInCampaign) {
           orderStatusHistoryController.createHistory({
-            statushistory:
+            orderStatus:
               item.paymentmethod === "online" ? "unpaid" : "created",
             type: "campaign",
-            campaignorderid: item.id,
-            ordercode: item.ordercode,
+            campaignOrderId: item.id,
+            orderCode: item.ordercode,
             description:
               item.paymentmethod === "online"
                 ? "requires full payment via VNPAY E-Wallet"
@@ -697,14 +697,14 @@ class Campaign {
 
           if (item.paymentMethod === "online") {
             notif.sendNotiForWeb({
-              userid: customer.accountid,
+              userid: customer.accountId,
               link: item.ordercode,
               message: "Order " + item.ordercode + "has been set to unpaid",
               status: "unread",
             });
           } else {
             notif.sendNotiForWeb({
-              userid: customer.accountid,
+              userid: customer.accountId,
               link: item.ordercode,
               message: "Order " + item.ordercode + "has been set to created",
               status: "unread",
@@ -716,15 +716,16 @@ class Campaign {
             .update({
               quantity: Products.raw(`quantity - ${item.quantity}`),
             })
-            .where("id", campaign.productid);
+            .where("id", campaign.productId);
         }
+        //todo
         let supplierId;
         supplierId = await Suppliers.query()
           .select()
-          .where("id", campaign.supplierid)
+          // .where("id", campaign.supplierId)
           .first();
         notif.sendNotiForWeb({
-          userid: supplierId.accountid,
+          userid: supplierId.accountId,
           link: campaign.code,
           message: `Campaign with code: ${campaign.code} has ended`,
           status: "unread",

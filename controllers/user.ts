@@ -107,7 +107,7 @@ class User {
       const isDeleted = true;
       const isDeactivate: any = await Suppliers.query()
         .update({
-          isdeleted: isDeleted,
+          isDeleted: isDeleted,
         })
         .where("id", supplierId);
 
@@ -140,7 +140,7 @@ class User {
       const { customerId } = req.params;
       await Customers.query()
         .update({
-          isdeleted: true,
+          isDeleted: true,
         })
         .where("id", customerId);
 
@@ -184,8 +184,8 @@ class User {
 
       const update = await Customers.query()
         .update({
-          firstname: firstName,
-          lastname: lastName,
+          firstName: firstName,
+          lastName: lastName,
           email: email,
           avt: avt,
           eWalletCode: eWalletCode,
@@ -202,7 +202,7 @@ class User {
         .update({
           phone: phone,
         })
-        .where("id", accountId["accountid"]);
+        .where("id", accountId["accountId"]);
 
       return res.status(200).send({
         message: "successful",

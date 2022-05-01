@@ -1,4 +1,3 @@
-import console from "console";
 import { Categories } from "../models/category";
 import { Products } from "../models/products";
 
@@ -10,8 +9,8 @@ class CategoriesController {
       let { categoryName } = req.body;
 
       const newCate: any = await Categories.query().insert({
-        categoryname: categoryName,
-        supplierid: supplierid,
+        categoryName: categoryName,
+        supplierId: supplierid,
       });
 
       return res.status(200).send({
@@ -76,7 +75,7 @@ class CategoriesController {
       if (isExistProds.length === 0) {
         await Categories.query()
           .update({
-            isdeleted: true
+            isDeleted: true
           })
           .where('id', categoryId)
         return res.status(200).send({
@@ -98,7 +97,7 @@ class CategoriesController {
 
       await Categories.query()
         .update({
-          categoryname: categoryName,
+          categoryName: categoryName,
         })
         .where("id", categoryId)
         .andWhere("isdeleted", false);

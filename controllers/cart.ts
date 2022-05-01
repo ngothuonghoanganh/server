@@ -1,4 +1,3 @@
-import { Cart } from "../models/cart";
 import { OrderDetail } from "../models/orderdetail";
 // import { Client } from "../models/redis/index";
 
@@ -10,11 +9,11 @@ class CartController {
       let { productId, quantity, inCampaign = false, campaignId } = req.body;
 
       const newCart: any = await OrderDetail.query().insert({
-        customerid: customerId,
-        productid: productId,
+        // customerid: customerId,
+        productId: productId,
         quantity: quantity,
-        incampaign: inCampaign,
-        campaignid: campaignId,
+        // incampaign: inCampaign,
+        // campaignid: campaignId,
       });
 
       return res.status(200).send({
@@ -32,7 +31,7 @@ class CartController {
       let { productId, quantity } = req.body;
       const updateCart = await OrderDetail.query()
         .update({
-          productid: productId,
+          productId: productId,
           quantity: quantity,
         })
         .where("id", cartId);
@@ -84,7 +83,7 @@ class CartController {
       const List = await OrderDetail.query()
         .select("orderdetail.*", ...listEntity)
         .join("products", "orderdetail.productid", "products.id")
-        .join('categories', 'categories.id', 'products.categoryid')
+        .join("categories", "categories.id", "products.categoryid")
         .join("suppliers", "suppliers.id", "categories.supplierid")
         .where("orderdetail.customerid", id)
         .andWhere("orderdetail.ordercode", "is", null);

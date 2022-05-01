@@ -5,74 +5,74 @@ import { Suppliers } from "../models/suppliers";
 
 class ChatController {
   public run = async () => {
-    try {
-      return database.ref("chat-message").on("value", async (snapshot) => {
-        // console.log(snapshot.val());
-        if (snapshot.val()) {
-          await Chat.query().insert({ ...snapshot.val(), status: "unread" });
-          let [chatmessagesTo, chatmessagesFrom] = await Promise.all([
-            Chat.query()
-              .select()
-              .where("to", snapshot.val().to)
-              .andWhere("from", snapshot.val().from),
-            Chat.query()
-              .select()
-              .where("from", snapshot.val().to)
-              .andWhere("to", snapshot.val().from),
-          ]);
-          chatmessagesTo.push(...chatmessagesFrom);
-          chatmessagesTo = chatmessagesTo.sort(
-            (a: any, b: any) => a.createdat - b.createdat
-          );
+    // try {
+    //   return database.ref("chat-message").on("value", async (snapshot) => {
+    //     // console.log(snapshot.val());
+    //     if (snapshot.val()) {
+    //       await Chat.query().insert({ ...snapshot.val(), status: "unread" });
+    //       let [chatmessagesTo, chatmessagesFrom] = await Promise.all([
+    //         Chat.query()
+    //           .select()
+    //           .where("to", snapshot.val().to)
+    //           .andWhere("from", snapshot.val().from),
+    //         Chat.query()
+    //           .select()
+    //           .where("from", snapshot.val().to)
+    //           .andWhere("to", snapshot.val().from),
+    //       ]);
+    //       chatmessagesTo.push(...chatmessagesFrom);
+    //       chatmessagesTo = chatmessagesTo.sort(
+    //         (a: any, b: any) => a.createdat - b.createdat
+    //       );
 
-          const fromInfo =
-            (await Customers.query()
-              .select(
-                "accountid as id",
-                "firstname as firstname",
-                "lastname as lastname",
-                " avt as avt"
-              )
-              .where("accountid", snapshot.val().from)
-              .andWhere("isdeleted", false)
-              .first()) ||
-            (await Suppliers.query()
-              .select("accountid as id", "name as name", " avt as avt")
-              .where("accountid", snapshot.val().from)
-              .andWhere("isdeleted", false)
-              .first());
+    //       const fromInfo =
+    //         (await Customers.query()
+    //           .select(
+    //             "accountid as id",
+    //             "firstname as firstname",
+    //             "lastname as lastname",
+    //             " avt as avt"
+    //           )
+    //           .where("accountid", snapshot.val().from)
+    //           .andWhere("isdeleted", false)
+    //           .first()) ||
+    //         (await Suppliers.query()
+    //           .select("accountid as id", "name as name", " avt as avt")
+    //           .where("accountid", snapshot.val().from)
+    //           .andWhere("isdeleted", false)
+    //           .first());
 
-          const toInfo =
-            (await Customers.query()
-              .select(
-                "accountid as id",
-                "firstname as firstname",
-                "lastname as lastname",
-                "avt as avt"
-              )
-              .where("accountid", snapshot.val().to)
-              .andWhere("isdeleted", false)
-              .first()) ||
-            (await Suppliers.query()
-              .select("accountid as id", "name as name", " avt as avt")
-              .where("accountid", snapshot.val().to)
-              .andWhere("isdeleted", false)
-              .first());
+    //       const toInfo =
+    //         (await Customers.query()
+    //           .select(
+    //             "accountid as id",
+    //             "firstname as firstname",
+    //             "lastname as lastname",
+    //             "avt as avt"
+    //           )
+    //           .where("accountid", snapshot.val().to)
+    //           .andWhere("isdeleted", false)
+    //           .first()) ||
+    //         (await Suppliers.query()
+    //           .select("accountid as id", "name as name", " avt as avt")
+    //           .where("accountid", snapshot.val().to)
+    //           .andWhere("isdeleted", false)
+    //           .first());
 
-          await database
-            .ref("message/" + snapshot.val().from + "/" + snapshot.val().to)
-            .set({
-              data: chatmessagesTo,
-              userinfo: toInfo,
-            });
-          await database
-            .ref("message/" + snapshot.val().to + "/" + snapshot.val().from)
-            .set({ data: chatmessagesTo, userinfo: fromInfo });
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    //       await database
+    //         .ref("message/" + snapshot.val().from + "/" + snapshot.val().to)
+    //         .set({
+    //           data: chatmessagesTo,
+    //           userinfo: toInfo,
+    //         });
+    //       await database
+    //         .ref("message/" + snapshot.val().to + "/" + snapshot.val().from)
+    //         .set({ data: chatmessagesTo, userinfo: fromInfo });
+    //     }
+    //   });
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   public getChatMessageByCustomer = async (req: any, res: any, next: any) => {

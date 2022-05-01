@@ -246,17 +246,17 @@ class System {
           .where("id", item.customerid)
           .first();
         notif.sendNotiForWeb({
-          userid: customer.accountid,
+          userid: customer.accountId,
           link: item.ordercode,
           message: "Order " + item.ordercode + " has been cancelled",
           status: "cancelled",
         });
         //type= retail
         orderStatusHistoryController.createHistory({
-          statushistory: "cancelled",
+          orderStatus: "cancelled",
           type: "retail",
-          retailorderid: item.id,
-          ordercode: item.ordercode,
+          retailOrderId: item.id,
+          orderCode: item.ordercode,
           description:
             "has been cancelled by System for: System's account has been disabled",
         } as OrderStatusHistory);
@@ -270,21 +270,21 @@ class System {
           .where("id", item.id);
         const customer = await Customers.query()
           .select()
-          .where("id", item.customerid)
+          .where("id", item.customerId)
           .first();
         notif.sendNotiForWeb({
-          userid: customer.accountid,
-          link: item.ordercode,
-          message: "Order " + item.ordercode + " has been cancelled",
+          userid: customer.accountId,
+          link: item.orderCode,
+          message: "Order " + item.orderCode + " has been cancelled",
           status: "cancelled",
         });
 
         //type= campaign
         orderStatusHistoryController.createHistory({
-          statushistory: "cancelled",
+          orderStatus: "cancelled",
           type: "campaign",
-          campaignorderid: item.id,
-          ordercode: item.ordercode,
+          campaignOrderId: item.id,
+          orderCode: item.orderCode,
           description:
             "has been cancelled by System for: System's account has been disabled",
         } as OrderStatusHistory);
@@ -308,7 +308,7 @@ class System {
       // // 4.  deactivate table account , supp account
       const deacitveSuppId = await Suppliers.query()
         .update({
-          isdeleted: true,
+          isDeleted: true,
         })
         .where("id", supplierId);
       const accountId = await Suppliers.query()
@@ -317,9 +317,9 @@ class System {
         .first();
       const deactivatedAccount = await Accounts.query()
         .update({
-          isdeleted: true,
+          isDeleted: true,
         })
-        .where("id", accountId.accountid);
+        .where("id", accountId.accountId);
 
       return res.status(200).send({
         message: "successful",
@@ -375,18 +375,18 @@ class System {
             .where("id", item.supplierid)
             .first();
           notif.sendNotiForWeb({
-            userid: suppAccountId.accountid,
+            userid: suppAccountId.accountId,
             link: item.ordercode,
             message:
               "Order " + item.ordercode + " has been cancelled because customer account has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
-            statushistory: "cancelled",
+            orderStatus: "cancelled",
             type: "retail",
-            retailorderid: item.id,
+            retailOrderId: item.id,
             // image: JSON.stringify(image),
-            ordercode: item.ordercode,
+            orderCode: item.ordercode,
             description:
               "has been cancelled for: customer account has been disabled",
           } as OrderStatusHistory);
@@ -406,7 +406,7 @@ class System {
             .where("id", item.supplierid)
             .first();
           notif.sendNotiForWeb({
-            userid: suppAccountId.accountid,
+            userid: suppAccountId.accountId,
             link: item.ordercode,
             message:
               "Order " +
@@ -415,11 +415,11 @@ class System {
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
-            statushistory: "cancelled",
+            orderStatus: "cancelled",
             type: "campaign",
-            campaignorderid: item.id,
+            campaignOrderId: item.id,
             // image: JSON.stringify(image),
-            ordercode: item.ordercode,
+            orderCode: item.ordercode,
             description:
               "has been cancelled for: customer account has been disabled ",
           } as OrderStatusHistory);
@@ -427,7 +427,7 @@ class System {
       }
       const disableCustomer = await Customers.query()
         .update({
-          isdeleted: true,
+          isDeleted: true,
         })
         .where("id", customerId);
 
@@ -438,9 +438,9 @@ class System {
 
       const deactivatedAccount = await Accounts.query()
         .update({
-          isdeleted: true,
+          isDeleted: true,
         })
-        .where("id", cusAccount.accountid);
+        .where("id", cusAccount.accountId);
 
       return res.status(200).send({
         message: "successful",
@@ -457,7 +457,7 @@ class System {
 
       const update = await Customers.query()
         .update({
-          isdeleted: false,
+          isDeleted: false,
         })
         .where("isdeleted", true)
         .andWhere("id", customerId);
@@ -469,9 +469,9 @@ class System {
 
       const acc = await Accounts.query()
         .update({
-          isdeleted: false,
+          isDeleted: false,
         })
-        .where("id", accountId.accountid);
+        .where("id", accountId.accountId);
 
       return res.status(200).send({
         message: "successful",
@@ -492,7 +492,7 @@ class System {
 
       const data = await Suppliers.query()
         .update({
-          isdeleted: false,
+          isDeleted: false,
         })
         .where("isdeleted", true)
         .andWhere("id", supplierId);
@@ -504,9 +504,9 @@ class System {
 
       const acc = await Accounts.query()
         .update({
-          isdeleted: false,
+          isDeleted: false,
         })
-        .where("id", accountId.accountid);
+        .where("id", accountId.accountId);
 
       return res.status(200).send({
         message: "successful",

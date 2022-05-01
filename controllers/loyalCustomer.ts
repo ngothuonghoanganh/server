@@ -9,10 +9,10 @@ class LoyalcustomerController {
       const supplierId = req.user.id;
 
       const newConditon = await LoyalCustomerCondition.query().insert({
-        supplierid: supplierId,
-        minorder: minOrder,
-        minproduct: minProduct,
-        discountpercent: discountPercent,
+        supplierId: supplierId,
+        minOrder: minOrder,
+        minProduct: minProduct,
+        discountPercent: discountPercent,
       });
 
       return res.status(200).send({
@@ -31,9 +31,9 @@ class LoyalcustomerController {
 
       const newConditon = await LoyalCustomerCondition.query()
         .update({
-          minorder: minOrder,
-          minproduct: minProduct,
-          discountpercent: discountPercent,
+          minOrder: minOrder,
+          minProduct: minProduct,
+          discountPercent: discountPercent,
         })
         .where("id", id);
 
@@ -166,9 +166,9 @@ class LoyalcustomerController {
       const data = await LoyalCustomer.query().select()
         .where('customerid', customerId).first();
 
-      console.log(data.supplierid)
+      console.log(data.supplierId)
 
-      const supplierInfor = await Suppliers.query().select().where('id', data.supplierid);
+      const supplierInfor = await Suppliers.query().select().where('id', data.supplierId);
 
       return res.status(200).send({
         message: 'successful',

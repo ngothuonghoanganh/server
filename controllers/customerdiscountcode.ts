@@ -15,10 +15,10 @@ class CustomerDiscountCodeController {
 
             let createCode = await CustomerDiscountCode.query()
                 .insert({
-                    discountcodeid: discountCodeId,
-                    quantity: quantity,
+                    discountCodeId: discountCodeId,
+                    // quantity: quantity,
                     status: status,
-                    customerid: customerId
+                    customerId: customerId
                 })
 
             return res.status(200).send({

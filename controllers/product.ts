@@ -1,7 +1,6 @@
 import { Products } from "../models/products";
 import console from "console";
 import { Suppliers } from "../models/suppliers";
-import { Comments } from "../models/comment";
 import { rmSync } from "fs";
 import { any } from "joi";
 import { Categories } from "../models/category";
@@ -37,12 +36,12 @@ class ProductsController {
 
       const prod: any = await Products.query().insert({
         name: name,
-        retailprice: retailPrice,
+        retailPrice: retailPrice,
         quantity: quantity,
-        supplierid: supplierId,
+        // supplierId: supplierId,
         description: description,
         image: JSON.stringify(image),
-        categoryid: categoryId,
+        categoryId: categoryId,
         status: status,
       });
       return res.status(200).send({
@@ -63,8 +62,8 @@ class ProductsController {
       const productUpdated: any = await Products.query()
         .update({
           name: name,
-          retailprice: retailPrice,
-          categoryid: categoryId,
+          retailPrice: retailPrice,
+          categoryId: categoryId,
           quantity: quantity,
           description: description,
           image: JSON.stringify(image),
@@ -297,17 +296,17 @@ class ProductsController {
             .where('id', item.id);
           const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
           notif.sendNotiForWeb({
-            userid: cusAccountId.accountid,
+            userid: cusAccountId.accountId,
             link: item.ordercode,
             message: "Order " + item.ordercode + " has been cancelled because the product has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
-            statushistory: 'cancelled',
+            orderStatus: 'cancelled',
             type: 'retail',
-            retailorderid: item.id,
+            retailOrderId: item.id,
             // image: JSON.stringify(image),
-            ordercode: item.ordercode,
+            orderCode: item.ordercode,
             description: "has been cancelled for: product has been disabled",
           } as OrderStatusHistory);
         }
@@ -323,17 +322,17 @@ class ProductsController {
           const cusAccountId = await Customers.query().select('accountid').where('id', item.customerid).first();
 
           notif.sendNotiForWeb({
-            userid: cusAccountId.accountid,
+            userid: cusAccountId.accountId,
             link: item.ordercode,
             message: "Order " + item.ordercode + " has been cancelled because the product has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
-            statushistory: 'cancelled',
+            orderStatus: 'cancelled',
             type: "campaign",
-            campaignorderid: item.id,
+            campaignOrderId: item.id,
             // image: JSON.stringify(image),
-            ordercode: item.ordercode,
+            orderCode: item.ordercode,
             description: "has been cancelled for: product has been disabled",
           } as OrderStatusHistory);
         }
@@ -347,7 +346,7 @@ class ProductsController {
       const suppAccountId = await Suppliers.query().select('accountid').where('id', suppId.supplierid).first();
 
       notif.sendNotiForWeb({
-        userid: suppAccountId.accountid,
+        userid: suppAccountId.accountId,
         link: productId,
         message: 'Product and its related campaigns and orders have been cancelled',
         status: "unread",

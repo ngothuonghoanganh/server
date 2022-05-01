@@ -20,10 +20,10 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          identificationcard: identificationCard,
-          identificationimage: JSON.stringify(identificationImage),
-          ewalletcode: eWalletCode,
-          ewalletsecrect: eWalletSecrect,
+          identificationCard: identificationCard,
+          identificationImage: JSON.stringify(identificationImage),
+          eWalletCode: eWalletCode,
+          eWalletSecrect: eWalletSecrect,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -105,8 +105,8 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          ewalletcode: eWalletCode,
-          ewalletsecrect: eWalletSecrect,
+          eWalletCode: eWalletCode,
+          eWalletSecrect: eWalletSecrect,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -126,8 +126,8 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          identificationcard: identificationCard,
-          identificationimage: JSON.stringify(identificationImage),
+          identificationCard: identificationCard,
+          identificationImage: JSON.stringify(identificationImage),
         })
         .where("id", supplierId);
       return res.status(200).send({

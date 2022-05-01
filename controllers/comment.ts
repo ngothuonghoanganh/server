@@ -1,5 +1,4 @@
 import { CampaignOrder } from "../models/campaingorder";
-import { Comments } from "../models/comment";
 import { OrderDetail } from "../models/orderdetail";
 import { Order } from "../models/orders";
 import order from "./order";

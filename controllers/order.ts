@@ -50,29 +50,29 @@ class OrderController {
         .first();
 
       let orderCode = crypto.randomBytes(5).toString("hex") + `-${Date.now()}`;
-
+      //todo: do not have product in campaign order
       if (campaignId) {
         const newOrder = await CampaignOrder.query().insert({
-          customerid: req.user.id,
+          customerId: req.user.id,
           address: address?.street + " " + address?.province,
-          ordercode: orderCode,
-          discountprice: discountPrice,
-          shippingfee: shippingFee,
-          totalprice: products
-            .map((item: any) => item.totalPrice)
+          orderCode: orderCode,
+          discountPrice: discountPrice,
+          shippingFee: shippingFee,
+          totalPrice: products
+            .map((item: any) => item.totalprice)
             .reduce((prev: any, next: any) => {
               return prev + next;
             }),
-          paymentmethod: paymentMethod,
-          campaignid: campaignId,
+          paymentMethod: paymentMethod,
+          campaignId: campaignId,
           status: "notAdvanced",
-          loyalcustomerdiscountpercent: loyalcustomerdiscountpercent,
-          productid: products[0].productId,
-          productname: products[0].productName,
-          quantity: products[0].quantity,
-          price: products[0].price,
-          notes: products[0].notes,
-          image: products[0].image,
+          // loyalcustomerdiscountpercent: loyalcustomerdiscountpercent,
+          // productId: products[0].productId,
+          // productName: products[0].productName,
+          // quantity: products[0].quantity,
+          // price: products[0].price,
+          // notes: products[0].notes,
+          // image: products[0].image,
         });
 
         for (const product of products) {
@@ -95,9 +95,9 @@ class OrderController {
         if (!transaction)
           transactionController.createTransaction({
             // ordercode: orderCode,
-            iswithdrawable: false,
+            isWithdrawable: false,
             type: "income",
-            supplierid: supplierId,
+            supplierId: supplierId,
           } as Transaction);
 
         // orderStatusHistoryController.createHistory({
@@ -122,24 +122,24 @@ class OrderController {
       }
 
       const newOrder = await Order.query().insert({
-        customerid: req.user.id,
-        iswholesale: isWholeSale,
-        customerdiscountcodeid: customerDiscountCodeId,
-        campaignid: campaignId,
-        addressid: addressId,
-        paymentid: paymentId,
-        supplierid: supplierId,
-        discountprice: discountPrice,
-        shippingfee: shippingFee,
-        paymentmethod: paymentMethod,
+        customerId: req.user.id,
+        // isWholeSale: isWholeSale,
+        customerDiscountCodeId: customerDiscountCodeId,
+        // campaignid: campaignId,
+        // addressid: addressId,
+        paymentId: paymentId,
+        // supplierid: supplierId,
+        discountPrice: discountPrice,
+        shippingFee: shippingFee,
+        paymentMethod: paymentMethod,
         status: paymentMethod === "cod" ? "created" : "unpaid",
-        loyalcustomerdiscountpercent: loyalcustomerdiscountpercent,
-        totalprice: products
+        // loyalcustomerdiscountpercent: loyalcustomerdiscountpercent,
+        totalPrice: products
           .map((item: any) => item.totalPrice)
           .reduce((prev: any, next: any) => {
             return prev + next;
           }),
-        ordercode: orderCode,
+        orderCode: orderCode,
         address: address?.street + " " + address?.province,
       });
       let newOrderDetails: any = [];
@@ -174,16 +174,16 @@ class OrderController {
         for (const product of products) {
           await OrderDetail.query()
             .update({
-              customerid: req.user.id,
-              productid: product.productId,
-              productname: product.productName,
+              // customerid: req.user.id,
+              productId: product.productId,
+              productName: product.productName,
               quantity: product.quantity,
               price: product.price,
-              totalprice: product.totalPrice,
-              notes: product.notes,
-              ordercode: orderCode,
+              totalPrice: product.totalPrice,
+              // notes: product.notes,
+              orderCode: orderCode,
               image: product.image,
-              orderid: newOrder.id,
+              orderId: newOrder.id,
             })
             .where("id", product.cartId);
           await Products.query()
@@ -197,36 +197,35 @@ class OrderController {
         newOrderDetails = await OrderDetail.query()
           .select()
           .where("ordercode", orderCode);
-
       }
       // insert into history
 
       if (paymentMethod === "cod") {
         orderStatusHistoryController.createHistory({
-          statushistory: "created",
+          orderStatus: "created",
           type: "retail",
-          retailorderid: newOrder.id,
-          ordercode: newOrder.ordercode,
+          retailOrderId: newOrder.id,
+          orderCode: newOrder.orderCode,
           description: "is created",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: supplierData.accountid,
-          link: newOrder.ordercode,
-          message: "Order " + newOrder.ordercode + "has been set to created",
+          userid: supplierData.accountId,
+          link: newOrder.orderCode,
+          message: "Order " + newOrder.orderCode + "has been set to created",
           status: "unread",
         });
       } else {
         orderStatusHistoryController.createHistory({
-          statushistory: "unpaid",
+          orderStatus: "unpaid",
           type: "retail",
-          retailorderid: newOrder.id,
-          ordercode: newOrder.ordercode,
+          retailOrderId: newOrder.id,
+          orderCode: newOrder.orderCode,
           description: "requires full payment via VNPAY E-Wallet",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: supplierData.accountid,
-          link: newOrder.ordercode,
-          message: "Order " + newOrder.ordercode + "has been set to unpaid",
+          userid: supplierData.accountId,
+          link: newOrder.orderCode,
+          message: "Order " + newOrder.orderCode + "has been set to unpaid",
           status: "unread",
         });
       }
@@ -250,9 +249,9 @@ class OrderController {
       if (!transaction)
         transactionController.createTransaction({
           // ordercode: orderCode,
-          iswithdrawable: false,
+          isWithdrawable: false,
           type: "income",
-          supplierid: supplierId,
+          supplierId: supplierId,
         } as Transaction);
       return res.status(200).send({
         message: "successful",
@@ -324,18 +323,18 @@ class OrderController {
 
         if (!loyalCustomer) {
           await LoyalCustomer.query().insert({
-            customerid: order.customerid,
-            supplierid: order.supplierid,
-            numoforder: 1,
-            numofproduct: order.orderquantity,
+            customerId: order.customerid,
+            supplierId: order.supplierid,
+            numOfOrder: 1,
+            numOfProduct: order.orderquantity,
           });
         } else {
           await LoyalCustomer.query()
             .update({
-              customerid: order.customerid,
-              supplierid: order.supplierid,
-              numoforder: LoyalCustomer.raw(`numoforder + 1`),
-              numofproduct: LoyalCustomer.raw(
+              customerId: order.customerid,
+              supplierId: order.supplierid,
+              numOfOrder: LoyalCustomer.raw(`numoforder + 1`),
+              numOfProduct: LoyalCustomer.raw(
                 `numofproduct + ${order.orderquantity}`
               ),
             })
@@ -353,22 +352,24 @@ class OrderController {
           const condition = await LoyalCustomerCondition.query()
             .select()
             .where("supplierid", order.supplierid)
-            .andWhere(cd => {
-              cd.where("minorder", "<=", newLoyalCustomer.numoforder)
-                .orWhere("minproduct", "<=", newLoyalCustomer.numofproduct);
-            })
-
+            .andWhere((cd) => {
+              cd.where("minorder", "<=", newLoyalCustomer.numOfOrder).orWhere(
+                "minproduct",
+                "<=",
+                newLoyalCustomer.numOfProduct
+              );
+            });
 
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                p.discountpercent > c.discountpercent ? p : c
-              )
-              : { discountpercent: 0 };
+                  p.discountPercent > c.discountPercent ? p : c
+                )
+              : { discountPercent: 0 };
 
           await LoyalCustomer.query()
             .update({
-              discountpercent: maxPercent.discountpercent,
+              discountPercent: maxPercent.discountPercent,
             })
             .where("id", newLoyalCustomer.id);
         }
@@ -385,17 +386,20 @@ class OrderController {
         supplierid: order.supplierid,
         advancefee: Transaction.raw(`advancefee + ${order.advancefee || 0}`),
         platformfee: Transaction.raw(
-          `platformfee + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `platformfee + ${
+            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
           }`
         ),
         paymentfee: Transaction.raw(
-          `paymentfee + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `paymentfee + ${
+            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
           }`
         ),
         ordervalue: Transaction.raw(
-          `ordervalue + ${order.totalprice -
-          (order.discountprice || 0) -
-          (order.advancefee || 0)
+          `ordervalue + ${
+            order.totalprice -
+            (order.discountprice || 0) -
+            (order.advancefee || 0)
           }`
         ),
         iswithdrawable: true,
@@ -406,18 +410,19 @@ class OrderController {
       } as any);
 
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         // image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
 
+      //todo
       //send notif for supplier
-      let supplierDataForRetail;
-      let supplierDataForCampaign;
+      let supplierDataForRetail: any;
+      let supplierDataForCampaign: any;
       let accountIdSupp;
       if (type === "retail") {
         supplierDataForRetail = await Order.query()
@@ -440,7 +445,7 @@ class OrderController {
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdSupp.accountid,
+        userid: accountIdSupp.accountId,
         link: orderCode,
         message: "Order " + orderCode + "has been set to " + status,
         status: "unread",
@@ -526,12 +531,12 @@ class OrderController {
 
       //insert status for order status history
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         // image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: "is being processed",
       } as OrderStatusHistory);
       //send notif for customer
@@ -544,7 +549,7 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       } else {
         customerObj = await CampaignOrder.query()
@@ -553,11 +558,11 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
+        userid: accountIdCus.accountId,
         link: orderCode,
         message: "Order " + orderCode + "has been set to " + status,
         status: "unread",
@@ -602,12 +607,12 @@ class OrderController {
           .andWhere("ordercode", orderCode);
       }
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
 
@@ -638,10 +643,7 @@ class OrderController {
         supplierId,
       } = req.body;
       const order: any =
-        (await Order.query()
-          .select()
-          .where("ordercode", orderCode)
-          .first()) ||
+        (await Order.query().select().where("ordercode", orderCode).first()) ||
         (await CampaignOrder.query()
           .select()
           .where("ordercode", orderCode)
@@ -687,12 +689,12 @@ class OrderController {
       }
       //insert history for cancel
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
       //send notif for customer
@@ -705,7 +707,7 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       } else {
         customerObj = await CampaignOrder.query()
@@ -714,64 +716,73 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       }
       //supplier cancel order
-      if (cancelLinkRequestor !== 'Customer') {
+      if (cancelLinkRequestor !== "Customer") {
         orderStatusHistoryController.createHistory({
-          statushistory: 'requestRefund',
+          orderStatus: "requestRefund",
           type: type,
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
+          retailOrderId: type === "retail" ? orderId : null,
+          campaignOrderId: type === "campaign" ? orderId : null,
           // image: JSON.stringify(image),
-          ordercode: orderCode,
-          description: 'waiting for refund',
+          orderCode: orderCode,
+          description: "waiting for refund",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
+          userid: accountIdCus.accountId,
           link: orderCode,
-          message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
+          message:
+            "Order has been set to " +
+            status +
+            ". \n Your online payment (if applicable) will be refunded. ",
           status: "unread",
         });
-      } else if (type === 'retail') {
+      } else if (type === "retail") {
         //customer cancel order retail
         orderStatusHistoryController.createHistory({
-          statushistory: 'requestRefund',
+          orderStatus: "requestRefund",
           type: type,
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
+          retailOrderId: type === "retail" ? orderId : null,
+          campaignOrderId: type === "campaign" ? orderId : null,
           // image: JSON.stringify(image),
-          ordercode: orderCode,
-          description: 'waiting for refund',
+          orderCode: orderCode,
+          description: "waiting for refund",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
+          userid: accountIdCus.accountId,
           link: orderCode,
-          message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
+          message:
+            "Order has been set to " +
+            status +
+            ". \n Your online payment (if applicable) will be refunded. ",
           status: "unread",
         });
-      } else if (order.status === 'created' || order.status === 'processing') {
+      } else if (order.status === "created" || order.status === "processing") {
         //customer cancel order campaign in status = created or processing
         orderStatusHistoryController.createHistory({
-          statushistory: 'requestRefund',
+          orderStatus: "requestRefund",
           type: type,
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
+          retailOrderId: type === "retail" ? orderId : null,
+          campaignOrderId: type === "campaign" ? orderId : null,
           // image: JSON.stringify(image),
-          ordercode: orderCode,
-          description: 'waiting for refund',
+          orderCode: orderCode,
+          description: "waiting for refund",
         } as OrderStatusHistory);
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
+          userid: accountIdCus.accountId,
           link: orderCode,
-          message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
+          message:
+            "Order has been set to " +
+            status +
+            ". \n Your online payment (if applicable) will be refunded. ",
           status: "unread",
         });
       } else {
         //customer cancel campaign
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
+          userid: accountIdCus.accountId,
           link: orderCode,
           message: "Order has been set to " + status,
           status: "unread",
@@ -827,12 +838,12 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: "is being delivered",
       } as OrderStatusHistory);
       //send notif for customer
@@ -845,7 +856,7 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       } else {
         customerObj = await CampaignOrder.query()
@@ -854,11 +865,11 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
+        userid: accountIdCus.accountId,
         link: orderCode,
         message: "Order has been set to " + status,
         status: "unread",
@@ -906,12 +917,12 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
       //send notif for customer
@@ -924,7 +935,7 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       } else {
         customerObj = await CampaignOrder.query()
@@ -933,16 +944,17 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
+        userid: accountIdCus.accountId,
         link: orderCode,
         message: "Order has been set to " + status,
         status: "unread",
       });
 
+      //todo
       //send notif for supp
       if (type === "retail") {
         let suppId = await Order.query()
@@ -951,16 +963,17 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountid")
-          .where("id", suppId.supplierid)
+          // .where("id", suppId.supplierid)
           .first();
 
         notif.sendNotiForWeb({
-          userid: accountIdSupp.accountid,
+          userid: accountIdSupp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       } else {
+        //todo
         let supplierDataForCampaign = await Products.query()
           .select("products.supplierid")
           .join("campaignorder", "campaignorder.productid", "products.id")
@@ -968,11 +981,11 @@ class OrderController {
           .first();
         let supp = await Suppliers.query()
           .select("accountid")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
 
         notif.sendNotiForWeb({
-          userid: supp.accountid,
+          userid: supp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
@@ -1022,12 +1035,12 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
       //send notif for customer
@@ -1040,7 +1053,7 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       } else {
         customerObj = await CampaignOrder.query()
@@ -1049,17 +1062,18 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       }
       notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
+        userid: accountIdCus.accountId,
         link: orderCode,
         message: "Order " + orderCode + "has been set to " + status,
         status: "unread",
       });
 
       //send notif for supp
+      //todo
       if (type === "retail") {
         let suppId = await Order.query()
           .select("supplierid")
@@ -1067,16 +1081,17 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountid")
-          .where("id", suppId.supplierid)
+          // .where("id", suppId.supplierid)
           .first();
 
         notif.sendNotiForWeb({
-          userid: accountIdSupp.accountid,
+          userid: accountIdSupp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       } else {
+        //todo
         let supplierDataForCampaign = await Products.query()
           .select("products.supplierid")
           .join("campaignorder", "campaignorder.productid", "products.id")
@@ -1084,10 +1099,10 @@ class OrderController {
           .first();
         let supp = await Suppliers.query()
           .select("accountid")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
         notif.sendNotiForWeb({
-          userid: supp.accountid,
+          userid: supp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
@@ -1140,12 +1155,12 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: "requestRejected",
+        orderStatus: "requestRejected",
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
       //query order history theo order code va status = returning
@@ -1164,7 +1179,7 @@ class OrderController {
             .first();
           accountIdCus = await Customers.query()
             .select("accountid")
-            .where("id", customerObj.customerid)
+            .where("id", customerObj.customerId)
             .first();
         } else {
           customerObj = await CampaignOrder.query()
@@ -1173,11 +1188,11 @@ class OrderController {
             .first();
           accountIdCus = await Customers.query()
             .select("accountid")
-            .where("id", customerObj.customerid)
+            .where("id", customerObj.customerId)
             .first();
         }
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
+          userid: accountIdCus.accountId,
           link: orderCode,
           message: "Order " + orderCode + " changed to " + "requestRejected",
           status: "unread",
@@ -1193,7 +1208,7 @@ class OrderController {
             .first();
           accountIdCus = await Customers.query()
             .select("accountid")
-            .where("id", customerObj.customerid)
+            .where("id", customerObj.customerId)
             .first();
         } else {
           customerObj = await CampaignOrder.query()
@@ -1202,11 +1217,11 @@ class OrderController {
             .first();
           accountIdCus = await Customers.query()
             .select("accountid")
-            .where("id", customerObj.customerid)
+            .where("id", customerObj.customerId)
             .first();
         }
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountid,
+          userid: accountIdCus.accountId,
           link: orderCode,
           message: "Order " + orderCode + " changed to " + "requestRejected",
           status: "unread",
@@ -1214,22 +1229,25 @@ class OrderController {
 
         //send notif for supp
         if (type === "retail") {
+          //todo
           let suppId = await Order.query()
             .select("supplierid")
             .where("id", orderId)
             .first();
           let accountIdSupp = await Suppliers.query()
             .select("accountid")
-            .where("id", suppId.supplierid)
+            // .where("id", suppId.supplierid)
             .first();
 
           notif.sendNotiForWeb({
-            userid: accountIdSupp.accountid,
+            userid: accountIdSupp.accountId,
             link: orderCode,
-            message: "Return request for order " + orderCode + " has been rejected",
+            message:
+              "Return request for order " + orderCode + " has been rejected",
             status: "unread",
           });
         } else {
+          //todo
           let supplierDataForCampaign = await Products.query()
             .select("products.supplierid")
             .join("campaignorder", "campaignorder.productid", "products.id")
@@ -1237,12 +1255,13 @@ class OrderController {
             .first();
           let supp = await Suppliers.query()
             .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
+            // .where("id", supplierDataForCampaign.supplierid)
             .first();
           notif.sendNotiForWeb({
-            userid: supp.accountid,
+            userid: supp.accountId,
             link: orderCode,
-            message: "Return request for order " + orderCode + " has been rejected",
+            message:
+              "Return request for order " + orderCode + " has been rejected",
             status: "unread",
           });
         }
@@ -1291,15 +1310,16 @@ class OrderController {
         });
       }
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
       //send notif for supp
+      //todo
       if (type === "retail") {
         let suppId = await Order.query()
           .select("supplierid")
@@ -1307,16 +1327,17 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountid")
-          .where("id", suppId.supplierid)
+          // .where("id", suppId.supplierid)
           .first();
 
         notif.sendNotiForWeb({
-          userid: accountIdSupp.accountid,
+          userid: accountIdSupp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
         });
       } else {
+        // todo
         let supplierDataForCampaign = await Products.query()
           .select("products.supplierid")
           .join("campaignorder", "campaignorder.productid", "products.id")
@@ -1324,10 +1345,10 @@ class OrderController {
           .first();
         let supp = await Suppliers.query()
           .select("accountid")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
         notif.sendNotiForWeb({
-          userid: supp.accountid,
+          userid: supp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to " + status,
           status: "unread",
@@ -1353,10 +1374,7 @@ class OrderController {
         /* image,*/ description,
       } = req.body;
       const order: any =
-        (await Order.query()
-          .select()
-          .where("ordercode", orderCode)
-          .first()) ||
+        (await Order.query().select().where("ordercode", orderCode).first()) ||
         (await CampaignOrder.query()
           .select()
           .where("ordercode", orderCode)
@@ -1392,7 +1410,7 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       } else {
         customerObj = await CampaignOrder.query()
@@ -1401,33 +1419,36 @@ class OrderController {
           .first();
         accountIdCus = await Customers.query()
           .select("accountid")
-          .where("id", customerObj.customerid)
+          .where("id", customerObj.customerId)
           .first();
       }
 
       orderStatusHistoryController.createHistory({
-        statushistory: status,
+        orderStatus: status,
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         // image: JSON.stringify(image),
-        ordercode: orderCode,
+        orderCode: orderCode,
         description: description,
       } as OrderStatusHistory);
 
       orderStatusHistoryController.createHistory({
-        statushistory: 'requestRefund',
+        orderStatus: "requestRefund",
         type: type,
-        retailorderid: type === "retail" ? orderId : null,
-        campaignorderid: type === "campaign" ? orderId : null,
+        retailOrderId: type === "retail" ? orderId : null,
+        campaignOrderId: type === "campaign" ? orderId : null,
         // image: JSON.stringify(image),
-        ordercode: orderCode,
-        description: 'waiting for refund',
+        orderCode: orderCode,
+        description: "waiting for refund",
       } as OrderStatusHistory);
       notif.sendNotiForWeb({
-        userid: accountIdCus.accountid,
+        userid: accountIdCus.accountId,
         link: orderCode,
-        message: "Order has been set to " + status + ". \n Your online payment (if applicable) will be refunded. ",
+        message:
+          "Order has been set to " +
+          status +
+          ". \n Your online payment (if applicable) will be refunded. ",
         status: "unread",
       });
       return res.status(200).send({
@@ -1672,7 +1693,7 @@ class OrderController {
         .groupBy("orders.id");
       if (orders.length === 0) {
         orders = await CampaignOrder.query().select().where("id", orderId);
-        console.log(orders)
+        console.log(orders);
 
         orders[0].details = [];
         orders[0].details.push({
@@ -1721,22 +1742,22 @@ class OrderController {
         type,
         orderCode,
         isShare = false,
-        currentPrice = 0
+        currentPrice = 0,
       } = req.body;
 
       if (!isAdvanced) {
         await Order.query()
           .update({
-            paymentid: vnp_TxnRef,
+            paymentId: vnp_TxnRef,
             status: status,
           })
           .where("id", orderId);
 
         orderStatusHistoryController.createHistory({
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
-          statushistory: "created",
-          ordercode: orderCode,
+          retailOrderId: type === "retail" ? orderId : null,
+          campaignOrderId: type === "campaign" ? orderId : null,
+          orderStatus: "created",
+          orderCode: orderCode,
           type: type,
           description: "is created",
         } as OrderStatusHistory);
@@ -1749,11 +1770,13 @@ class OrderController {
             .select("supplierid")
             .where("id", orderId)
             .first();
+          // todo
           accountIdSupp = await Suppliers.query()
             .select("accountid")
-            .where("id", supplierDataForRetail.supplierid)
+            // .where("id", supplierDataForRetail.supplierid)
             .first();
         } else {
+          // todo
           supplierDataForCampaign = await Products.query()
             .select("products.supplierid")
             .join("campaignorder", "campaignorder.productid", "products.id")
@@ -1761,33 +1784,33 @@ class OrderController {
             .first();
           accountIdSupp = await Suppliers.query()
             .select("accountid")
-            .where("id", supplierDataForCampaign.supplierid)
+            // .where("id", supplierDataForCampaign.supplierid)
             .first();
         }
         notif.sendNotiForWeb({
-          userid: accountIdSupp.accountid,
+          userid: accountIdSupp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to created",
           status: "unread",
         });
 
         await CampaignOrder.query()
-          .update({ paymentid: vnp_TxnRef, status: status })
+          .update({ paymentId: vnp_TxnRef, status: status })
           .where("id", orderId);
       } else {
         await CampaignOrder.query()
           .update({
-            advancedid: vnp_TxnRef,
+            advancedId: vnp_TxnRef,
             status: status,
-            advancefee: amount,
+            advanceFee: amount,
           })
           .where("id", orderId);
 
         orderStatusHistoryController.createHistory({
-          retailorderid: type === "retail" ? orderId : null,
-          campaignorderid: type === "campaign" ? orderId : null,
-          statushistory: "advanced",
-          ordercode: orderCode,
+          retailOrderId: type === "retail" ? orderId : null,
+          campaignOrderId: type === "campaign" ? orderId : null,
+          orderStatus: "advanced",
+          orderCode: orderCode,
           type: "campaign",
           description: "has completed advanced payment via VNPAY E-Wallet",
         } as OrderStatusHistory);
@@ -1800,10 +1823,10 @@ class OrderController {
           .first();
         let accountIdSupp = await Suppliers.query()
           .select("accountid")
-          .where("id", supplierDataForCampaign.supplierid)
+          // .where("id", supplierDataForCampaign.supplierid)
           .first();
         notif.sendNotiForWeb({
-          userid: accountIdSupp.accountid,
+          userid: accountIdSupp.accountId,
           link: orderCode,
           message: "Order " + orderCode + "has been set to advanced",
           status: "unread",
@@ -1816,7 +1839,7 @@ class OrderController {
           .first();
         const campaignId = currentCampaign.id;
 
-        if (currentCampaign.isshare) {
+        if (currentCampaign.isShare) {
           // update price for order order in campaign
           const advancedOrdersInCampaign: any = await CampaignOrder.query()
             .select()
@@ -1826,16 +1849,26 @@ class OrderController {
 
           if (advancedOrdersInCampaign.length > 0) {
             const advancedOrder = advancedOrdersInCampaign[0];
-            let discountPrice = (advancedOrder.totalprice) - (currentPrice * (advancedOrder.quantity));
-            discountPrice += ((currentPrice * (advancedOrder.quantity)) * advancedOrder.loyalcustomerdiscountpercent) / 100;
+            let discountPrice =
+              advancedOrder.totalprice - currentPrice * advancedOrder.quantity;
+            discountPrice +=
+              (currentPrice *
+                advancedOrder.quantity *
+                advancedOrder.loyalcustomerdiscountpercent) /
+              100;
             if (discountPrice > advancedOrder.discountprice) {
               for (const item of advancedOrdersInCampaign) {
-                discountPrice = (item.totalprice) - (currentPrice * (item.quantity));
-                discountPrice += ((currentPrice * (item.quantity)) * item.loyalcustomerdiscountpercent) / 100;
-                let updateCampaignOrder: any = await CampaignOrder.query().update({
-                  discountprice: discountPrice
-                })
-                  .where('id', item.id);
+                discountPrice = item.totalprice - currentPrice * item.quantity;
+                discountPrice +=
+                  (currentPrice *
+                    item.quantity *
+                    item.loyalcustomerdiscountpercent) /
+                  100;
+                let updateCampaignOrder: any = await CampaignOrder.query()
+                  .update({
+                    discountPrice: discountPrice,
+                  })
+                  .where("id", item.id);
 
                 const customer = await Customers.query()
                   .select()
@@ -1843,14 +1876,14 @@ class OrderController {
                   .first();
 
                 notif.sendNotiForWeb({
-                  userid: customer.accountid,
+                  userid: customer.accountId,
                   link: item.ordercode,
-                  message: "Order " + item.ordercode + " has reached a new milestone",
+                  message:
+                    "Order " + item.ordercode + " has reached a new milestone",
                   status: "unread",
                 });
               }
             }
-
           }
         }
 
@@ -1921,22 +1954,22 @@ class OrderController {
             .where("id", campaignId);
           const getCampaigns = await Campaigns.query()
             .select()
-            .where("productid", campaign.productid)
+            .where("productid", campaign.productId)
             .andWhere("status", "active");
 
           if (getCampaigns.length === 0) {
             await Products.query()
               .update({ status: "active" })
-              .where("id", campaign.productid);
+              .where("id", campaign.productId);
           }
 
           for (const item of ordersInCampaign) {
             orderStatusHistoryController.createHistory({
-              statushistory:
+              orderStatus:
                 item.paymentmethod === "online" ? "unpaid" : "created",
               type: "campaign",
-              campaignorderid: item.id,
-              ordercode: item.ordercode,
+              campaignOrderId: item.id,
+              orderCode: item.ordercode,
               description:
                 item.paymentmethod === "online"
                   ? "requires full payment via VNPAY E-Wallet"
@@ -1950,14 +1983,14 @@ class OrderController {
 
             if (item.paymentMethod === "online") {
               notif.sendNotiForWeb({
-                userid: customer.accountid,
+                userid: customer.accountId,
                 link: item.ordercode,
                 message: "Order " + item.ordercode + "has been set to unpaid",
                 status: "unread",
               });
             } else {
               notif.sendNotiForWeb({
-                userid: customer.accountid,
+                userid: customer.accountId,
                 link: item.ordercode,
                 message: "Order " + item.ordercode + "has been set to created",
                 status: "unread",
@@ -1965,19 +1998,20 @@ class OrderController {
             }
 
             //update quantity of product
-            await Products.query().update({
-              quantity: Products.raw(`quantity - ${item.quantity}`)
-            })
-              .where('id', campaign.productid)
-
+            await Products.query()
+              .update({
+                quantity: Products.raw(`quantity - ${item.quantity}`),
+              })
+              .where("id", campaign.productId);
           }
           let supplierId;
+          //todo
           supplierId = await Suppliers.query()
             .select()
-            .where("id", campaign.supplierid)
+            // .where("id", campaign.supplierid)
             .first();
           notif.sendNotiForWeb({
-            userid: supplierId.accountid,
+            userid: supplierId.accountId,
             link: campaign.code,
             message: `Campaign with code: ${campaign.code} has ended`,
             status: "unread",
@@ -1987,12 +2021,12 @@ class OrderController {
 
       return res.status(200).send({
         message: "successful",
-      })
+      });
     } catch (error) {
       console.log(error);
       return res.status(200).send({
-        message: error
-      })
+        message: error,
+      });
     }
   };
 
@@ -2059,7 +2093,10 @@ class OrderController {
       let supplierId;
       const orderCode = req.query.orderCode;
 
-      const customerData = await Customers.query().select().where('id', customerId).first();
+      const customerData = await Customers.query()
+        .select()
+        .where("id", customerId)
+        .first();
 
       const orderRetail: any = await Order.query()
         .select(
@@ -2131,7 +2168,7 @@ class OrderController {
           order: orderRetail || orderCampaign,
           customerId: { ...customerId },
           supplierId: { ...supplierId },
-          customerData: customerData
+          customerData: customerData,
         },
       });
     } catch (error) {
