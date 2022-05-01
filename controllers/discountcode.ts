@@ -38,7 +38,7 @@ class DiscountCodeController {
                     quantity: quantity,
                     status: status,
                     // productid: productId,
-                    // minimunpricecondition: minimunPriceCondition,
+                    minimumPriceCondition: minimunPriceCondition,
                     discountPrice: discountPrice
                 })
             for (const item of listLoyalCustomer) {

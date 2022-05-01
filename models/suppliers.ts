@@ -17,7 +17,7 @@ export class Suppliers extends Model {
   updatedAt?: Date;
   address?: string;
   eWalletCode?: string;
-  eWalletSecrect?: string;
+  eWalletSecret?: string;
   identificationCard?: string;
   identificationImage?: string;
 }

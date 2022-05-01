@@ -1,11 +1,12 @@
 import { LoyalCustomer } from "../models/loyalCustomer";
 import { LoyalCustomerCondition } from "../models/loyalCustomerCondition";
 import { Suppliers } from "../models/suppliers";
+import dbEntity from "../services/dbEntity";
 
 class LoyalcustomerController {
   public create = async (req: any, res: any, next: any) => {
     try {
-      const { minOrder, minProduct, discountPercent } = req.body;
+      const { minOrder, minProduct, discountPercent, name } = req.body;
       const supplierId = req.user.id;
 
       const newConditon = await LoyalCustomerCondition.query().insert({
@@ -13,6 +14,7 @@ class LoyalcustomerController {
         minOrder: minOrder,
         minProduct: minProduct,
         discountPercent: discountPercent,
+        name: name
       });
 
       return res.status(200).send({
@@ -21,12 +23,14 @@ class LoyalcustomerController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
   public update = async (req: any, res: any, next: any) => {
     try {
-      const { minOrder, minProduct, discountPercent } = req.body;
+      const { minOrder, minProduct, discountPercent, name } = req.body;
       const id = req.params.loyalCustomerConditionId;
 
       const newConditon = await LoyalCustomerCondition.query()
@@ -43,6 +47,8 @@ class LoyalcustomerController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -60,6 +66,8 @@ class LoyalcustomerController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -74,10 +82,12 @@ class LoyalcustomerController {
 
       return res.status(200).send({
         data: condition,
-        message: "create successfully",
+        message: "successful",
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -87,25 +97,26 @@ class LoyalcustomerController {
 
       return res.status(200).send({
         data: data,
-        message: "get successfully",
+        message: "successful",
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
-  public getAllCustoner = async (req: any, res: any, next: any) => {
+  public getAllCustomer = async (req: any, res: any, next: any) => {
     try {
       const listEntity = [
-        "loyalcustomer.*",
         "customers.id as customerid",
-        "customers.firstname as customerfirstname",
-        "customers.lastname as customerlastname",
+        "customers.firstName as customerfirstname",
+        "customers.lastName as customerlastname",
         "customers.avt as customeravt",
       ];
       const data = await LoyalCustomer.query()
-        .select(...listEntity)
-        .join("customers", "customers.id", "loyalcustomer.customerid");
+        .select(...dbEntity.loyalCustomerEntity, ...listEntity)
+        .join("customers", "customers.id", "loyalCustomers.customerId");
 
       return res.status(200).send({
         data: data,
@@ -113,6 +124,8 @@ class LoyalcustomerController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -130,6 +143,8 @@ class LoyalcustomerController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -145,8 +160,8 @@ class LoyalcustomerController {
 
       const data = await LoyalCustomer.query()
         .select()
-        .where('supplierid', supplierId)
-        .andWhere('customerid', customerId)
+        .where('supplierId', supplierId)
+        .andWhere('customerId', customerId)
         .andWhere('status', status)
 
       return res.status(200).send({
@@ -154,7 +169,9 @@ class LoyalcustomerController {
         data: data
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -164,9 +181,9 @@ class LoyalcustomerController {
       // console.log('testtttttttttt')
 
       const data = await LoyalCustomer.query().select()
-        .where('customerid', customerId).first();
+        .where('customerId', customerId).first();
 
-      console.log(data.supplierId)
+      // console.log(data.supplierId)
 
       const supplierInfor = await Suppliers.query().select().where('id', data.supplierId);
 
@@ -175,7 +192,9 @@ class LoyalcustomerController {
         data: ({ loyalCustomer: data, supplierInfor: supplierInfor })
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 }

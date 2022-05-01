@@ -97,6 +97,8 @@ class Comment {
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
       const campaignOrder: any = await CampaignOrder.query()
         .select(
+            //TODO ENTITY
+
           "campaignorder.*",
           "campaignOrders.comment",
           ...ListEntity,
@@ -114,6 +116,8 @@ class Comment {
 
       const retailOrder: any = await OrderDetail.query()
         .select(
+            //TODO ENTITY
+
           "orderdetail.*",
           "orderDetails.comment",
           ...ListEntity,
