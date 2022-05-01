@@ -110,8 +110,8 @@ class Campaign {
       const campaignId = req.params.campaignId;
       const {
         productId,
-        fromDate,
-        toDate,
+        fromdate,
+        todate,
         quantity,
         price,
         maxQuantity = 0,
@@ -123,10 +123,10 @@ class Campaign {
         let availableCampaign = null;
         availableCampaign = await Campaigns.query()
           .select()
-          .where("productid", productId)
-          .andWhere("isshare", true)
-          .andWhere("todate", ">", fromDate)
-          .andWhere("fromdate", "<", toDate)
+          .where("productId", productId)
+          .andWhere("isShare", true)
+          .andWhere("toDate", ">", fromdate)
+          .andWhere("fromDate", "<", todate)
           .andWhere((cd) => {
             cd.where("status", "ready").orWhere("status", "active");
           });
@@ -140,9 +140,9 @@ class Campaign {
       let campaign: any = null;
       campaign = await Campaigns.query()
         .select()
-        .sum("maxquantity as maxquantitycampaign")
-        .where("todate", ">=", Campaigns.raw("now()"))
-        .andWhere("productid", productId)
+        .sum("maxQuantity as maxquantitycampaign")
+        .where("toDate", ">=", Campaigns.raw("now()"))
+        .andWhere("productId", productId)
         .andWhere("status", "active")
         .andWhere("id", "<>", campaignId)
         .first();
@@ -158,17 +158,17 @@ class Campaign {
         .andWhere("quantity", ">=", parseInt(campaign.maxquantitycampaign));
       let numRecordUpdated = 0;
       if (product && product.length > 0) {
-        const campaignReadyUpdate = await Campaigns.query()
-          .select()
-          .where("id", campaignId)
-          .first();
+        // const campaignReadyUpdate = await Campaigns.query()
+        //   .select()
+        //   .where("id", campaignId)
+        //   .first();
         numRecordUpdated = await Campaigns.query()
           .update({
             productId: productId,
             quantity: quantity,
             price: price,
-            fromDate: fromDate,
-            toDate: toDate,
+            fromDate: fromdate,
+            toDate: todate,
             maxQuantity: maxQuantity,
             isShare: isShare,
             advanceFee: advanceFee,
@@ -206,7 +206,7 @@ class Campaign {
 
       const campaign = await Campaigns.query()
         .update({
-          status: "deactivated",
+          status: "stop",
         })
         .where("id", campaignId)
         .andWhere("status", "ready");
@@ -650,7 +650,6 @@ class Campaign {
         .where("id", campaignId)
         .andWhere("status", "active")
         .first();
-      console.log(campaign);
       if (campaign === undefined) {
         return res.status(200).send({
           message: "Campaign not found",
@@ -658,7 +657,7 @@ class Campaign {
       }
       const ordersInCampaign: any = await CampaignOrder.query()
         .select()
-        .where("campaignid", campaignId)
+        .where("campaignId", campaignId)
         .andWhere("status", "advanced");
 
       if (ordersInCampaign) {
@@ -669,13 +668,13 @@ class Campaign {
               status: "unpaid",
             })
             .whereIn("id", orderId)
-            .andWhere("paymentmethod", "online"),
+            .andWhere("paymentMethod", "online"),
           CampaignOrder.query()
             .update({
               status: "created",
             })
             .whereIn("id", orderId)
-            .andWhere("paymentmethod", "cod"),
+            .andWhere("paymentMethod", "cod"),
         ]);
 
         await Campaigns.query()
@@ -683,7 +682,7 @@ class Campaign {
           .where("id", campaignId);
         const getCampaigns = await Campaigns.query()
           .select()
-          .where("productid", campaign.productId)
+          .where("productId", campaign.productId)
           .andWhere("status", "active");
 
         if (getCampaigns.length === 0) {
@@ -694,12 +693,12 @@ class Campaign {
 
         for (const item of ordersInCampaign) {
           orderStatusHistoryController.createHistory({
-            orderStatus: item.paymentmethod === "online" ? "unpaid" : "created",
+            orderStatus: item.paymentMethod === "online" ? "unpaid" : "created",
             type: "campaign",
             campaignOrderId: item.id,
-            orderCode: item.ordercode,
+            orderCode: item.orderCode,
             description:
-              item.paymentmethod === "online"
+              item.paymentMethod === "online"
                 ? "requires full payment via VNPAY E-Wallet"
                 : "is created",
           } as OrderStatusHistory);
@@ -711,16 +710,16 @@ class Campaign {
 
           if (item.paymentMethod === "online") {
             notif.sendNotiForWeb({
-              userid: customer.accountId,
-              link: item.ordercode,
-              message: "Order " + item.ordercode + "has been set to unpaid",
+              userId: customer.accountId,
+              link: item.orderCode,
+              message: "Order " + item.orderCode + "has been set to unpaid",
               status: "unread",
             });
           } else {
             notif.sendNotiForWeb({
-              userid: customer.accountId,
-              link: item.ordercode,
-              message: "Order " + item.ordercode + "has been set to created",
+              userId: customer.accountId,
+              link: item.orderCode,
+              message: "Order " + item.orderCode + "has been set to created",
               status: "unread",
             });
           }
@@ -733,17 +732,17 @@ class Campaign {
             .where("id", campaign.productId);
         }
         //todo
-        let supplierId;
-        supplierId = await Suppliers.query()
-          .select()
-          // .where("id", campaign.supplierId)
-          .first();
-        notif.sendNotiForWeb({
-          userid: supplierId.accountId,
-          link: campaign.code,
-          message: `Campaign with code: ${campaign.code} has ended`,
-          status: "unread",
-        });
+        // let supplierId;
+        // supplierId = await Suppliers.query()
+        //   .select()
+        // .where("id", campaign.supplierId)
+        //   .first();
+        // notif.sendNotiForWeb({
+        //   userid: supplierId.accountId,
+        //   link: campaign.code,
+        //   message: `Campaign with code: ${campaign.code} has ended`,
+        //   status: "unread",
+        // });
       }
       return res.status(200).send({
         message: "successful",
