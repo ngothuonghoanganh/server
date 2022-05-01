@@ -42,13 +42,13 @@ class Entity {
   ];
 
   systemProfileEntity = [
-    "suppliers.id as id",
-    "suppliers.accountId as accountid",
-    "suppliers.name as name",
-    "suppliers.avt as avt",
-    "suppliers.isDeleted as isdeleted",
-    "suppliers.createdAt as createdat",
-    "suppliers.updatedAt as updatedat",
+    "systemProfiles.id as id",
+    "systemProfiles.accountId as accountid",
+    "systemProfiles.name as name",
+    "systemProfiles.avt as avt",
+    "systemProfiles.isDeleted as isdeleted",
+    "systemProfiles.createdAt as createdat",
+    "systemProfiles.updatedAt as updatedat",
   ];
 
   roleEntity = ["roles.id as id", "roles.roleName as rolename"];
