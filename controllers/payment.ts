@@ -64,6 +64,8 @@ class Payment {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
@@ -89,6 +91,8 @@ class Payment {
       const order = await Order.query().select().where("id", orderId).first();
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 }

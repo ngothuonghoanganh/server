@@ -4,6 +4,7 @@ import { Order } from "../models/orders";
 import { OrderStatusHistory } from "../models/orderstatushistory";
 import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
+import dbEntity from "../services/dbEntity";
 import notif from "../services/realtime/notification";
 
 class OrderHistoryController {
@@ -24,7 +25,7 @@ class OrderHistoryController {
         .update({
           ...orderStatusHistory,
         })
-        .where("ordercode", orderStatusHistory.orderCode);
+        .where("orderCode", orderStatusHistory.orderCode);
     } catch (error) {
       console.log(error);
     }
@@ -33,7 +34,7 @@ class OrderHistoryController {
   public getRetailHistoryById = async (req: any, res: any, next: any) => {
     try {
       const id = req.query.id;
-      const history = await OrderStatusHistory.query().select().where("id", id);
+      const history = await OrderStatusHistory.query().select(...dbEntity.orderStatusHistoriesEntity).where("id", id);
       return res.status(200).send({
         message: "successful",
         data: history,
@@ -49,9 +50,9 @@ class OrderHistoryController {
       const orderCode = req.body.orderCode;
       // console.log(orderId)
       const history = await OrderStatusHistory.query()
-        .select()
-        .where("ordercode", orderCode)
-        .orderBy("createdat", "asc");
+        .select(...dbEntity.orderStatusHistoriesEntity)
+        .where("orderCode", orderCode)
+        .orderBy("createdAt", "asc");
       return res.status(200).send({
         message: "successful",
         data: history,
@@ -64,7 +65,6 @@ class OrderHistoryController {
   public insertOrderHistoryForReturning = async (
     req: any,
     res: any,
-    next: any
   ) => {
     try {
       //no role required
@@ -99,20 +99,20 @@ class OrderHistoryController {
         let accountIdCus;
         if (type === "retail") {
           customerObj = await Order.query()
-            .select("customerid")
+            .select("customerId")
             .where("id", orderId)
             .first();
           accountIdCus = await Customers.query()
-            .select("accountid")
+            .select("accountId")
             .where("id", customerObj.customerId)
             .first();
         } else {
           customerObj = await CampaignOrder.query()
-            .select("customerid")
+            .select("customerId")
             .where("id", orderId)
             .first();
           accountIdCus = await Customers.query()
-            .select("accountid")
+            .select("accountId")
             .where("id", customerObj.customerId)
             .first();
         }
@@ -130,21 +130,21 @@ class OrderHistoryController {
         let accountIdSupp;
         if (type === "retail") {
           supplierDataForRetail = await Order.query()
-            .select("supplierid")
+            .select("supplierId")
             .where("id", orderId)
             .first();
           accountIdSupp = await Suppliers.query()
-            .select("accountid")
+            .select("accountId")
             .where("id", supplierDataForRetail.supplierid)
             .first();
         } else {
           supplierDataForCampaign = await Products.query()
-            .select("products.supplierid")
-            .join("campaignorder", "campaignorder.productid", "products.id")
-            .where("campaignorder.id", orderId)
+            .select("products.supplierId")
+            .join("campaignOrders", "campaignOrders.productId", "products.id")
+            .where("campaignOrders.id", orderId)
             .first();
           accountIdSupp = await Suppliers.query()
-            .select("accountid")
+            .select("accountId")
             .where("id", supplierDataForCampaign.supplierid)
             .first();
         }
@@ -158,27 +158,27 @@ class OrderHistoryController {
         //request lan 1 -> send notif for customer
         const requestReturnTime = await OrderStatusHistory.query()
           .select("id")
-          .where("ordercode", orderCode)
-          .andWhere("statushistory", "returning");
+          .where("orderCode", orderCode)
+          .andWhere("orderStatus", "returning");
         if (requestReturnTime.length === 1) {
           let customerObj;
           let accountIdCus;
           if (type === "retail") {
             customerObj = await Order.query()
-              .select("customerid")
+              .select("customerId")
               .where("id", orderId)
               .first();
             accountIdCus = await Customers.query()
-              .select("accountid")
+              .select("accountId")
               .where("id", customerObj.customerId)
               .first();
           } else {
             customerObj = await CampaignOrder.query()
-              .select("customerid")
+              .select("customerId")
               .where("id", orderId)
               .first();
             accountIdCus = await Customers.query()
-              .select("accountid")
+              .select("accountId")
               .where("id", customerObj.customerId)
               .first();
           }
@@ -196,20 +196,20 @@ class OrderHistoryController {
           let accountIdCus;
           if (type === "retail") {
             customerObj = await Order.query()
-              .select("customerid")
+              .select("customerId")
               .where("id", orderId)
               .first();
             accountIdCus = await Customers.query()
-              .select("accountid")
+              .select("accountId")
               .where("id", customerObj.customerId)
               .first();
           } else {
             customerObj = await CampaignOrder.query()
-              .select("customerid")
+              .select("customerId")
               .where("id", orderId)
               .first();
             accountIdCus = await Customers.query()
-              .select("accountid")
+              .select("accountId")
               .where("id", customerObj.customerId)
               .first();
           }
@@ -227,21 +227,21 @@ class OrderHistoryController {
           let accountIdSupp;
           if (type === "retail") {
             supplierDataForRetail = await Order.query()
-              .select("supplierid")
+              .select("supplierId")
               .where("id", orderId)
               .first();
             accountIdSupp = await Suppliers.query()
-              .select("accountid")
+              .select("accountId")
               .where("id", supplierDataForRetail.supplierId)
               .first();
           } else {
             supplierDataForCampaign = await Products.query()
-              .select("products.supplierid")
-              .join("campaignorder", "campaignorder.productid", "products.id")
-              .where("campaignorder.id", orderId)
+              .select("products.supplierId")
+              .join("campaignOrders", "campaignOrders.productId", "products.id")
+              .where("campaignOrders.id", orderId)
               .first();
             accountIdSupp = await Suppliers.query()
-              .select("accountid")
+              .select("accountId")
               .where("id", supplierDataForCampaign.supplierId)
               .first();
           }
@@ -259,20 +259,21 @@ class OrderHistoryController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 
   public getOrderHistoryByOrderCodeList = async (
     req: any,
     res: any,
-    next: any
   ) => {
     try {
       const orderCodes = req.body.orderCodes;
       // console.log(orderCodes)
       const data = await OrderStatusHistory.query()
-        .select()
-        .whereIn("ordercode", orderCodes);
+        .select(...dbEntity.orderStatusHistoriesEntity)
+        .whereIn("orderCode", orderCodes);
       console.log(data);
       return res.status(200).send({
         message: "successful",
@@ -280,6 +281,8 @@ class OrderHistoryController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 }
