@@ -208,5 +208,16 @@ class Entity {
     "transactions.updatedAt as updatedat",
     "transactions.paymentLink as paymentlink",
   ];
+
+  chatEntity = [
+    "chatMessages.id as id",
+    "chatMessages.from as from",
+    "chatMessages.to as to",
+    "chatMessages.createdAt as createdat",
+    "chatMessages.updatedAt as updatedat",
+    "chatMessages.message as message",
+    "chatMessages.file as file",
+    "chatMessages.status as status",
+  ];
 }
 export default new Entity();
