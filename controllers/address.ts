@@ -12,7 +12,7 @@ class AddressController {
 
             const currentAddress: any = await Address.query()
                 .select()
-                .where('customerid', customerId)
+                .where('customerId', customerId)
             if (currentAddress.length > 0) {
                 isdefault = false
             } else {
@@ -31,7 +31,8 @@ class AddressController {
                 data: newAddress
             })
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -40,15 +41,16 @@ class AddressController {
             const customerId = req.user.id;
             const listAddress: any = await Address.query()
                 .select()
-                .where('customerid', customerId)
-                .andWhere('isdefault', true)
+                .where('customerId', customerId)
+                .andWhere('isDefault', true)
 
             return res.status(200).send({
                 message: 'successful',
                 data: listAddress
             })
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -57,7 +59,7 @@ class AddressController {
             const customerId = req.user.id;
             const listAddress: any = await Address.query()
                 .select()
-                .where('customerid', customerId)
+                .where('customerId', customerId)
             
             // .andWhere('isdefault', true)
 
@@ -66,7 +68,8 @@ class AddressController {
                 data: listAddress
             })
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -88,7 +91,8 @@ class AddressController {
                 data: listAddress
             })
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -104,8 +108,8 @@ class AddressController {
                 data: isDeleted
             })
         } catch (error) {
-            console.log(error)
-
+            console.log(error);
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -121,7 +125,8 @@ class AddressController {
                 data: data
             })
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            return res.status(400).send({ message: error });
 
         }
     };

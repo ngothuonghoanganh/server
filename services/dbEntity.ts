@@ -52,5 +52,14 @@ class Entity {
   ];
 
   roleEntity = ["roles.id as id", "roles.roleName as rolename"];
+
+  categoryEntity=[
+    "categories.id as id",
+    "categories.categoryName as categoryname",
+    "categories.supplierId as supplierid",
+    "categories.isDeleted as isdeleted",
+    "categories.createdAt as createdat",
+    "categories.updatedAt as updatedat",
+  ]
 }
 export default new Entity();
