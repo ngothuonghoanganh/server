@@ -6,7 +6,7 @@ Model.knex(connection.knex);
 
 export class OrderDetail extends Model {
   static get tableName() {
-    return "orderdetail";
+    return "orderDetails";
   }
 
   id?: string;

@@ -8,7 +8,6 @@ class CustomerDiscountCodeController {
         try {
             let {
                 discountCodeId,
-                quantity,
                 status = "ready",
                 customerId
             } = req.body;
@@ -27,6 +26,7 @@ class CustomerDiscountCodeController {
             });
         } catch (error) {
             console.log(error)
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -36,42 +36,42 @@ class CustomerDiscountCodeController {
             const customerId = req.user.id
             // console.log(status)
             const ListEntity = [
-                'customerdiscountcode.customerid as customerId',
-                'customerdiscountcode.id as id',
-                'customerdiscountcode.discountcodeid as discountCodeId',
-                'customerdiscountcode.status as customerDiscountCodeStatus',
+                'customerDiscountCodes.customerId as customerid',
+                'customerDiscountCodes.id as id',
+                'customerDiscountCodes.discountCodeId as discountcodeid',
+                'customerDiscountCodes.status as customerdiscountcodestatus',
             ]
 
             const discountCodeEntit = [
-                'discountcode.supplierid as supplierId',
-                'discountcode.code as code',
-                'discountcode.description as description',
-                'discountcode.minimunpricecondition as minimunPriceCondition',
-                'discountcode.startdate as startdate',
-                'discountcode.enddate as enddate',
-                'discountcode.quantity as quantity',
-                'discountcode.createdat as createdAt',
-                'discountcode.updatedat as updatedAt',
-                'discountcode.status as status',
-                'discountcode.productid as productId',
-                'discountcode.discountprice as discountPrice',
+                'discountCodes.supplierId as supplierid',
+                'discountCodes.code as code',
+                'discountCodes.description as description',
+                'discountCodes.minimunPriceCondition as minimunpricecondition',
+                'discountCodes.startDate as startdate',
+                'discountCodes.endDate as enddate',
+                'discountCodes.quantity as quantity',
+                'discountCodes.createdAt as createdat',
+                'discountCodes.updatedAt as updatedat',
+                'discountCodes.status as status',
+                'discountCodes.productId as productid',
+                'discountCodes.discountPrice as discountprice',
             ]
             let ListSupplierEntity = [
                 "suppliers.id as supplierid",
-                "suppliers.accountid as accountid",
+                "suppliers.accountId as accountid",
                 "suppliers.name as suppliername",
                 "suppliers.email as supplieremai",
                 "suppliers.avt as supplieravt",
-                "suppliers.isdeleted as supplierisdeleted",
+                "suppliers.isDeleted as supplierisdeleted",
                 "suppliers.address as supplieraddress",
             ];
             // console.log(status)
             const listDiscountCode: any = await CustomerDiscountCode.query()
                 .select(...discountCodeEntit, ...ListEntity, ...ListSupplierEntity)
-                .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                .join('suppliers', 'suppliers.id', 'discountcode.supplierid')
-                .where('customerdiscountcode.status', status)
-                .andWhere('customerid', customerId)
+                .join('discountCode', 'discountCode.id', 'customerDiscountCodes.discountCodeId')
+                .join('suppliers', 'suppliers.id', 'discountCode.supplierId')
+                .where('customerDiscountCodes.status', status)
+                .andWhere('customerId', customerId)
             // const supplierData=await Suppliers.query().select().where('id', listDiscountCode)
             return res.status(200).send({
                 message: 'successful',
@@ -79,6 +79,7 @@ class CustomerDiscountCodeController {
             })
         } catch (error) {
             console.log(error)
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -99,7 +100,7 @@ class CustomerDiscountCodeController {
             }
 
             const currentDiscountCodeId: any = await CustomerDiscountCode.query()
-                .select('discountcodeid')
+                .select('discountCodeId')
                 .where('id', customerDiscountCodeId)
                 .first()
 
@@ -124,6 +125,7 @@ class CustomerDiscountCodeController {
             })
         } catch (error) {
             console.log(error)
+            return res.status(400).send({ message: error });
         }
     };
 
@@ -136,25 +138,25 @@ class CustomerDiscountCodeController {
             const productIds = req.body.productIds;
             // console.log(productIds)
             const ListEntity = [
-                'customerdiscountcode.id as id',
-                'customerdiscountcode.customerid as customerId',
-                'customerdiscountcode.discountcodeid as discountCodeId',
-                'customerdiscountcode.status as customerDiscountCodeStatus',
+                'customerDiscountCodes.id as id',
+                'customerDiscountCodes.customerId as customerid',
+                'customerDiscountCodes.discountCodeId as discountcodeid',
+                'customerDiscountCodes.status as customerdiscountcodestatus',
             ]
 
             const discountCodeEntity = [
-                'discountcode.supplierid as supplierId',
-                'discountcode.code as code',
-                'discountcode.description as description',
-                'discountcode.minimunpricecondition as minimunPriceCondition',
-                'discountcode.startdate as startdate',
-                'discountcode.enddate as enddate',
-                'discountcode.quantity as quantity',
-                'discountcode.createdat as createdAt',
-                'discountcode.updatedat as updatedAt',
-                'discountcode.status as status',
-                'discountcode.productid as productId',
-                'discountcode.discountprice as discountPrice',
+                'discountCodes.supplierId as supplierid',
+                'discountCodes.code as code',
+                'discountCodes.description as description',
+                'discountCodes.minimunPriceCondition as minimunpricecondition',
+                'discountCodes.startDate as startdate',
+                'discountCodes.endDate as enddate',
+                'discountCodes.quantity as quantity',
+                'discountCodes.createdAt as createdat',
+                'discountCodes.updatedAt as updatedat',
+                'discountCodes.status as status',
+                'discountCodes.productId as productid',
+                'discountCodes.discountPrice as discountprice',
             ]
 
             const ListCusDiscountCode = productIds
@@ -166,11 +168,11 @@ class CustomerDiscountCodeController {
                     // .andWhere('customerdiscountcode.status', status)
 
                     .select(discountCodeEntity, ...ListEntity)
-                    .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                    .whereIn('discountcode.productid', productIds)
-                    .where('discountcode.supplierid', suppId)
-                    .andWhere('customerdiscountcode.status', status)
-                    .andWhere('customerid', customerId)
+                    .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
+                    .whereIn('discountCodes.productId', productIds)
+                    .where('discountCodes.supplierId', suppId)
+                    .andWhere('customerDiscountCodes.status', status)
+                    .andWhere('customerId', customerId)
 
                 : await CustomerDiscountCode.query()
                     // .select('discountcode.*', ...ListEntity)
@@ -180,11 +182,11 @@ class CustomerDiscountCodeController {
                     // .andWhere('customerdiscountcode.status', status)
 
                     .select(discountCodeEntity, ...ListEntity)
-                    .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                    .where('discountcode.supplierid', suppId)
-                    .andWhere('discountcode.minimunpricecondition', '<=', minPriceCondition)
-                    .andWhere('customerdiscountcode.status', status)
-                    .andWhere('customerid', customerId)
+                    .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
+                    .where('discountCodes.supplierId', suppId)
+                    .andWhere('discountCodes.minimunPriceCondition', '<=', minPriceCondition)
+                    .andWhere('customerDiscountCodes.status', status)
+                    .andWhere('customerId', customerId)
 
             console.log(ListCusDiscountCode)
             return res.status(200).send({
@@ -192,6 +194,7 @@ class CustomerDiscountCodeController {
                 data: ListCusDiscountCode
             })
         } catch (error) {
+            return res.status(400).send({ message: error });
             console.log(error)
         }
     };
@@ -203,44 +206,44 @@ class CustomerDiscountCodeController {
             const supplierId = req.body.supplierId;
             const customerId = req.user.id;
             const ListEntity = [
-                'customerdiscountcode.id as id',
-                'customerdiscountcode.customerid as customerId',
-                'customerdiscountcode.discountcodeid as discountCodeId',
-                'customerdiscountcode.status as customerDiscountCodeStatus',
+                'customerDiscountCodes.id as id',
+                'customerDiscountCodes.customerId as customerid',
+                'customerDiscountCodes.discountCodeId as discountcodeid',
+                'customerDiscountCodes.status as customerdiscountcodestatus',
             ]
 
             const discountCodeEntity = [
-                'discountcode.supplierid as supplierId',
-                'discountcode.code as code',
-                'discountcode.description as description',
-                'discountcode.minimunpricecondition as minimunPriceCondition',
-                'discountcode.startdate as startdate',
-                'discountcode.enddate as enddate',
-                'discountcode.quantity as quantity',
-                'discountcode.createdat as createdAt',
-                'discountcode.updatedat as updatedAt',
-                'discountcode.status as status',
-                'discountcode.productid as productId',
-                'discountcode.discountprice as discountPrice',
+                'discountCodes.supplierId as supplierid',
+                'discountCodes.code as code',
+                'discountCodes.description as description',
+                'discountCodes.minimunPriceCondition as minimunpricecondition',
+                'discountCodes.startDate as startdate',
+                'discountCodes.endDate as enddate',
+                'discountCodes.quantity as quantity',
+                'discountCodes.createdAt as createdat',
+                'discountCodes.updatedAt as updatedat',
+                'discountCodes.status as status',
+                'discountCodes.productId as productid',
+                'discountCodes.discountPrice as discountprice',
             ]
             let ListSupplierEntity = [
                 "suppliers.id as supplierid",
-                "suppliers.accountid as accountid",
+                "suppliers.accountId as accountid",
                 "suppliers.name as suppliername",
                 "suppliers.email as supplieremai",
                 "suppliers.avt as supplieravt",
-                "suppliers.isdeleted as supplierisdeleted",
+                "suppliers.isDeleted as supplierisdeleted",
                 "suppliers.address as supplieraddress",
             ];
 
             const data = await CustomerDiscountCode.query()
                 .select(...ListEntity, ...discountCodeEntity, ...ListSupplierEntity)
-                .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
-                .join('suppliers', 'suppliers.id', 'discountcode.supplierid')
-                .where('customerdiscountcode.status', status)
-                .andWhere('discountcode.code', discountCode)
-                .andWhere('discountcode.supplierid', supplierId)
-                .andWhere('customerdiscountcode.customerid', customerId)
+                .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
+                .join('suppliers', 'suppliers.id', 'discountCodes.supplierId')
+                .where('customerDiscountCodes.status', status)
+                .andWhere('discountCodes.code', discountCode)
+                .andWhere('discountCodes.supplierId', supplierId)
+                .andWhere('customerDiscountCodes.customerId', customerId)
 
             return res.status(200).send({
                 message: 'successful',
@@ -248,6 +251,7 @@ class CustomerDiscountCodeController {
             })
         } catch (error) {
             console.log(error)
+            return res.status(400).send({ message: error });
         }
     };
 }

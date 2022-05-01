@@ -1,5 +1,7 @@
 import { Categories } from "../models/category";
 import { Products } from "../models/products";
+import dbEntity from "../services/dbEntity";
+import Entity from "../services/dbEntity";
 
 class CategoriesController {
   public createNewCate = async (req: any, res: any, next: any) => {
@@ -19,6 +21,7 @@ class CategoriesController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -26,13 +29,13 @@ class CategoriesController {
     try {
       const { id } = req.user;
       const List: any = await Categories.query()
-        .select("categories.*")
-        .where("isdeleted", false)
-        .andWhere("supplierid", id);
+        .select(...Entity.categoryEntity)
+        .where("isDeleted", false)
+        .andWhere("supplierId", id);
 
 
       for (const item of List) {
-        const numOfProduct: any = await Products.query().select().count().where('categoryid', item.id).first();
+        const numOfProduct: any = await Products.query().select().count().where('categoryId', item.id).first();
         item.numOfProduct = numOfProduct.count;
       }
       return res.status(200).send({
@@ -41,6 +44,7 @@ class CategoriesController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -49,13 +53,13 @@ class CategoriesController {
       const { userId } = req.query;
       // console.log(userId)
       const List: any = await Categories.query()
-        .select('categories.*')
-        .where('isdeleted', false)
-        .andWhere('supplierid', userId)
+        .select(...dbEntity.categoryEntity)
+        .where('isDeleted', false)
+        .andWhere('supplierId', userId)
 
       // console.log(List)
       for (const item of List) {
-        const numOfProduct: any = await Products.query().select().count().where('categoryid', item.id).first();
+        const numOfProduct: any = await Products.query().select().count().where('categoryId', item.id).first();
         item.numOfProduct = numOfProduct.count;
       }
 
@@ -64,14 +68,15 @@ class CategoriesController {
         data: List
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error });
     }
   }
 
   public deleteCate = async (req: any, res: any, next: any) => {
     try {
       const { categoryId } = req.params;
-      const isExistProds = await Products.query().select().where('categoryid', categoryId);
+      const isExistProds = await Products.query().select().where('categoryId', categoryId);
       if (isExistProds.length === 0) {
         await Categories.query()
           .update({
@@ -86,7 +91,8 @@ class CategoriesController {
       }
 
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error });
     }
   }
 
@@ -100,7 +106,7 @@ class CategoriesController {
           categoryName: categoryName,
         })
         .where("id", categoryId)
-        .andWhere("isdeleted", false);
+        .andWhere("isDeleted", false);
       const cateUpdated: any = await Categories.query().where("id", categoryId);
       return res.status(200).send({
         data: cateUpdated,
@@ -108,6 +114,7 @@ class CategoriesController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -116,15 +123,16 @@ class CategoriesController {
     try {
       const userId = req.params.userId;
       const List = await Categories.query()
-        .select("categories.*")
-        .where("isdeleted", false)
-        .andWhere("userid", userId);
+        .select(...dbEntity.categoryEntity)
+        .where("isDeleted", false)
+        .andWhere("userId", userId);
       return res.status(200).send({
         data: List,
         message: "got the list categories",
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -132,8 +140,8 @@ class CategoriesController {
     try {
       const categoryId = req.params.categoryId;
       const cate: any = await Categories.query()
-        .select("categories.*")
-        .where("isdeleted", false)
+        .select(...dbEntity.categoryEntity)
+        .where("isDeleted", false)
         .andWhere("id", categoryId)
         .first();
       return res.status(200).send({
@@ -142,6 +150,7 @@ class CategoriesController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 }

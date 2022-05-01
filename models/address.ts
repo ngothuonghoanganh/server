@@ -5,7 +5,7 @@ Model.knex(connection.knex);
 
 export class Address extends Model {
     static get tableName() {
-        return "address";
+        return "addresses";
     }
 
     id?: string;

@@ -47,7 +47,7 @@ class DiscountCodeController {
                     discountCodeId: newDiscountcode.id,
                     status: 'read'
                 })
-                const customerId = await Customers.query().select('accountid').where('id', item.customerId).first();
+                const customerId = await Customers.query().select('accountId').where('id', item.customerId).first();
                 notif.sendNotiForWeb({
                     userid: customerId.accountId,
                     link: id, //supplier id
@@ -139,10 +139,10 @@ class DiscountCodeController {
             const status = 'deactivated'
             const List = await DiscountCode.query()
                 .select()
-                .leftJoin('products', 'discountcode.productid', 'products.id')
-                .where('discountcode.supplierid', supplierId)
+                .leftJoin('products', 'discountCodes.productId', 'products.id')
+                .where('discountCodes.supplierId', supplierId)
                 // .where('supplierid', supplierId)
-                .andWhere('discountcode.status', '<>', status)
+                .andWhere('discountCodes.status', '<>', status)
             return res.status(200).send({
                 message: 'successful',
                 data: List
@@ -159,8 +159,8 @@ class DiscountCodeController {
             // const status = 'deactivated'
             const List: any = await DiscountCode.query()
                 .select()
-                .leftJoin('products', 'discountcode.productid', 'products.id')
-                .where('discountcode.supplierid', supplierId)
+                .leftJoin('products', 'discountCodes.productId', 'products.id')
+                .where('discountCodes.supplierId', supplierId)
             // .andWhere('status', '<>', status)
 
             return res.status(200).send({
