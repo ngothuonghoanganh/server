@@ -75,5 +75,18 @@ class Entity {
 
 
   ]
+
+  loyalCustomerEntity= [
+    "loyalCustomers.id as id",
+    "loyalCustomers.supplierId as supplierid",
+    "loyalCustomers.customerId as customerid",
+    "loyalCustomers.numOfOrder as numoforder",
+    "loyalCustomers.numOfProduct as numofproduct",
+    "loyalCustomers.discountPercent as discountpercent",
+    "loyalCustomers.createdAt as createdat",
+    "loyalCustomers.updatedAt as updatedat",
+    "loyalCustomers.status as status",
+
+  ]
 }
 export default new Entity();

@@ -13,18 +13,18 @@ import dbEntity from "../services/dbEntity";
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
     try {
-      const identificationCard = req.body.identificationcard;
-      const identificationImage = req.body.identificationimage;
-      const eWalletCode = req.body.ewalletcode;
-      const eWalletSecrect = req.body.ewalletsecret;
+      const identificationcard = req.body.identificationcard;
+      const identificationimage = req.body.identificationimage;
+      const ewalletcode = req.body.ewalletcode;
+      const ewalletsecret = req.body.ewalletsecret;
       const supplierId = req.user.id;
 
       const data = await Suppliers.query()
         .update({
-          identificationCard: identificationCard,
-          identificationImage: JSON.stringify(identificationImage),
-          eWalletCode: eWalletCode,
-          eWalletSecrect: eWalletSecrect,
+          identificationCard: identificationcard,
+          identificationImage: JSON.stringify(identificationimage),
+          eWalletCode: ewalletcode,
+          eWalletSecret: ewalletsecret,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -107,7 +107,7 @@ class Supplier {
       const data = await Suppliers.query()
         .update({
           eWalletCode: eWalletCode,
-          eWalletSecrect: eWalletSecrect,
+          eWalletSecret: eWalletSecrect,
         })
         .where("id", supplierId);
       return res.status(200).send({

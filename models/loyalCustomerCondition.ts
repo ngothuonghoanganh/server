@@ -14,4 +14,5 @@ export class LoyalCustomerCondition extends Model {
   discountPercent?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  name?:string;
 }

@@ -18,7 +18,7 @@ class System {
         .select(
           "orders.*",
           Order.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId),json_agg(to_jsonb(orderdetail) - 'orderid') as details`
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId),json_agg(to_jsonb(orderDetails) - 'orderId') as details`
           )
         )
         .join("orderDetails", "orders.id", "orderDetails.orderId")
@@ -31,16 +31,16 @@ class System {
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          "campaignorder.*",
+          "campaignOrders.*",
           "campaigns.supplierId",
           CampaignOrder.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid), 
+            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierId), 
             array_to_json(array_agg(json_build_object(
             'id','',
             'image', image,
             'price', campaignOrders.price,
             'quantity', campaignOrders.quantity,
-            'ordercode', ordercode,
+            'ordercode', orderCode,
             'productid', campaignOrders.productId,
             'campaignid', campaignId,
             'incampaign', true,

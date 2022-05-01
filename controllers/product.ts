@@ -623,7 +623,7 @@ class ProductsController {
         "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
-      var now = moment();
+      // var now = moment();
       var sunday = moment().startOf('week');
       var saturday = moment().endOf('week');
 

@@ -43,7 +43,7 @@ class Notif {
 
       const data = await Notification.query()
         .select()
-        .where("userid", accountId);
+        .where("userId", accountId);
 
       return res.status(200).send({
         message: "successful",
