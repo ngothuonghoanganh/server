@@ -5,7 +5,7 @@ Model.knex(connection.knex);
 
 export class CustomerDiscountCode extends Model {
     static get tableName() {
-        return "customerdiscountcode";
+        return "customerDiscountCodes";
     }
 
     id?: string;

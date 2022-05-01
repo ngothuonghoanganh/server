@@ -5,7 +5,7 @@ Model.knex(connection.knex);
 
 export class Notification extends Model {
   static get tableName() {
-    return "notif";
+    return "notifications";
   }
   id?: string;
   userId?: string;

@@ -6,7 +6,7 @@ Model.knex(connection.knex);
 
 export class CampaignOrder extends Model {
   static get tableName() {
-    return "campaignorder";
+    return "campaignOrders";
   }
   id?: string;
   quantity?: Number;
