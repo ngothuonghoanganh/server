@@ -3,6 +3,7 @@ import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { Customers } from "../models/customers";
 import { DiscountCode } from "../models/discountcode";
 import { LoyalCustomer } from "../models/loyalCustomer";
+import dbEntity from "../services/dbEntity";
 import notif from "../services/realtime/notification";
 
 class DiscountCodeController {
@@ -12,7 +13,7 @@ class DiscountCodeController {
 
             const { id } = req.user;
             //query list loyal customer
-            const listLoyalCustomer = await LoyalCustomer.query().select().where('supplierid', id);
+            const listLoyalCustomer = await LoyalCustomer.query().select(...dbEntity.loyalCustomerEntity).where('supplierid', id);
             // if (listLoyalCustomer.length === 0) {
             //     return res.status(200).send('No loyal customer found');
             // }
@@ -138,7 +139,7 @@ class DiscountCodeController {
             // console.log(supplierId)
             const status = 'deactivated'
             const List = await DiscountCode.query()
-                .select()
+                .select(...dbEntity.discountCodeEntity)
                 .leftJoin('products', 'discountCodes.productId', 'products.id')
                 .where('discountCodes.supplierId', supplierId)
                 // .where('supplierid', supplierId)
@@ -158,7 +159,7 @@ class DiscountCodeController {
             // console.log(supplierId)
             // const status = 'deactivated'
             const List: any = await DiscountCode.query()
-                .select()
+                .select(...dbEntity.discountCodeEntity)
                 .leftJoin('products', 'discountCodes.productId', 'products.id')
                 .where('discountCodes.supplierId', supplierId)
             // .andWhere('status', '<>', status)
