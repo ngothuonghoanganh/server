@@ -45,7 +45,7 @@ router.delete(
 
 router.get(
   '/',
-  validator.query(getQuerySchema),
+  // validator.query(getQuerySchema),
   category.getAllCateByQuery
 )
 

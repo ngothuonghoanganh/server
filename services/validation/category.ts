@@ -10,5 +10,5 @@ export const updateParamSchema = Joi.object({
 });
 
 export const getQuerySchema = Joi.object({
-    userId: Joi.string().required(),
+    categoryId: Joi.string().required(),
 });

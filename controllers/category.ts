@@ -50,12 +50,13 @@ class CategoriesController {
 
   public getAllCateByQuery = async (req: any, res: any, next: any) => {
     try {
-      const { userId } = req.query;
+      const { supplierId } = req.query;
       // console.log(userId)
       const List: any = await Categories.query()
         .select(...dbEntity.categoryEntity)
-        .where('isDeleted', false)
-        .andWhere('supplierId', userId)
+        // .where('isDeleted', false)
+        .join('products', 'products.categoryId', 'categories.id')
+        .where('categories.supplierId', supplierId)
 
       // console.log(List)
       for (const item of List) {
