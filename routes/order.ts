@@ -56,12 +56,12 @@ router.put(
   order.updateStatusFromReturningToReturned
 );
 
-router.get(
-  "/customer",
-  Authentication.protected,
-  Authentication.checkRole(["Customer"]),
-  order.getOrderForCustomer
-);
+// router.get(
+//   "/customer",
+//   Authentication.protected,
+//   Authentication.checkRole(["Customer"]),
+//   order.getOrderForCustomer
+// );
 
 router.get(
   "/supplier",
@@ -100,13 +100,13 @@ router.put(
   order.updateStatusFromCreatedToProcessingForSupplier
 );
 
-router.put(
-  "/status/customer/cancel",
-  Authentication.protected,
-  Authentication.checkRole(["Customer"]),
-  validator.body(validUpdateStatusToCancelCustomerBodySchema),
-  order.updateStatusToCancelledForCustomer
-);
+// router.put(
+//   "/status/customer/cancel",
+//   Authentication.protected,
+//   Authentication.checkRole(["Customer"]),
+//   validator.body(validUpdateStatusToCancelCustomerBodySchema),
+//   order.updateStatusToCancelledForCustomer
+// );
 
 router.put(
   "/status/supplier/cancel",
@@ -148,13 +148,13 @@ router.put(
   order.updateStatusFromReturningToDeliveredForRejectReturn
 );
 
-router.get(
-  "/customer/:orderId",
-  Authentication.protected,
-  // Authentication.checkRole(["Customer"]),
-  validator.params(getOrderByIdSchema),
-  order.getOrderById
-);
+// router.get(
+//   "/customer/:orderId",
+//   Authentication.protected,
+//   // Authentication.checkRole(["Customer"]),
+//   validator.params(getOrderByIdSchema),
+//   order.getOrderById
+// );
 
 router.get(
   "/delivery/getListOrderForDelivery",

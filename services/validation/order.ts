@@ -75,6 +75,7 @@ export const validDeliveringToDeliveredSchema = Joi.object({
   orderId: Joi.string().required(),
   description: Joi.string().required(),
   image: Joi.array().required(),
+  supplierId: Joi.string().required(),
 });
 
 export const updateStatusFromDeliveringToCancelledForDelivery = Joi.object({
@@ -83,6 +84,7 @@ export const updateStatusFromDeliveringToCancelledForDelivery = Joi.object({
   orderId: Joi.string().required(),
   description: Joi.string().required(),
   image: Joi.array().required(),
+  supplierId: Joi.string().required(),
 });
 
 export const updateStatusFromReturningToDeliveredForRejectReturn = Joi.object({
@@ -92,6 +94,7 @@ export const updateStatusFromReturningToDeliveredForRejectReturn = Joi.object({
   orderId: Joi.string().required(),
   description: Joi.string().required(),
   image: Joi.array().required(),
+  supplierId: Joi.string().required(),
 });
 
 export const validUpdateStatusToCancelCustomerBodySchema = Joi.object({
@@ -115,4 +118,3 @@ export const validUpdateStatusToCancelSupplierBodySchema = Joi.object({
 export const getOrderForDeliveryQuerySchema = Joi.object({
   status: Joi.string().required(),
 });
-

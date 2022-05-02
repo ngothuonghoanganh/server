@@ -22,4 +22,5 @@ export class Order extends Model {
   orderCode?: string;
   totalPrice?: number;
   customerDiscountCodeId?: string;
+  loyalCustomerDiscountPercent?: number;
 }

@@ -28,4 +28,5 @@ export class CampaignOrder extends Model {
   campaignId?: string;
   comment?: string;
   rating?: Number;
+  loyalCustomerDiscountPercent?: number;
 }
