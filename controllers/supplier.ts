@@ -207,7 +207,9 @@ class Supplier {
         data: currentDate
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 }
