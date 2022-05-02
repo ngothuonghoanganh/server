@@ -5,13 +5,14 @@ Model.knex(connection.knex);
 
 export class Notification extends Model {
   static get tableName() {
-    return "notif";
+    return "notifications";
   }
   id?: string;
-  userid?:string;
-  link?:string;
+  userId?: string;
+  link?: string;
   message?: string;
   status?: string;
-  created?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 
 }

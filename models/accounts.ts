@@ -10,10 +10,13 @@ export class Accounts extends Model {
 
     id?: string;
     phone?: string;
-    roleid?: string;
+    roleId?: string;
     username?: string;
     password?: string;
-    googleid?: string;
-    isdeleted?: Boolean;
-
+    googleId?: string;
+    isDeleted?: Boolean;
+    reasonForDisabling?: string;
+    reasonForEnabling?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

@@ -5,17 +5,17 @@ Model.knex(connection.knex);
 
 export class OrderStatusHistory extends Model {
   static get tableName() {
-    return "orderstatushistory";
+    return "orderStatusHistories";
   }
 
   id?: string;
-  retailorderid?: string;
-  campaignorderid?: string;
-  ordercode?: string;
-  statushistory?: string;
+  campaignOrderId?: string;
+  orderCode?: string;
+  orderStatus?: string;
   image?: string;
   description?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  type?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  retailOrderId?: string;
+  type?: string;  
 }

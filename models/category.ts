@@ -9,10 +9,10 @@ export class Categories extends Model {
     }
 
     id?: string;
-    categoryname?: string;
-    supplierid?: string;
-    createdat?: Date;
-    updatedat?: Date;
-    isdeleted?: boolean;
+    categoryName?: string;
+    supplierId?: string;
+    isDeleted?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 
 }

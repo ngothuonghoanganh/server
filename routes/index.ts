@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.get(
   "/",
-  // authentication.protected,
+  authentication.protected,
   // authentication.checkRole(["Supplier", "Customer"]),
   //thêm validator được xác thực bơi schema vào middleware
   // validator.query(querySchema),
@@ -29,7 +29,7 @@ router.get(
       //     test: "successful",
       //   })
       // );
-
+      console.log(req.user);
       // console.log(await client.get("query"));
       return res.status(200).send("test commit 1");
     } catch (error) {

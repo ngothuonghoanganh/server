@@ -5,24 +5,24 @@ Model.knex(connection.knex);
 
 export class Transaction extends Model {
   static get tableName() {
-    return "transaction";
+    return "transactions";
   }
 
   id?: string;
-  supplierid?: string;
+  supplierId?: string;
   amount?: Number;
-  ordercode?: string;
-  advancefee?: Number;
-  ordervalue?: Number;
-  paymentvalue?: Number;
-  platformfee?: Number;
-  penaltyfee?: Number;
+  orderCode?: string;
+  advanceFee?: Number; 
+  orderValue?: Number; //
+  paymentFee?: Number; // 2% of order
+  platformFee?: Number; // 2% of order
+  penaltyFee?: Number; // 20% order
   type?: string;
-  iswithdrawable?: boolean;
+  isWithdrawable?: boolean;
   description?: string;
   content?: string;
   status?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  paymentlink?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  paymentLink?: string;
 }

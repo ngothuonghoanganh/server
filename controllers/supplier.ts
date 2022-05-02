@@ -7,23 +7,24 @@ import notif from "../services/realtime/notification";
 import { Order } from "../models/orders";
 import { Campaigns } from "../models/campaigns";
 import moment from "moment";
+import dbEntity from "../services/dbEntity";
 
 
 class Supplier {
   public updateWalletAccount = async (req: any, res: any, next: any) => {
     try {
-      const identificationCard = req.body.identificationcard;
-      const identificationImage = req.body.identificationimage;
-      const eWalletCode = req.body.ewalletcode;
-      const eWalletSecrect = req.body.ewalletsecret;
+      const identificationcard = req.body.identificationcard;
+      const identificationimage = req.body.identificationimage;
+      const ewalletcode = req.body.ewalletcode;
+      const ewalletsecret = req.body.ewalletsecret;
       const supplierId = req.user.id;
 
       const data = await Suppliers.query()
         .update({
-          identificationcard: identificationCard,
-          identificationimage: JSON.stringify(identificationImage),
-          ewalletcode: eWalletCode,
-          ewalletsecrect: eWalletSecrect,
+          identificationCard: identificationcard,
+          identificationImage: JSON.stringify(identificationimage),
+          eWalletCode: ewalletcode,
+          eWalletSecret: ewalletsecret,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -31,7 +32,7 @@ class Supplier {
         data: data,
       });
     } catch (error) {
-      console.log(error);
+      console.log(error);return res.status(400).send({ message: error });
     }
   };
 
@@ -40,20 +41,20 @@ class Supplier {
     try {
       const accountEntity = [
         "accounts.id as accountid",
-        "accounts.roleid as roleid",
+        "accounts.roleId as roleid",
         "accounts.username as username",
-        "accounts.googleid as googleid",
+        "accounts.googleId as googleid",
         "accounts.phone as phone",
-        "accounts.isdeleted as isdeleted",
+        "accounts.isDeleted as isdeleted",
 
       ]
       const email = req.query.email;
       // console.log(email);
-      const suppData = await Suppliers.query().select('suppliers.*', ...accountEntity)
-        .join('accounts', 'accounts.id', 'suppliers.accountid')
+      const suppData = await Suppliers.query().select(...dbEntity.supplierEntity, ...accountEntity)
+        .join('accounts', 'accounts.id', 'suppliers.accountId')
         .where("suppliers.email", email);
-      const cusData = await Customers.query().select('customers.*', ...accountEntity)
-        .join('accounts', 'accounts.id', 'customers.accountid')
+      const cusData = await Customers.query().select(...dbEntity.customerEntity, ...accountEntity)
+        .join('accounts', 'accounts.id', 'customers.accountId')
         .where("customers.email", email);
       // console.log(suppData.toString());
       return res.status(200).send({
@@ -61,7 +62,7 @@ class Supplier {
         data: { suppData: suppData, cusData: cusData },
       });
     } catch (error) {
-      console.log(error);
+      console.log(error);return res.status(400).send({ message: error });
     }
   };
 
@@ -93,7 +94,7 @@ class Supplier {
         data: { account: updateAccount, profile: updateProfile },
       });
     } catch (error) {
-      console.log(error);
+      console.log(error);return res.status(400).send({ message: error });
     }
   };
 
@@ -105,8 +106,8 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          ewalletcode: eWalletCode,
-          ewalletsecrect: eWalletSecrect,
+          eWalletCode: eWalletCode,
+          eWalletSecret: eWalletSecrect,
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -114,7 +115,8 @@ class Supplier {
         data: data,
       });
     } catch (error) {
-      console.log(error);
+      console.log(error);return res.status(400).send({ message: error });
+
     }
   };
 
@@ -126,8 +128,8 @@ class Supplier {
 
       const data = await Suppliers.query()
         .update({
-          identificationcard: identificationCard,
-          identificationimage: JSON.stringify(identificationImage),
+          identificationCard: identificationCard,
+          identificationImage: JSON.stringify(identificationImage),
         })
         .where("id", supplierId);
       return res.status(200).send({
@@ -136,14 +138,15 @@ class Supplier {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
   public getSuppInforByListSuppId = async (req: any, res: any, next: any) => {
     try {
       const supplierIds = req.body.supplierIds
-      const supllierData = await Suppliers.query().select('suppliers.*', 'accounts.phone')
-        .join('accounts', 'accounts.id', 'suppliers.accountid')
+      const supllierData = await Suppliers.query().select(...dbEntity.supplierEntity, 'accounts.phone')
+        .join('accounts', 'accounts.id', 'suppliers.accountId')
         .whereIn('suppliers.id', supplierIds)
 
       return res.status(200).send({
@@ -152,6 +155,7 @@ class Supplier {
       })
     } catch (error) {
       console.log(error)
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -160,23 +164,23 @@ class Supplier {
       const userId = req.body.userId;
 
       const supplier = await Suppliers.query()
-        .select("accounts.*", 'suppliers.*')
-        .join("accounts", "accounts.id", "suppliers.accountid")
+        .select(...dbEntity.accountEntity, ...dbEntity.supplierEntity)
+        .join("accounts", "accounts.id", "suppliers.accountId")
         // .join("roles", "roles.id", "accounts.roleid")
 
         // .join("role", "role.id", "users.roleid")
         // .where("users.isdeleted", false)
         .where("suppliers.id", userId)
-        .andWhere('accounts.isdeleted', false)
+        .andWhere('accounts.isDeleted', false)
         .first();
 
       const customer = await Customers.query()
         .select("accounts.*", "suppliers.*")
-        .join("accounts", "accounts.id", "suppliers.accountid")
+        .join("accounts", "accounts.id", "suppliers.accountId")
         // .join("roles", "roles.id", "accounts.roleid")
 
         .where('customers.id', userId)
-        .andWhere('accounts.isdeleted', false)
+        .andWhere('accounts.isDeleted', false)
         .first()
 
       return res.status(200).send({
@@ -188,6 +192,7 @@ class Supplier {
       })
     } catch (error) {
       console.error(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -202,7 +207,9 @@ class Supplier {
         data: currentDate
       })
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      return res.status(400).send({ message: error });
+
     }
   };
 }

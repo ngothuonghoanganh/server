@@ -5,7 +5,7 @@ Model.knex(connection.knex)
 
 export class Chat extends Model {
     static get tableName() {
-        return 'chatmessages';
+        return 'chatMessages';
     }
 
     id?: string;
@@ -14,5 +14,6 @@ export class Chat extends Model {
     message?: string;
     file?: string;
     status?: string;
-    createdat?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

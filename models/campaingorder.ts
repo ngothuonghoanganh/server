@@ -6,33 +6,27 @@ Model.knex(connection.knex);
 
 export class CampaignOrder extends Model {
   static get tableName() {
-    return "campaignorder";
+    return "campaignOrders";
   }
   id?: string;
   quantity?: Number;
-  productname?: string;
   price?: Number;
-  notes?: string;
-  productid?: string;
-  image?: string;
-  customerid?: string;
+  note?: string;
+  customerId?: string;
   status?: string;
   address?: string;
-  paymentid?: string;
-  shippingfee?: Number;
-  reasonforupdatestatus?: string;
-  advancedid?: string;
-  advancefee?: Number;
-  imageproof?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  ordercode?: string;
-  discountprice?: number;
-  totalprice?: number;
-  paymentmethod?: string;
-  campaignid?: string;
-  reasonforcancel?: string;
+  paymentId?: string;
+  shippingFee?: Number;
+  advancedId?: string;
+  advanceFee?: Number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  orderCode?: string;
+  discountPrice?: number;
+  totalPrice?: number;
+  paymentMethod?: string;
+  campaignId?: string;
   comment?: string;
   rating?: Number;
-  loyalcustomerdiscountpercent?:string;
+  loyalCustomerDiscountPercent?: number;
 }

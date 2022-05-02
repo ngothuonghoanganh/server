@@ -1,7 +1,7 @@
 import { CampaignOrder } from "../models/campaingorder";
-import { Comments } from "../models/comment";
 import { OrderDetail } from "../models/orderdetail";
 import { Order } from "../models/orders";
+import dbEntity from "../services/dbEntity";
 import order from "./order";
 
 class Comment {
@@ -33,6 +33,7 @@ class Comment {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -42,31 +43,21 @@ class Comment {
       const isCampaign = req.body.isCampaign;
       const ListEntity = [
         "customers.avt",
-        "customers.firstname",
-        "customers.lastname",
+        "customers.firstName",
+        "customers.lastName",
       ];
       let data = [];
       if (isCampaign) {
         data = await CampaignOrder.query()
-          .select(
-            "campaignorder.*",
-            "campaignorder.comment",
-            ...ListEntity,
-            "campaignorder.rating"
-          )
-          .join("customers", "customers.id", "campaignorder.customerid")
-          .where("campaignorder.id", orderId);
+          .select(...dbEntity.campaignOrderEntity, ...ListEntity)
+          .join("customers", "customers.id", "campaignOrders.customerId")
+          .where("campaignOrders.id", orderId);
       } else {
         data = await OrderDetail.query()
-          .select(
-            "orderdetail.*",
-            "orderdetail.comment",
-            ...ListEntity,
-            "orderdetail.rating"
-          )
-          .join("orders", "orders.id", "orderdetail.orderid")
-          .join("customers", "customers.id", "orders.customerid")
-          .where("orderdetail.id", orderId);
+          .select(...dbEntity.orderDetailEntity, ...ListEntity)
+          .join("orders", "orders.id", "orderDetails.orderId")
+          .join("customers", "customers.id", "orders.customerId")
+          .where("orderDetails.id", orderId);
       }
       return res.status(200).send({
         message: "successful",
@@ -74,6 +65,7 @@ class Comment {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -83,8 +75,8 @@ class Comment {
       // console.log(productId)
       const ListEntity = [
         "customers.avt",
-        "customers.firstname",
-        "customers.lastname",
+        "customers.firstName",
+        "customers.lastName",
       ];
 
       const nullValue = "";
@@ -93,35 +85,25 @@ class Comment {
       // where campaignorder.productid =${productId}
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
       const campaignOrder: any = await CampaignOrder.query()
-        .select(
-          "campaignorder.*",
-          "campaignorder.comment",
-          ...ListEntity,
-          "campaignorder.rating"
-        )
-        .join("customers", "customers.id", "campaignorder.customerid")
-        .where("campaignorder.productid", productId)
+        .select(...dbEntity.campaignOrderEntity, ...ListEntity)
+        .join("customers", "customers.id", "campaignOrders.customerId")
+        .where("campaignOrders.productId", productId)
         .andWhere((cd) => {
-          cd.where("campaignorder.comment", "<>", nullValue).orWhere(
-            "campaignorder.comment",
+          cd.where("campaignOrders.comment", "<>", nullValue).orWhere(
+            "campaignOrders.comment",
             "<>",
             null
           );
         });
 
       const retailOrder: any = await OrderDetail.query()
-        .select(
-          "orderdetail.*",
-          "orderdetail.comment",
-          ...ListEntity,
-          "orderdetail.rating"
-        )
-        .join("orders", "orders.id", "orderdetail.orderid")
-        .join("customers", "customers.id", "orders.customerid")
-        .where("orderdetail.productid", productId)
+        .select(...dbEntity.orderDetailEntity, ...ListEntity)
+        .join("orders", "orders.id", "orderDetails.orderId")
+        .join("customers", "customers.id", "orders.customerId")
+        .where("orderDetails.productId", productId)
         .andWhere((cd) => {
-          cd.where("orderdetail.comment", "<>", nullValue).orWhere(
-            "orderdetail.comment",
+          cd.where("orderDetails.comment", "<>", nullValue).orWhere(
+            "orderDetails.comment",
             "<>",
             null
           );
@@ -135,6 +117,7 @@ class Comment {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -150,14 +133,14 @@ class Comment {
       const nullValue = "";
 
       const campaignOrder: any = await CampaignOrder.query()
-        .select("campaignorder.comment", "campaignorder.rating")
-        .where("campaignorder.productid", productId)
-        .andWhere("campaignorder.comment", "<>", nullValue);
+        .select("campaignOrders.comment", "campaignOrders.rating")
+        .where("campaignOrders.productId", productId)
+        .andWhere("campaignOrders.comment", "<>", nullValue);
 
       const retailOrder: any = await OrderDetail.query()
-        .select("orderdetail.comment", "orderdetail.rating")
-        .where("orderdetail.productid", productId)
-        .andWhere("orderdetail.comment", "<>", nullValue);
+        .select("orderDetails.comment", "orderDetails.rating")
+        .where("orderDetails.productId", productId)
+        .andWhere("orderDetails.comment", "<>", nullValue);
 
       campaignOrder.push(...retailOrder);
 
@@ -191,20 +174,21 @@ class Comment {
       //   "orderdetail.productid as productId",
       // ];
       const numOfOrderCompletedOrderDetail: any = await OrderDetail.query()
-        .select('orderdetail.productid as productId')
-        .join("orders", "orderdetail.orderid", "orders.id")
-        .whereIn("orderdetail.productid", productIds)
+        .select("orderDetails.productId as productId")
+        .join("orders", "orderDetails.orderId", "orders.id")
+        .whereIn("orderDetails.productId", productIds)
         .andWhere("orders.status", status);
 
-      const numOfOrderCompletedCampaignOrder: any = await CampaignOrder.query().select('campaigns.productid as productId')
-        .join('campaigns', 'campaigns.id', 'campaignorder.campaignid')
-        .whereIn('campaigns.productid', productIds)
-        .andWhere('campaignorder.status', status)
+      const numOfOrderCompletedCampaignOrder: any = await CampaignOrder.query()
+        .select("campaigns.productId as productId")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
+        .whereIn("campaigns.productId", productIds)
+        .andWhere("campaignOrders.status", status);
 
       numOfOrderCompletedOrderDetail.push(...numOfOrderCompletedCampaignOrder);
 
-      console.log(numOfOrderCompletedOrderDetail)
-      console.log(numOfOrderCompletedCampaignOrder)
+      console.log(numOfOrderCompletedOrderDetail);
+      console.log(numOfOrderCompletedCampaignOrder);
 
       // console.log(numOfOrderCompletedByProductId)
       // const counts = numOfOrderCompletedByProductId.reduce((c, { productId : key }) => (c[key] = (c[key] || 0) + 1, c), {});
@@ -216,10 +200,11 @@ class Comment {
 
       return res.status(200).send({
         message: "successful",
-        data: ({result: result})
+        data: { result: result },
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -238,7 +223,7 @@ class Comment {
           })
           .where("id", orderId)
           .first();
-        console.log("test");
+        // console.log("test");
       } else {
         data = await OrderDetail.query()
           .update({
@@ -254,6 +239,7 @@ class Comment {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 }

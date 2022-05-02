@@ -104,21 +104,21 @@ router.get(
   User.getAllCustomer
 );
 
-router.delete(
-  '/:customerId',
-  authentication.protected,
-  Authentication.checkRole(["Supplier", "Customer"]),
-  validator.params(getCustomerParamsSchema),
-  User.deactivateCustomerAccount
+// router.delete(
+//   '/:customerId',
+//   authentication.protected,
+//   Authentication.checkRole(["Supplier", "Customer"]),
+//   validator.params(getCustomerParamsSchema),
+//   User.deactivateCustomerAccount
 
-)
+// )
 
 router.get("/:phone",
   validator.params(getCustomerOrSupplierByPhoneParamsSchema),
   User.getUserByPhone);
 
 router.post(
-  '/getCustomerInforByCustomerId/:customerId',
+  '/getCustomerInforByCustomerId',
   validator.body(getGetCustomerInfBodySchema),
   User.getCustomerInforByListCustomerId
 )

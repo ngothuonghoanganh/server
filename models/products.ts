@@ -10,14 +10,12 @@ export class Products extends Model {
 
     id?: string;
     name?: string;
-    supplierid?: string;
-    retailprice?: Number;
+    retailPrice?: Number;
     quantity?: Number;
     description?: string;
     image?: string;
-    categoryid?: string;
+    categoryId?: string;
     status?: string;
-    typeofproduct?: string;
-    createdat?: Date;
-    updatedat?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

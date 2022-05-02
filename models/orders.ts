@@ -10,26 +10,17 @@ export class Order extends Model {
   }
 
   id?: string;
-  customerid?: string;
-  iswholesale?: boolean;
-  customerdiscountcodeid?: string;
   status?: string;
-  campaignid?: string;
-  paymentid?: string;
-  discountprice?: number;
-  shippingfee?: number;
-  ordercode?: string;
-  createdat?: Date;
-  updatedat?: Date;
-  addressid?: string;
-  totalprice?: number;
-  supplierid?: string;
   address?: string;
-  reasonforupdatestatus?: string;
-  advancefee?: number;
-  advancedid?: number;
-  paymentmethod?: string;
-  reasonforcancel?:string;
-  imageproof?: string;
-  loyalcustomerdiscountpercent?: number
+  paymentMethod?: string;
+  customerId?: string;
+  paymentId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  discountPrice?: number;
+  shippingFee?: number;
+  orderCode?: string;
+  totalPrice?: number;
+  customerDiscountCodeId?: string;
+  loyalCustomerDiscountPercent?: number;
 }

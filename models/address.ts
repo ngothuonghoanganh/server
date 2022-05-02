@@ -5,15 +5,15 @@ Model.knex(connection.knex);
 
 export class Address extends Model {
     static get tableName() {
-        return "address";
+        return "addresses";
     }
 
     id?: string;
-    customerid?: string;
+    customerId?: string;
     province?: string;
     street?: string;
-    isdefault?:boolean;
-    createdat?: Date;
-    updatedat?: Date;
+    isDefault?:boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 
 }

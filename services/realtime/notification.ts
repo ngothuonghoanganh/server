@@ -9,10 +9,10 @@ class Notif {
   //message
   //link
   public sendNotiForWeb = async (data: any) => {
-    database.ref("notif/" + data.userid).set(data);
+    database.ref("notif/" + data.userId).set(data);
     //insert data of noti to database
     const insertNoti = await Notification.query().insert({
-      userid: data.userid,
+      userId: data.userId,
       link: data.link,
       message: data.message,
       status: "unread",
@@ -43,7 +43,7 @@ class Notif {
 
       const data = await Notification.query()
         .select()
-        .where("userid", accountId);
+        .where("userId", accountId);
 
       return res.status(200).send({
         message: "successful",

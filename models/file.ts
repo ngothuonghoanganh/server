@@ -10,5 +10,5 @@ export class Files extends Model {
   id?: string;
   name?: string;
   url?: string;
-  isdeleted?: boolean;
+  isDeleted?: boolean;
 }

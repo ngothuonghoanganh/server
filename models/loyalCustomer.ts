@@ -5,14 +5,15 @@ Model.knex(connection.knex);
 
 export class LoyalCustomer extends Model {
   static get tableName() {
-    return "loyalcustomer";
+    return "loyalCustomers";
   }
   id?: string;
-  supplierid?: string;
-  customerid?: string;
-  numoforder?: number;
-  numofproduct?: string;
-  discountpercent?: number;
-  created?: Date;
+  supplierId?: string;
+  customerId?: string;
+  numOfOrder?: number;
+  numOfProduct?: string;
+  discountPercent?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
   status?: string;
 }

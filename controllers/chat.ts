@@ -2,6 +2,7 @@ import { Chat } from "../models/chat";
 import { Customers } from "../models/customers";
 import { database } from "../models/firebase/firebase";
 import { Suppliers } from "../models/suppliers";
+import dbEntity from "../services/dbEntity";
 
 class ChatController {
   public run = async () => {
@@ -12,11 +13,11 @@ class ChatController {
           await Chat.query().insert({ ...snapshot.val(), status: "unread" });
           let [chatmessagesTo, chatmessagesFrom] = await Promise.all([
             Chat.query()
-              .select()
+              .select(...dbEntity.chatEntity)
               .where("to", snapshot.val().to)
               .andWhere("from", snapshot.val().from),
             Chat.query()
-              .select()
+              .select(...dbEntity.chatEntity)
               .where("from", snapshot.val().to)
               .andWhere("to", snapshot.val().from),
           ]);
@@ -28,35 +29,35 @@ class ChatController {
           const fromInfo =
             (await Customers.query()
               .select(
-                "accountid as id",
-                "firstname as firstname",
-                "lastname as lastname",
-                " avt as avt"
+                "accountId as id",
+                "firstName as firstname",
+                "lastName as lastname",
+                "avt as avt"
               )
-              .where("accountid", snapshot.val().from)
-              .andWhere("isdeleted", false)
+              .where("accountId", snapshot.val().from)
+              .andWhere("isDeleted", false)
               .first()) ||
             (await Suppliers.query()
-              .select("accountid as id", "name as name", " avt as avt")
-              .where("accountid", snapshot.val().from)
-              .andWhere("isdeleted", false)
+              .select("accountId as id", "name as name", " avt as avt")
+              .where("accountId", snapshot.val().from)
+              .andWhere("isDeleted", false)
               .first());
 
           const toInfo =
             (await Customers.query()
               .select(
-                "accountid as id",
-                "firstname as firstname",
-                "lastname as lastname",
+                "accountId as id",
+                "firstName as firstname",
+                "lastName as lastname",
                 "avt as avt"
               )
-              .where("accountid", snapshot.val().to)
-              .andWhere("isdeleted", false)
+              .where("accountId", snapshot.val().to)
+              .andWhere("isDeleted", false)
               .first()) ||
             (await Suppliers.query()
-              .select("accountid as id", "name as name", " avt as avt")
-              .where("accountid", snapshot.val().to)
-              .andWhere("isdeleted", false)
+              .select("accountId as id", "name as name", " avt as avt")
+              .where("accountId", snapshot.val().to)
+              .andWhere("isDeleted", false)
               .first());
 
           await database
@@ -81,7 +82,7 @@ class ChatController {
       // console.log(req.user)
 
       const chatData = await Chat.query()
-        .select()
+        .select(...dbEntity.chatEntity)
         .where("from", customerId)
         .orWhere("to", customerId);
 
@@ -105,7 +106,7 @@ class ChatController {
       const to = req.body.to;
 
       const data = await Chat.query()
-        .select()
+        .select(...dbEntity.chatEntity)
         .where("from", from)
         .andWhere("to", to);
 
@@ -148,7 +149,7 @@ class ChatController {
       // const to = req.body.to;
 
       const data = await Chat.query()
-        .select()
+        .select(...dbEntity.chatEntity)
         .where((cd) => {
           cd.where((cd1) => {
             cd1.where("from", from).andWhere("to", to);
@@ -158,14 +159,14 @@ class ChatController {
         })
         .andWhere((cd) => {
           if (startDate && endDate) {
-            cd.whereBetween("createdat", [startDate, endDate]);
+            cd.whereBetween("createdAt", [startDate, endDate]);
           }
           if (startDate && !endDate) {
-            cd.where("createdat", ">=", startDate);
+            cd.where("createdAt", ">=", startDate);
           }
 
           if (!startDate && endDate) {
-            cd.where("createdat", "<=", endDate);
+            cd.where("createdAt", "<=", endDate);
           }
         });
 

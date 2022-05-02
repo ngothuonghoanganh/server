@@ -5,21 +5,20 @@ Model.knex(connection.knex);
 
 export class DiscountCode extends Model {
   static get tableName() {
-    return "discountcode";
+    return "discountCodes";
   }
 
   id?: string;
-  supplierid?: string;
+  supplierId?: string;
   code?: string;
   description?: string;
-  minimunpricecondition?: Number;
-  startdate?: Date;
-  enddate?: Date;
+  minimumPriceCondition?: Number;
+  startDate?: Date;
+  endDate?: Date;
   quantity?: Number;
-  createdat?: Date;
-  updatedat?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   status?: string;
-  productid?: string;
-  discountprice?: Number;
+  discountPrice?: Number;
 
 }

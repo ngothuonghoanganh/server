@@ -13,7 +13,7 @@ router.get("/", authentication.protected, loyalCustomerController.getAll);
 router.get(
   "/customer",
   authentication.protected,
-  loyalCustomerController.getAllCustoner
+  loyalCustomerController.getAllCustomer
 );
 
 router.get(

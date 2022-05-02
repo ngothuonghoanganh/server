@@ -5,14 +5,14 @@ Model.knex(connection.knex);
 
 export class SystemProfile extends Model {
   static get tableName() {
-    return "systemprofile";
+    return "systemProfiles";
   }
 
   id?: string;
-  accountid?: string;
   name?: string;
   avt?: string;
-  isdeleted?: boolean;
-  createdat?: Date;
-  updatedat?: Date;
+  isDeleted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  accountId?: string;
 }
