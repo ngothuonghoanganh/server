@@ -89,6 +89,7 @@ class Entity {
     "products.quantity as quantity",
     "products.image as image",
     "products.categoryId as categoryid",
+    "products.description as description",
     "products.status as status",
     "products.createdAt as createdat",
     "products.updatedAt as updatedat",
