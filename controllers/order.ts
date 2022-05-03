@@ -1978,6 +1978,16 @@ class OrderController {
           .groupBy("campaigns.id")
           .first());
 
+      if (orders.campaignid) {
+        orders.orderstatushistory = await OrderStatusHistory.query()
+          .select(...dbEntity.orderStatusHistoriesEntity)
+          .where("campaignOrderId", orders.id);
+      } else {
+        orders.orderstatushistory = await OrderStatusHistory.query()
+          .select(...dbEntity.orderStatusHistoriesEntity)
+          .where("retailOrderId", orders.id);
+      }
+
       const productId = orders.details[0].productId;
       const { supplierId }: any = await Products.query()
         .select("categories.supplierId")
