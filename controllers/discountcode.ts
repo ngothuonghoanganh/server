@@ -24,7 +24,7 @@ class DiscountCodeController {
                 endDate,
                 status = "ready",
                 // productId,
-                minimunPriceCondition,
+                minimumPriceCondition,
                 discountPrice
             } = req.body;
             let quantity = listLoyalCustomer.length;
@@ -39,7 +39,7 @@ class DiscountCodeController {
                     quantity: quantity,
                     status: status,
                     // productid: productId,
-                    minimumPriceCondition: minimunPriceCondition,
+                    minimumPriceCondition: minimumPriceCondition,
                     discountPrice: discountPrice
                 })
             for (const item of listLoyalCustomer) {
@@ -99,7 +99,7 @@ class DiscountCodeController {
             let {
                 code,
                 description,
-                minimunPriceCondition,
+                minimumPriceCondition,
                 productId,
                 startDate,
                 endDate,

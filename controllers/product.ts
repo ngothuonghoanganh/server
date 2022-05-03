@@ -564,23 +564,24 @@ class ProductsController {
       let ListSupplierEntity = [
         "products.id as productid",
         "suppliers.id as supplierid",
-        "suppliers.accountid as accountid",
+        "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
         "suppliers.email as supplieremail",
         "suppliers.avt as supplieravt",
-        "suppliers.isdeleted as supplierisdeleted",
+        "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
       let productIdOrder: any = await Order.query()
         .select("orderDetails.productId as productid")
         .join("orderDetails", "orders.id", "orderDetails.orderId")
         .where("orders.status", status)
-        .groupBy("orderDetails.productid");
+        .groupBy("orderDetails.productId");
 
       let productIdCampaign = await CampaignOrder.query()
-        .select("productId as productid")
+        .select("campaigns.productId as productid")
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .where("campaignOrders.status", status)
-        .groupBy("campaignOrders.productId");
+        .groupBy("campaigns.productId");
       productIdCampaign.push(...productIdOrder);
 
       productIdCampaign = [
