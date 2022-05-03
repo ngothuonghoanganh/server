@@ -46,7 +46,7 @@ class CustomerDiscountCodeController {
                 'discountCodes.supplierId as supplierid',
                 'discountCodes.code as code',
                 'discountCodes.description as description',
-                'discountCodes.minimunPriceCondition as minimunpricecondition',
+                'discountCodes.minimumPriceCondition as minimumpricecondition',
                 'discountCodes.startDate as startdate',
                 'discountCodes.endDate as enddate',
                 'discountCodes.quantity as quantity',

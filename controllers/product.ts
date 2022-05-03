@@ -577,7 +577,7 @@ class ProductsController {
       let productIdCampaign = await CampaignOrder.query()
         .select("productId as productid")
         .where("campaignOrders.status", status)
-        .groupBy("productId");
+        .groupBy("campaignOrders.productId");
       productIdCampaign.push(...productIdOrder);
 
       productIdCampaign = [
