@@ -34,13 +34,16 @@ class OrderHistoryController {
   public getRetailHistoryById = async (req: any, res: any, next: any) => {
     try {
       const id = req.query.id;
-      const history = await OrderStatusHistory.query().select(...dbEntity.orderStatusHistoriesEntity).where("id", id);
+      const history = await OrderStatusHistory.query()
+        .select(...dbEntity.orderStatusHistoriesEntity)
+        .where("id", id);
       return res.status(200).send({
         message: "successful",
         data: history,
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -59,13 +62,11 @@ class OrderHistoryController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
-  public insertOrderHistoryForReturning = async (
-    req: any,
-    res: any,
-  ) => {
+  public insertOrderHistoryForReturning = async (req: any, res: any) => {
     try {
       //no role required
       //no login
@@ -260,14 +261,10 @@ class OrderHistoryController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-
     }
   };
 
-  public getOrderHistoryByOrderCodeList = async (
-    req: any,
-    res: any,
-  ) => {
+  public getOrderHistoryByOrderCodeList = async (req: any, res: any) => {
     try {
       const orderCodes = req.body.orderCodes;
       // console.log(orderCodes)
@@ -282,7 +279,6 @@ class OrderHistoryController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-
     }
   };
 }
