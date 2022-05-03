@@ -359,6 +359,7 @@ class Campaign {
       const campaign: any = await Campaigns.query()
         .select(
           ...dbEntity.campaignEntity,
+          'categories.supplierId',
           Campaigns.raw(`
           sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
             count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting
@@ -366,8 +367,11 @@ class Campaign {
         )
 
         .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
+        .join('products', 'campaigns.productId', 'products.id')
+        .join('categories', 'categories.id', 'products.categoryId')
         .where("campaigns.id", campaignId)
         .groupBy("campaigns.id")
+        .groupBy('categories.supplierId')
         .first();
 
       let startable = true;
@@ -405,6 +409,8 @@ class Campaign {
         .select(...dbEntity.productEntity)
         .where("id", campaign.productid)
         .first();
+        // const supplierId=await Suppliers.query().select('suppliers.id')
+        // .join('categories', 'categories.supplierId', 'suppliers.id')
       return res.status(200).send({
         message: "successfully",
         data: {
@@ -412,6 +418,7 @@ class Campaign {
           startable: startable,
           product: product,
           reason: reason,
+          // supplierId: supplierId
         },
       });
     } catch (error) {
@@ -532,12 +539,14 @@ class Campaign {
         .select(
           ...dbEntity.campaignEntity,
           ...listEntity,
+          'categories.supplierId',
           Campaigns.raw(`
           sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
             count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting
           `)
         )
         .join("products", "campaigns.productId", "products.id")
+        .join('categories', 'categories.id', 'products.categoryId')
         .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
         .where("campaigns.description", "like", "%" + value + "%")
         .orWhere("campaigns.code", "like", "%" + value + "%")
@@ -548,7 +557,8 @@ class Campaign {
           );
         })
         .groupBy("campaigns.id")
-        .groupBy("products.id");
+        .groupBy("products.id")
+        .groupBy('categories.supplierId')
 
       // let campaignDetails;
       // for (const element of campaign) {
