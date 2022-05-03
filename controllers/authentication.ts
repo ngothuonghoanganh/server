@@ -97,6 +97,7 @@ class Authentication {
       return this.sendJWTToken(user, 200, res);
     } catch (error) {
       console.error(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -137,6 +138,7 @@ class Authentication {
       next();
     } catch (error) {
       console.error(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -150,6 +152,7 @@ class Authentication {
       });
     } catch (error) {
       console.error(error);
+      return res.status(400).send({ message: error });
     }
   };
 
