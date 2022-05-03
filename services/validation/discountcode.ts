@@ -7,7 +7,7 @@ export const createBodyDiscountCodeSchema = Joi.object({
   endDate: Joi.string().allow(null).allow("").default(""),
   quantity: Joi.number().integer().min(0),
   productId: Joi.string().required(),
-  minimunPriceCondition: Joi.number().integer().min(0),
+  minimumPriceCondition: Joi.number().integer().min(0),
   discountPrice: Joi.number().integer().min(0),
 });
 
@@ -18,7 +18,7 @@ export const paramDiscountCodeIdSchema = Joi.object({
 export const updateDiscountCodeSchema = Joi.object({
   code: Joi.string().required(),
   description: Joi.string().allow(null).allow("").default(""),
-  minimunPriceCondition: Joi.number().integer().min(0).required(),
+  minimumPriceCondition: Joi.number().integer().min(0).required(),
   startDate: Joi.date().allow(""),
   endDate: Joi.date().allow(""),
   quantity: Joi.number().integer().min(0).required(),

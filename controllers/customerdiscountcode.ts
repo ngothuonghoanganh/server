@@ -148,7 +148,7 @@ class CustomerDiscountCodeController {
                 'discountCodes.supplierId as supplierid',
                 'discountCodes.code as code',
                 'discountCodes.description as description',
-                'discountCodes.minimunPriceCondition as minimunpricecondition',
+                'discountCodes.minimumPriceCondition as minimumpricecondition',
                 'discountCodes.startDate as startdate',
                 'discountCodes.endDate as enddate',
                 'discountCodes.quantity as quantity',
@@ -164,7 +164,7 @@ class CustomerDiscountCodeController {
                     // .select('discountcode.*', ...ListEntity)
                     // .join('discountcode', 'discountcode.id', 'customerdiscountcode.discountcodeid')
                     // .where('discountcode.supplierid', suppId)
-                    // .andWhere('discountcode.minimunpricecondition', '<=',  minPriceCondition)
+                    // .andWhere('discountcode.minimumpricecondition', '<=',  minPriceCondition)
                     // .andWhere('customerdiscountcode.status', status)
 
                     .select(discountCodeEntity, ...ListEntity)
@@ -184,7 +184,7 @@ class CustomerDiscountCodeController {
                     .select(discountCodeEntity, ...ListEntity)
                     .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
                     .where('discountCodes.supplierId', suppId)
-                    .andWhere('discountCodes.minimunPriceCondition', '<=', minPriceCondition)
+                    .andWhere('discountCodes.minimumPriceCondition', '<=', minPriceCondition)
                     .andWhere('customerDiscountCodes.status', status)
                     .andWhere('customerId', customerId)
 
@@ -216,7 +216,7 @@ class CustomerDiscountCodeController {
                 'discountCodes.supplierId as supplierid',
                 'discountCodes.code as code',
                 'discountCodes.description as description',
-                'discountCodes.minimunPriceCondition as minimunpricecondition',
+                'discountCodes.minimumPriceCondition as minimumpricecondition',
                 'discountCodes.startDate as startdate',
                 'discountCodes.endDate as enddate',
                 'discountCodes.quantity as quantity',
