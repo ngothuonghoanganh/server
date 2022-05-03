@@ -13,13 +13,9 @@ import transactionController from "./transaction";
 import { Transaction } from "../models/transaction";
 import { OrderStatusHistory } from "../models/orderstatushistory";
 import orderStatusHistoryController from "./orderStatusHistoryController";
-import supplier from "./supplier";
 import { Suppliers } from "../models/suppliers";
-import { Accounts } from "../models/accounts";
-import { CustomerDiscountCode } from "../models/customerdiscountcode";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
-import { join } from "path";
 import { createClient } from "redis";
 import dbEntity from "../services/dbEntity";
 
