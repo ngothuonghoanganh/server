@@ -423,23 +423,26 @@ class ProductsController {
       const nullValue = "";
       const campaignOrder: any = await CampaignOrder.query()
         .select(
-          "campaignOrders.productId",
-          CampaignOrder.raw("COUNT(campaignOrders.id) as count"),
-          CampaignOrder.raw(`SUM (rating) AS rating`)
+          "campaigns.productId",
+          CampaignOrder.raw(`coalesce(COUNT("campaignOrders".id),0) as count`),
+          CampaignOrder.raw(
+            `coalesce(SUM ("campaignOrders".rating),0) AS rating`
+          )
         )
-        .whereIn("campaignOrders.productId", productIds)
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
+        .whereIn("campaigns.productId", productIds)
         .andWhere("campaignOrders.comment", "<>", nullValue)
-        .groupBy("productId");
+        .groupBy("campaigns.productId");
 
       const retailOrder: any = await OrderDetail.query()
         .select(
           "orderDetails.productId",
-          OrderDetail.raw("COUNT(orderDetails.id) as count"),
-          OrderDetail.raw(`SUM (rating) AS rating`)
+          OrderDetail.raw(`coalesce(COUNT("orderDetails".id),0) as count`),
+          OrderDetail.raw(`coalesce(SUM (rating),0) AS rating`)
         )
         .whereIn("orderDetails.productId", productIds)
         .andWhere("orderDetails.comment", "<>", nullValue)
-        .groupBy("productId");
+        .groupBy("orderDetails.productId");
 
       // const listRating = await Comments.query()
       //   .select("productid", Comments.raw(`AVG(rating) as rating`))
