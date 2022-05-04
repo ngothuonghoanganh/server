@@ -87,7 +87,8 @@ class Comment {
       const campaignOrder: any = await CampaignOrder.query()
         .select(...dbEntity.campaignOrderEntity, ...ListEntity)
         .join("customers", "customers.id", "campaignOrders.customerId")
-        .where("campaignOrders.productId", productId)
+        .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
+        .where("campaigns.productId", productId)
         .andWhere((cd) => {
           cd.where("campaignOrders.comment", "<>", nullValue).orWhere(
             "campaignOrders.comment",
@@ -134,7 +135,8 @@ class Comment {
 
       const campaignOrder: any = await CampaignOrder.query()
         .select("campaignOrders.comment", "campaignOrders.rating")
-        .where("campaignOrders.productId", productId)
+        .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
+        .where("campaigns.productId", productId)
         .andWhere("campaignOrders.comment", "<>", nullValue);
 
       const retailOrder: any = await OrderDetail.query()

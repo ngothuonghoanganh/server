@@ -56,12 +56,12 @@ router.put(
   order.updateStatusFromReturningToReturned
 );
 
-// router.get(
-//   "/customer",
-//   Authentication.protected,
-//   Authentication.checkRole(["Customer"]),
-//   order.getOrderForCustomer
-// );
+router.get(
+  "/customer",
+  Authentication.protected,
+  Authentication.checkRole(["Customer"]),
+  order.getOrderForCustomer
+);
 
 router.get(
   "/supplier",

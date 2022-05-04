@@ -36,7 +36,7 @@ export const bodyProductIdsSchema = Joi.object({
 });
 
 
-export const querySupplierIdSchema = Joi.object({
+export const paramsSupplierIdSchema = Joi.object({
   supplierId: Joi.string().required(),
 });
 
@@ -54,3 +54,5 @@ export const updateBodyProductSchema = Joi.object({
   status: Joi.string().allow(null).allow(""),
   typeofproduct: Joi.string().allow(null).allow(""),
 });
+
+

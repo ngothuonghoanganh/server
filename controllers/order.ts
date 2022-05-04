@@ -18,6 +18,7 @@ import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import { createClient } from "redis";
 import dbEntity from "../services/dbEntity";
+import category from "./category";
 
 class OrderController {
   client = createClient({
@@ -1332,65 +1333,70 @@ class OrderController {
     }
   };
 
-  // public getOrderForCustomer = async (req: any, res: any) => {
-  //   try {
-  //     const userId = req.user.id;
-  //     const status = req.query.status;
+  public getOrderForCustomer = async (req: any, res: any) => {
+    try {
+      const userId = req.user.id;
+      const status = req.query.status;
 
-  //     const orders: any = await Order.query()
-  //       .select(
-  //         ...dbEntity.orderEntity,
-  //         Order.raw(
-  //           `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierid),
-  //           (select suppliers.avt as supplieravatar from suppliers where suppliers.id = orders.supplierid),
-  //           (select suppliers.address as supplieraddress from suppliers where suppliers.id = orders.supplierid),
-  //           json_agg(to_jsonb(orderdetail) - 'orderid') as details`
-  //         )
-  //       )
-  //       .join("orderdetail", "orders.id", "orderdetail.orderid")
-  //       .where("orders.customerid", userId)
-  //       .andWhere("orders.status", status)
-  //       .groupBy("orders.id");
+      const orders: any = await Order.query()
+        .select(
+          ...dbEntity.supplierEntity,
+          ...dbEntity.orderEntity,
+          // ...dbEntity.orderDetailEntity
+          Order.raw(
+            // `(select suppliers.name as suppliername from suppliers where suppliers.id = orders.supplierId),
+            // (select suppliers.avt as supplieravatar from suppliers where suppliers.id = orders.supplierId),
+            // (select suppliers.address as supplieraddress from suppliers where suppliers.id = orders.supplierId),
+            `json_agg(to_jsonb("orderDetails") - 'orderId') as details`
+          )
+        )
+        .join("orderDetails", "orders.id", "orderDetails.orderId")
+        .join('products', 'products.id', "orderDetails.productId")
+        .join('categories', 'categories.id', 'products.categoryId')
+        .join('suppliers', 'suppliers.id', "categories.supplierId")
+        .where("orders.customerId", userId)
+        .andWhere("orders.status", status)
+        .groupBy("orders.id")
+        .groupBy("suppliers.id")
+        // .groupBy("orderDetails.id")
 
-  //     const ordersInCampaign = await CampaignOrder.query()
-  //       .select(
-  //         "campaignorder.*",
-  //         "campaigns.supplierid",
-  //         CampaignOrder.raw(
-  //           `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierid),
-  //           (select suppliers.avt as supplieravatar from suppliers where suppliers.id = campaigns.supplierid),
-  //           (select suppliers.address as supplieraddress from suppliers where suppliers.id = campaigns.supplierid),
-  //           array_to_json(array_agg(json_build_object(
-  //           'id','',
-  //           'image', image,
-  //           'price', campaignorder.price,
-  //           'quantity', campaignorder.quantity,
-  //           'ordercode', ordercode,
-  //           'productid', campaignorder.productid,
-  //           'campaignid', campaignid,
-  //           'incampaign', true,
-  //           'customerid', customerid,
-  //           'totalprice', totalprice,
-  //           'productname', campaignorder.productname,
-  //           'notes', campaignorder.notes)
-  //           )) as details`
-  //         )
-  //       )
-  //       .join("campaigns", "campaigns.id", "campaignorder.campaignid")
-  //       .where("campaignorder.status", status)
-  //       .andWhere("campaignorder.customerid", userId)
-  //       .groupBy("campaignorder.id")
-  //       .groupBy("campaigns.id");
 
-  //     orders.push(...ordersInCampaign);
-  //     return res.status(200).send({
-  //       message: "successful",
-  //       data: orders,
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+      const ordersInCampaign = await CampaignOrder.query()
+        .select(
+          ...dbEntity.supplierEntity,
+          ...dbEntity.campaignOrderEntity,
+          CampaignOrder.raw(
+            `array_to_json(array_agg(json_build_object(
+            'id','',
+            'image', "campaigns"."image",
+            'price', "campaignOrders"."price",
+            'quantity', "campaignOrders"."quantity",
+            'orderCode', "orderCode",
+            'productId', "campaigns"."productId",
+            'totalPrice', "totalPrice",
+            'productName', "campaigns"."productName",
+            'note', "campaignOrders"."note")
+            )) as details`
+          )
+        )
+        .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
+        .join('products', 'products.id', "campaigns.productId")
+        .join('categories', 'categories.id', 'products.categoryId')
+        .join('suppliers', 'suppliers.id', "categories.supplierId")
+        .where("campaignOrders.status", status)
+        .andWhere("campaignOrders.customerId", userId)
+        .groupBy("campaignOrders.id")
+        .groupBy("suppliers.id")
+
+      orders.push(...ordersInCampaign);
+      return res.status(200).send({
+        message: "successful",
+        data: orders,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   public getOrderForSupplier = async (req: any, res: any) => {
     try {

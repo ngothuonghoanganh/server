@@ -385,7 +385,7 @@ class Campaign {
       if (campaign.status !== "ready") {
         startable = false;
         reason = "Only ready campaign can be started";
-      } else if (campaign.isshare === "true") {
+      } else if (campaign.isshare) {
         const campaignShare = await Campaigns.query()
           .select(...dbEntity.campaignEntity)
           .where("productId", campaign.productid)
@@ -396,6 +396,7 @@ class Campaign {
           startable = false;
           reason = "Another sharing campaign is ongoing";
         } else {
+          //check thoi gian tu hien tai toi thoi gian muon start campaign xem co campaign nao chay hay ko, neu co thi ko cho start campaign
           var currentDate = moment().format();
           const campaignShare = await Campaigns.query()
             .select(...dbEntity.campaignEntity)
@@ -449,7 +450,7 @@ class Campaign {
         return res.status(200).send({
           message: "Only ready campaign can be started",
         });
-      } else if (campaign.isShare) {
+      } else if (campaign.isshare) {
         const campaignShare = await Campaigns.query()
           .select(...dbEntity.campaignEntity)
           .where("productId", campaign.productid)
@@ -468,7 +469,7 @@ class Campaign {
             .where("productId", campaign.productid)
             .andWhere("isShare", true)
             .andWhere("status", "ready")
-            .andWhere("fromDate", "<", campaign.fromDate)
+            .andWhere("fromDate", "<", campaign.fromdate)
             .andWhere("fromDate", ">", currentDate);
 
           if (campaignShare.length > 0)
@@ -506,13 +507,13 @@ class Campaign {
         .join("loyalCustomers", "loyalCustomers.customerId", "customers.id")
         .where("loyalCustomers.supplierId", supplierId);
 
-      const customerAccountIds = accountCustomer.map(
-        (item: any) => item.accountId
-      );
+      // const customerAccountIds = accountCustomer.map(
+      //   (item: any) => item.accountId
+      // );
 
-      for (const item of customerAccountIds) {
+      for (const item of accountCustomer) {
         notif.sendNotiForWeb({
-          userid: item,
+          userId: item.accountId,
           link: campaignId,
           message: "campaign with code: " + product.code + " has started",
           status: "unread",
@@ -548,6 +549,7 @@ class Campaign {
           ...dbEntity.campaignEntity,
           ...listEntity,
           'categories.supplierId',
+          'suppliers.name',
           Campaigns.raw(`
           sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
             count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting
@@ -555,6 +557,7 @@ class Campaign {
         )
         .join("products", "campaigns.productId", "products.id")
         .join('categories', 'categories.id', 'products.categoryId')
+        .join('suppliers', 'categories.supplierId', 'suppliers.id')
         .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
         .where("campaigns.description", "like", "%" + value + "%")
         .orWhere("campaigns.code", "like", "%" + value + "%")
@@ -567,7 +570,7 @@ class Campaign {
         .groupBy("campaigns.id")
         .groupBy("products.id")
         .groupBy('categories.supplierId')
-
+        .groupBy('suppliers.name')
       // let campaignDetails;
       // for (const element of campaign) {
       //   if (element.isshare) {

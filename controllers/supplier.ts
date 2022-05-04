@@ -32,7 +32,7 @@ class Supplier {
         data: data,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -62,7 +62,7 @@ class Supplier {
         data: { suppData: suppData, cusData: cusData },
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -94,7 +94,7 @@ class Supplier {
         data: { account: updateAccount, profile: updateProfile },
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -115,7 +115,7 @@ class Supplier {
         data: data,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
 
     }
   };
@@ -198,13 +198,26 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      var currentDate = ''
-      if (currentDate.length > 0) {
-        console.log(currentDate)
+      let startable = true;
+      let reason = "";
+      const campaignShare = await Campaigns.query()
+        .select(...dbEntity.campaignEntity)
+        .where("productId", '215dba82-ae12-4bdf-8072-332278c22e5e')
+        .andWhere("isShare", true)
+        .andWhere("status", "active")
+        .first();
+
+      console.log(campaignShare)
+      if (campaignShare) {
+        startable = false;
+        reason = "Another sharing campaign is ongoing";
       }
+      console.log(startable)
+      console.log(reason)
+
       return res.status(200).send({
         message: 'successful',
-        data: currentDate
+        data: campaignShare
       })
     } catch (error) {
       console.log(error);
