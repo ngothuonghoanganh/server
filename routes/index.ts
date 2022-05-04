@@ -34,6 +34,7 @@ router.get(
       return res.status(200).send("test commit 1");
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   }
 );

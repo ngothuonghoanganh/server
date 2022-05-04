@@ -6,7 +6,9 @@ import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
 
 class CartController {
-  client = createClient();
+  client = createClient({
+    url: "redis://13.215.133.39:6379",
+  });
   public addToCart = async (req: any, res: any, next: any) => {
     try {
       const customerId = req.user.id; //customer id
@@ -43,6 +45,7 @@ class CartController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -68,6 +71,7 @@ class CartController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -90,6 +94,7 @@ class CartController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
   //cart.prodictid = products.id
@@ -136,6 +141,7 @@ class CartController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 }

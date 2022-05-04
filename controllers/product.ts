@@ -229,8 +229,8 @@ class ProductsController {
       ];
       const data = await Categories.query()
         .select(...dbEntity.productEntity, ...listEntity)
-        .join("suppliers", "suppliers.id", "categories.supplierid")
-        .join("products", "products.categoryid", "categories.id")
+        .join("suppliers", "suppliers.id", "categories.supplierId")
+        .join("products", "products.categoryId", "categories.id")
         .where("products.id", productId)
         .first();
 

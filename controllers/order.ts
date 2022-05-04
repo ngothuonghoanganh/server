@@ -21,7 +21,9 @@ import dbEntity from "../services/dbEntity";
 import category from "./category";
 
 class OrderController {
-  client = createClient();
+  client = createClient({
+    url: "redis://13.215.133.39:6379",
+  });
   public createOrder = async (req: any, res: any) => {
     try {
       let {
@@ -206,6 +208,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -394,6 +397,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -511,6 +515,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -565,6 +570,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -738,6 +744,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -818,6 +825,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -912,6 +920,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1007,6 +1016,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1142,6 +1152,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1239,6 +1250,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1317,6 +1329,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1439,6 +1452,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1510,6 +1524,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1550,6 +1565,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1602,6 +1618,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1940,6 +1957,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 
@@ -1984,6 +2002,16 @@ class OrderController {
           .groupBy("campaigns.id")
           .first());
 
+      if (orders.campaignid) {
+        orders.orderstatushistory = await OrderStatusHistory.query()
+          .select(...dbEntity.orderStatusHistoriesEntity)
+          .where("campaignOrderId", orders.id);
+      } else {
+        orders.orderstatushistory = await OrderStatusHistory.query()
+          .select(...dbEntity.orderStatusHistoriesEntity)
+          .where("retailOrderId", orders.id);
+      }
+
       const productId = orders.details[0].productId;
       const { supplierId }: any = await Products.query()
         .select("categories.supplierId")
@@ -2009,6 +2037,7 @@ class OrderController {
       });
     } catch (error) {
       console.log(error);
+      return res.status(400).send({ message: error });
     }
   };
 }
