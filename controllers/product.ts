@@ -183,37 +183,35 @@ class ProductsController {
     }
   };
 
-  // public getAllProductsBySupplierId = async (req: any, res: any, next: any) => {
-  //   try {
-  //     let listEntity = [
-  //       "products.*",
-  //       // "categories.categoryname as categoryname",
-  //       // "categories.id as categoryid",
-  //     ];
-  //     const supplierId = req.query.supplierId;
+  public getAllProductsBySupplierId = async (req: any, res: any, next: any) => {
+    try {
+      let listEntity = [
+        ...dbEntity.productEntity
+        // "categories.categoryname as categoryname",
+        // "categories.id as categoryid",
+      ];
+      const supplierId = req.params.supplierId;
 
-  //     let prods = await Products.query()
-  //       .select(...listEntity)
-  //       // .leftOuterJoin("categories", "categories.id", "products.categoryid")
-  //       // .where("products.status", "<>", "deactivated")
-  //       .where("products.supplierid", supplierId);
+      let prods = await Products.query()
+        .select(...listEntity)
+        .join('categories', 'categories.id', 'products.categoryId')
+        .where('categories.supplierId', supplierId)
+        .andWhere('status', '<>', 'deactivated');
 
-  //     prods = prods.map((prod: any) => {
-  //       if (prod.image) {
-  //         console.log(prod.image);
-  //         // prod.image = JSON.parse(prod.image);
-  //       }
-  //       return prod;
-  //     });
-  //     // console.log('test')
-  //     return res.status(200).send({
-  //       message: "get success",
-  //       data: prods,
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+      prods = prods.map((prod: any) => {
+        if (prod.image) {
+          console.log(prod.image);
+        }
+        return prod;
+      });
+      return res.status(200).send({
+        message: "get success",
+        data: prods,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   public getProductById = async (req: any, res: any, next: any) => {
     try {
@@ -503,10 +501,8 @@ class ProductsController {
       const listCategories = req.body.listCategories;
       // console.log(listCategories)
       const data: any = await Products.query()
-        .select()
+        .select(...dbEntity.productEntity)
         .whereIn("categoryId", listCategories)
-        // .andWhere('status', 'active')
-        // .andWhere('status', 'incampaign')
         .andWhere("status", "<>", "deactivated");
       return res.status(200).send({
         message: "successful",

@@ -11,15 +11,13 @@ import {
   getAllProdWithStatus,
   listCatesIdBodySchema,
   paramProductIdSchema,
+  paramsSupplierIdSchema,
   updateBodyProductSchema,
 } from "../services/validation/product";
 
 const router = express.Router();
 
 const validator = createValidator();
-// api này dành cho inspector, customer, guest gọi để lấy toàn bộ sản phẩm ra
-// nên không cần phải có role và authentiation
-// vì không cần cái đó nên là userId phải được truyền vào từ query chứ không phải lấy từ request như các thằng khác
 router.get(
   "/",
   // Authentication.protected,
@@ -129,11 +127,11 @@ router.delete(
 
 
 // no use
-// router.get(
-//   "/products/:supplierId",
-//   // Authentication.protected,
-//   // Authentication.checkRole(["Supplier", "Inspector"]),
-//   validator.params(querySupplierIdSchema),
-//   Product.getAllProductsBySupplierId
-// );
+router.get(
+  "/products/:supplierId",
+  // Authentication.protected,
+  // Authentication.checkRole(["Supplier", "Inspector"]),
+  validator.params(paramsSupplierIdSchema),
+  Product.getAllProductsBySupplierId
+);
 export default router;
