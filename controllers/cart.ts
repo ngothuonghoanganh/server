@@ -6,7 +6,9 @@ import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
 
 class CartController {
-  client = createClient();
+  client = createClient({
+   url:"redis://redis:6379"
+  });
   public addToCart = async (req: any, res: any, next: any) => {
     try {
       const customerId = req.user.id; //customer id
