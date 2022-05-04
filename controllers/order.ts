@@ -20,7 +20,9 @@ import { createClient } from "redis";
 import dbEntity from "../services/dbEntity";
 
 class OrderController {
-  client = createClient();
+  client = createClient({
+    url: "redis://13.215.133.39:6379",
+  });
   public createOrder = async (req: any, res: any) => {
     try {
       let {
