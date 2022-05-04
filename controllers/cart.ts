@@ -7,7 +7,7 @@ import { Suppliers } from "../models/suppliers";
 
 class CartController {
   client = createClient({
-   url:"redis://127.0.0.1:6379"
+    url: "redis://127.0.0.1:6379",
   });
   public addToCart = async (req: any, res: any, next: any) => {
     try {
