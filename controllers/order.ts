@@ -1423,6 +1423,7 @@ class OrderController {
         )
         .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .whereIn("campaigns.productId", productIds)
+        .andWhere('campaignOrders.status', '<>', 'notAdvanced')
         .groupBy("campaignOrders.id");
 
       orders.push(...ordersInCampaign);
@@ -1538,6 +1539,7 @@ class OrderController {
         .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         // .where("campaigns.supplierid", userId)
         .where("campaigns.id", campaignId)
+        .andWhere('campaignOrders.status', '<>', 'notAdvanced')
         .groupBy("campaignOrders.id");
 
       return res.status(200).send({
