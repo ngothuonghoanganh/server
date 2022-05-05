@@ -198,26 +198,19 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      let startable = true;
-      let reason = "";
-      const campaignShare = await Campaigns.query()
-        .select(...dbEntity.campaignEntity)
-        .where("productId", '215dba82-ae12-4bdf-8072-332278c22e5e')
-        .andWhere("isShare", true)
-        .andWhere("status", "active")
-        .first();
-
-      console.log(campaignShare)
-      if (campaignShare) {
-        startable = false;
-        reason = "Another sharing campaign is ongoing";
+      const order: any =
+      (await Order.query().select().where("orderCode", "6c6425e5d6-1651474143661").first()) ||
+      (await CampaignOrder.query()
+        .select()
+        .where("orderCode", '6c6425e5d6-1651474143661')
+        .first());
+      console.log(order.campaignId)
+      if (order.campaignId === undefined){
+        console.log('undefined roi ne')
       }
-      console.log(startable)
-      console.log(reason)
-
       return res.status(200).send({
         message: 'successful',
-        data: campaignShare
+        data: order
       })
     } catch (error) {
       console.log(error);

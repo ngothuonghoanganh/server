@@ -100,13 +100,6 @@ router.put(
   order.updateStatusFromCreatedToProcessingForSupplier
 );
 
-// router.put(
-//   "/status/customer/cancel",
-//   Authentication.protected,
-//   Authentication.checkRole(["Customer"]),
-//   validator.body(validUpdateStatusToCancelCustomerBodySchema),
-//   order.updateStatusToCancelledForCustomer
-// );
 
 router.put(
   "/status/supplier/cancel",

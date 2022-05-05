@@ -323,8 +323,8 @@ class OrderController {
           const maxPercent =
             condition.length > 0
               ? condition.reduce((p: any, c: any) =>
-                  p.discountPercent > c.discountPercent ? p : c
-                )
+                p.discountPercent > c.discountPercent ? p : c
+              )
               : { discountPercent: 0 };
 
           await LoyalCustomer.query()
@@ -346,20 +346,17 @@ class OrderController {
         supplierId: supp.supplierid,
         advanceFee: Transaction.raw(`"advanceFee" + ${order.advancefee || 0}`),
         platformFee: Transaction.raw(
-          `"platformFee" + ${
-            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `"platformFee" + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
           }`
         ),
         paymentFee: Transaction.raw(
-          `"paymentFee" + ${
-            ((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `"paymentFee" + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
           }`
         ),
         orderValue: Transaction.raw(
-          `"orderValue" + ${
-            order.totalprice -
-            (order.discountprice || 0) -
-            (order.advancefee || 0)
+          `"orderValue" + ${order.totalprice -
+          (order.discountprice || 0) -
+          (order.advancefee || 0)
           }`
         ),
         isWithdrawable: true,
@@ -519,61 +516,6 @@ class OrderController {
     }
   };
 
-  public updateStatusToCancelledForCustomer = async (req: any, res: any) => {
-    try {
-      let {
-        status = "cancelled",
-        orderCode,
-        type,
-        orderId,
-        image,
-        description,
-      } = req.body;
-      let update = await Order.query()
-        .update({
-          status: status,
-        })
-        .where("status", "created")
-        .orWhere("status", "unpaid")
-        .orWhere("status", "advanced")
-        .andWhere("ordercode", orderCode);
-
-      if (update === 0) {
-        console.log("update campaign order");
-        update = await CampaignOrder.query()
-          .update({
-            status: status,
-          })
-          .where("status", "created")
-          .orWhere("status", "unpaid")
-          .orWhere("status", "advanced")
-          .andWhere("ordercode", orderCode);
-      }
-      orderStatusHistoryController.createHistory({
-        orderStatus: status,
-        type: type,
-        retailOrderId: type === "retail" ? orderId : null,
-        campaignOrderId: type === "campaign" ? orderId : null,
-        image: JSON.stringify(image),
-        orderCode: orderCode,
-        description: description,
-      } as OrderStatusHistory);
-
-      if (update === 0) {
-        return res.status(200).send({
-          message: "not yet updated",
-        });
-      }
-      return res.status(200).send({
-        message: "updated successful",
-        data: update,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send({ message: error });
-    }
-  };
-
   public updateStatusToCancelledForSupplier = async (req: any, res: any) => {
     try {
       let {
@@ -631,6 +573,45 @@ class OrderController {
           })
           .andWhere("orderCode", orderCode);
       }
+      //re-check quantity again for share campaign, reset price if it needs
+      if (order.campaignId !== undefined) {
+        const campaign = await Campaigns.query().select().where('id', order.campaignId).first();
+        if (campaign.isShare) {
+          var obj = JSON.parse(campaign.range as any);
+          obj.sort(function (a: any, b: any) { return a.quantity - b.quantity });
+          const allOrdersInCampaign: any = await CampaignOrder.query().select().where('campaignId', order.campaignId).andWhere('status', 'advanced');
+          const currentQuantity = allOrdersInCampaign.reduce(
+            (acc: any, curr: any) => parseInt(acc) + parseInt(curr.quantity),
+            0
+          );
+          let price: any = 0
+          if (currentQuantity < obj[0].quantity) {
+            price = campaign.price
+          } else {
+            for (let i = 0; i < obj.length; i++) {
+              if (currentQuantity >= obj[i].quantity) {
+                price = obj[i].price;
+              }
+            }
+          }
+          let discountPrice;
+          for (const item of allOrdersInCampaign) {
+            discountPrice = item.totalPrice - price * item.quantity;
+            discountPrice +=
+              (price *
+                item.quantity *
+                item.loyalCustomerDiscountPercent) /
+              100;
+            await CampaignOrder.query()
+              .update({
+                discountPrice: discountPrice,
+              })
+              .where("id", item.id);
+
+          }
+        }
+      }
+
       //insert history for cancel
       orderStatusHistoryController.createHistory({
         orderStatus: status,
@@ -1358,7 +1339,7 @@ class OrderController {
         .andWhere("orders.status", status)
         .groupBy("orders.id")
         .groupBy("suppliers.id")
-        // .groupBy("orderDetails.id")
+      // .groupBy("orderDetails.id")
 
 
       const ordersInCampaign = await CampaignOrder.query()
@@ -1633,9 +1614,7 @@ class OrderController {
         type,
         orderCode,
         isShare = false,
-        currentPrice = 0,
       } = req.body;
-
       const order: any =
         (await Order.query()
           .select(
@@ -1726,7 +1705,7 @@ class OrderController {
         });
 
         const currentCampaign = await Campaigns.query()
-          .select(...dbEntity.campaignOrderEntity)
+          .select()
           .join("campaignOrders", "campaignOrders.campaignId", "campaigns.id")
           .where("campaignOrders.id", orderId)
           .first();
@@ -1735,21 +1714,76 @@ class OrderController {
         if (currentCampaign.isShare) {
           // update price for order order in campaign
           const advancedOrdersInCampaign: any = await CampaignOrder.query()
-            .select()
+            .select(...dbEntity.campaignOrderEntity)
             .where("campaignId", campaignId)
             .andWhere("status", "advanced")
             .andWhere("id", "<>", orderId);
 
+            // advancedOrdersInCampaign
+            // numOfOrder = 3
+            // quantity = 60
+
           if (advancedOrdersInCampaign.length > 0) {
-            const advancedOrder = advancedOrdersInCampaign[0];
-            let discountPrice =
-              advancedOrder.totalprice - currentPrice * advancedOrder.quantity;
-            discountPrice +=
-              (currentPrice *
-                advancedOrder.quantity *
-                advancedOrder.loyalcustomerdiscountpercent) /
-              100;
-            if (discountPrice > advancedOrder.discountprice) {
+            // const advancedOrder = advancedOrdersInCampaign[0];
+            // let discountPrice =
+            //   advancedOrder.totalprice - currentPrice * advancedOrder.quantity;
+            // discountPrice +=
+            //   (currentPrice *
+            //     advancedOrder.quantity *
+            //     advancedOrder.loyalcustomerdiscountpercent) /
+            //   100;
+            var obj = JSON.parse(currentCampaign.range as any);
+            obj.sort(function (a: any, b: any) { return a.quantity - b.quantity });
+            let currentQuantity = advancedOrdersInCampaign.reduce(
+              (acc: any, curr: any) => parseInt(acc) + parseInt(curr.quantity),
+              0
+            );
+            let price: any;
+            let currentPrice: any;
+
+            // range:
+            // 0 id:50, name:80000
+            // 1 id:100, name:70000
+            // 2 id:150, name:60000
+            // 3 id:180, name:50000
+
+            // currentQuantity = 60
+            // tổng quantity của các order advanced khác
+            // tính giá hiện tại của các order
+            if (currentQuantity < obj[0].quantity) {
+              price = currentCampaign.price
+            } else {
+              for (let i = 0; i < obj.length; i++) {
+                if (currentQuantity >= obj[i].quantity) {
+                  price = obj[i].price;
+                }
+              }
+            }
+            console.log(currentQuantity)
+            console.log(price)
+
+            // price = 80000
+
+            // vd order.quantity = 60 => currentQuantity = 60 + 60 = 120
+            // tổng quantity của các order advanced tính luôn order đang xử lí
+            currentQuantity = currentQuantity + order.quantity
+
+            // tính giá sau khi thêm order đang xử lí
+            if (currentQuantity < obj[0].quantity) {
+              currentPrice = currentCampaign.price
+            } else {
+              for (let i = 0; i < obj.length; i++) {
+                if (currentQuantity >= obj[i].quantity) {
+                  currentPrice = obj[i].price;
+                }
+              }
+            }
+            console.log(currentQuantity)
+            console.log(currentPrice)
+            // currentPrice = 70000
+
+            if (currentPrice < price) {
+              let discountPrice;
               for (const item of advancedOrdersInCampaign) {
                 discountPrice = item.totalprice - currentPrice * item.quantity;
                 discountPrice +=
@@ -1770,9 +1804,9 @@ class OrderController {
 
                 notif.sendNotiForWeb({
                   userId: customer.accountId,
-                  link: item.ordercode,
+                  link: item.orderCode,
                   message:
-                    "Order " + item.ordercode + " has reached a new milestone",
+                    "Order " + item.orderCode + " has reached a new milestone",
                   status: "unread",
                 });
               }
@@ -1823,6 +1857,9 @@ class OrderController {
           await Campaigns.query()
             .update({ status: "done" })
             .where("id", campaignId);
+
+          // delete all order with status is notAdvanced
+          await CampaignOrder.query().del().where('campaignId', campaignId).andWhere('status', 'notAdvanced');
           const getCampaigns = await Campaigns.query()
             .select()
             .where("productId", campaign.productId)
