@@ -121,6 +121,7 @@ class Entity {
     "orders.orderCode as ordercode",
     "orders.totalPrice as totalprice",
     "orders.customerDiscountCodeId as customerdiscountcodeid",
+    "orders.loyalCustomerDiscountPercent as loyalCustomerDiscountPercent"
   ]
 
   campaignOrderEntity= [
@@ -144,6 +145,8 @@ class Entity {
     "campaignOrders.campaignId as campaignid",
     "campaignOrders.comment as comment",
     "campaignOrders.rating as rating",
+    "campaignOrders.loyalCustomerDiscountPercent as loyalcustomerdiscountpercent"
+
   ]
 
   orderDetailEntity = [

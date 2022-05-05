@@ -702,6 +702,8 @@ class Campaign {
         await Campaigns.query()
           .update({ status: "done" })
           .where("id", campaignId);
+          // delete all order with status is notAdvanced
+          await CampaignOrder.query().del().where('campaignId', campaignId).andWhere('status', 'notAdvanced');
         const getCampaigns = await Campaigns.query()
           .select()
           .where("productId", campaign.productId)
