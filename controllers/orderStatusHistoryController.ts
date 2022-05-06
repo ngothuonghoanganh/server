@@ -118,7 +118,7 @@ class OrderHistoryController {
             .first();
         }
         notif.sendNotiForWeb({
-          userid: accountIdCus.accountId,
+          userId: accountIdCus.accountId,
           link: orderCode,
           message: "Order " + orderCode + " has been set to " + status,
           status: "unread",
@@ -150,7 +150,7 @@ class OrderHistoryController {
             .first();
         }
         notif.sendNotiForWeb({
-          userid: accountIdSupp.accountId,
+          userId: accountIdSupp.accountId,
           link: orderCode,
           message: "Order " + orderCode + " has been set to " + status,
           status: "unread",
@@ -184,7 +184,7 @@ class OrderHistoryController {
               .first();
           }
           notif.sendNotiForWeb({
-            userid: accountIdCus.accountId,
+            userId: accountIdCus.accountId,
             link: orderCode,
             message: "Order " + orderCode + " has been set to " + status,
             status: "unread",
@@ -215,7 +215,7 @@ class OrderHistoryController {
               .first();
           }
           notif.sendNotiForWeb({
-            userid: accountIdCus.accountId,
+            userId: accountIdCus.accountId,
             link: orderCode,
             message: "Order " + orderCode + " has been set to " + status,
             status: "unread",
@@ -247,7 +247,7 @@ class OrderHistoryController {
               .first();
           }
           notif.sendNotiForWeb({
-            userid: accountIdSupp.accountId,
+            userId: accountIdSupp.accountId,
             link: orderCode,
             message: "Order " + orderCode + " has been set to " + status,
             status: "unread",

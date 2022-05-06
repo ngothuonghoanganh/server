@@ -23,13 +23,7 @@ class FileController {
 
             blobWriter.on('finish', async () => {
                 const fileLocation: string = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${blob.name}?alt=media`;
-                await Files.query().insert({
-                    url: fileLocation,
-                    name: newFileName
-                })
-
-                const file = await Files.query().select().where("url", fileLocation)
-                return res.status(200).send(file)
+                return  res.status(200).send({url: fileLocation, fileName: newFileName})
             })
 
             blobWriter.end(req.file.buffer)

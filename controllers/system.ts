@@ -7,6 +7,7 @@ import { Order } from "../models/orders";
 import { OrderStatusHistory } from "../models/orderstatushistory";
 import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
+import dbEntity from "../services/dbEntity";
 import notif from "../services/realtime/notification";
 import orderStatusHistoryController from "./orderStatusHistoryController";
 
@@ -16,10 +17,10 @@ class System {
       const status = req.query.status;
       const orders: any = await Order.query()
         .select(
-          "orders.*",
+          ...dbEntity.orderEntity,
           Order.raw(
             //TODO ORDER SUPPLIER ID
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = "orders"."supplierId"),json_agg(to_jsonb(orderDetails) - 'orderId') as details`
+            `json_agg(to_jsonb("orderDetails") - 'orderId') as details`
           )
         )
         .join("orderDetails", "orders.id", "orderDetails.orderId")
@@ -32,23 +33,21 @@ class System {
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          "campaignOrders.*",
-          "campaigns.supplierId",
+          ...dbEntity.campaignOrderEntity,
           CampaignOrder.raw(
-            `(select suppliers.name as suppliername from suppliers where suppliers.id = campaigns.supplierId), 
-            array_to_json(array_agg(json_build_object(
+            `array_to_json(array_agg(json_build_object(
             'id','',
-            'image', image,
-            'price', campaignOrders.price,
-            'quantity', campaignOrders.quantity,
-            'ordercode', orderCode,
-            'productid', campaignOrders.productId,
-            'campaignid', campaignId,
-            'incampaign', true,
-            'customerid', customerId,
-            'totalprice', totalPrice,
-            'productname', campaignOrders.productName,
-            'notes', campaignOrders.note)
+            'image', "image",
+            'price', "campaignOrders"."price",
+            'quantity', "campaignOrders"."quantity",
+            'orderCode', "orderCode",
+            'productId', "campaigns"."productId",
+            'campaignId', "campaignId",
+            'inCampaign', true,
+            'customerId', "customerId",
+            'totalPrice', "totalPrice",
+            'productName', "campaigns"."productName",
+            'notes', "campaignOrders"."note")
             )) as details`
           )
         )
@@ -62,20 +61,29 @@ class System {
         .groupBy("campaigns.id");
 
       orders.push(...ordersInCampaign);
-
+      
       for (const order of orders) {
+        // console.log(order.details)
+
         const customer = await Customers.query()
           .select()
           .where("id", order.customerid)
           .first();
         order.customer = customer;
+        const { supplierId }: any = await Products.query()
+        .select("categories.supplierId")
+        .join("categories", "categories.id", "products.categoryId")
+        .where("products.id", order.details[0].productId)
+        .first();
+      const supplierData = await Suppliers.query().select('name as suppliername').where('id', supplierId).first();
+        Object.assign(order, {...order,...supplierData})
       }
       return res.status(200).send({
         message: "successful",
         data: orders,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -88,7 +96,7 @@ class System {
         "products.quantity as productquantity",
       ];
       const campaigns = await Campaigns.query()
-        .select("campaigns.*", ...listProductEntities)
+        .select(...dbEntity.campaignEntity, ...listProductEntities)
         .join("products", "campaigns.productId", "products.id")
         .where((cd) => {
           if (status) {
@@ -101,7 +109,7 @@ class System {
         data: campaigns,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -144,7 +152,7 @@ class System {
         data: suppliers,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -187,7 +195,7 @@ class System {
         data: customers,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -203,10 +211,11 @@ class System {
 
       const campaign = await Campaigns.query()
         .select("campaigns.id")
-
+        .join('products', 'campaigns.productId', 'products.id')
+        .join('categories', 'categories.id', 'products.categoryId')
         .where("supplierId", supplierId)
         .andWhere((cd) => {
-          cd.where("status", "active").orWhere("status", "ready");
+          cd.where("campaigns.status", "active").orWhere("campaigns.status", "ready");
         });
 
       const campaignIds = campaign.map((item: any) => item.id);
@@ -226,7 +235,8 @@ class System {
 
       const ordersInCampaign = await CampaignOrder.query()
         .select()
-        .whereIn("campaignOrders.productId", productIds)
+        .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
+        .whereIn("campaigns.productId", productIds)
         .andWhere((cd) => {
           cd.where("campaignOrders.status", "processing")
             .orWhere("campaignOrders.status", "created")
@@ -244,12 +254,12 @@ class System {
           .where("id", item.id);
         const customer = await Customers.query()
           .select()
-          .where("id", item.customerid)
+          .where("id", item.customerId)
           .first();
         notif.sendNotiForWeb({
-          userid: customer.accountId,
-          link: item.ordercode,
-          message: "Order " + item.ordercode + " has been cancelled",
+          userId: customer.accountId,
+          link: item.orderCode,
+          message: "Order " + item.orderCode + " has been cancelled",
           status: "cancelled",
         });
         //type= retail
@@ -257,7 +267,7 @@ class System {
           orderStatus: "cancelled",
           type: "retail",
           retailOrderId: item.id,
-          orderCode: item.ordercode,
+          orderCode: item.orderCode,
           description:
             "has been cancelled by System for: System's account has been disabled",
         } as OrderStatusHistory);
@@ -274,7 +284,7 @@ class System {
           .where("id", item.customerId)
           .first();
         notif.sendNotiForWeb({
-          userid: customer.accountId,
+          userId: customer.accountId,
           link: item.orderCode,
           message: "Order " + item.orderCode + " has been cancelled",
           status: "cancelled",
@@ -330,7 +340,7 @@ class System {
         },
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -338,8 +348,8 @@ class System {
     try {
       const customerId = req.body.customerId;
       const orderRetail: any = await Order.query()
-        .select("orders.id", "categories.supplierId", "orders.orderCodes")
-        .join("orderDetails", "orderDetails.orderid", "orders.id")
+        .select("orders.id", "categories.supplierId", "orders.orderCode")
+        .join("orderDetails", "orderDetails.orderId", "orders.id")
         .join("products", "products.id", "orderDetails.productId")
         .join("categories", "categories.id", "products.categoryId")
         .where("orders.customerId", customerId)
@@ -353,9 +363,11 @@ class System {
         .select(
           "campaignOrders.id",
           "categories.supplierId",
-          "campaignOrders.orderCode"
+          "campaignOrders.orderCode",
+          "campaignOrders.campaignId",
         )
-        .join("products", "products.id", "campaignOrders.productId")
+        .join('campaigns', 'campaigns.id', 'campaignOrders.campaignId')
+        .join("products", "products.id", "campaigns.productId")
         .join("categories", "categories.id", "products.categoryId")
         .where("campaignOrders.customerId", customerId)
         .andWhere((cd) => {
@@ -373,13 +385,13 @@ class System {
             .where("id", item.id);
           const suppAccountId = await Suppliers.query()
             .select("accountId")
-            .where("id", item.supplierid)
+            .where("id", item.supplierId)
             .first();
           notif.sendNotiForWeb({
-            userid: suppAccountId.accountId,
-            link: item.ordercode,
+            userId: suppAccountId.accountId,
+            link: item.orderCode,
             message:
-              "Order " + item.ordercode + " has been cancelled because customer account has been disabled",
+              "Order " + item.orderCode + " has been cancelled because customer account has been disabled",
             status: "unread",
           });
           orderStatusHistoryController.createHistory({
@@ -387,7 +399,7 @@ class System {
             type: "retail",
             retailOrderId: item.id,
             // image: JSON.stringify(image),
-            orderCode: item.ordercode,
+            orderCode: item.orderCode,
             description:
               "has been cancelled for: customer account has been disabled",
           } as OrderStatusHistory);
@@ -404,14 +416,14 @@ class System {
             .where("id", item.id);
           const suppAccountId = await Suppliers.query()
             .select("accountId")
-            .where("id", item.supplierid)
+            .where("id", item.supplierId)
             .first();
           notif.sendNotiForWeb({
-            userid: suppAccountId.accountId,
-            link: item.ordercode,
+            userId: suppAccountId.accountId,
+            link: item.orderCode,
             message:
               "Order " +
-              item.ordercode +
+              item.orderCode +
               " has been cancelled because customer account has been disabled",
             status: "unread",
           });
@@ -420,10 +432,47 @@ class System {
             type: "campaign",
             campaignOrderId: item.id,
             // image: JSON.stringify(image),
-            orderCode: item.ordercode,
+            orderCode: item.orderCode,
             description:
               "has been cancelled for: customer account has been disabled ",
           } as OrderStatusHistory);
+          if (item.campaignId !== undefined) {
+            const campaign = await Campaigns.query().select().where('id', item.campaignId).first();
+            if (campaign.isShare) {
+              var obj = JSON.parse(campaign.range as any);
+              obj.sort(function (a: any, b: any) { return a.quantity - b.quantity });
+              const allOrdersInCampaign: any = await CampaignOrder.query().select().where('campaignId', item.campaignId).andWhere('status', 'advanced');
+              const currentQuantity = allOrdersInCampaign.reduce(
+                (acc: any, curr: any) => parseInt(acc) + parseInt(curr.quantity),
+                0
+              );
+              let price: any = 0
+              if (currentQuantity < obj[0].quantity) {
+                price = campaign.price
+              } else {
+                for (let i = 0; i < obj.length; i++) {
+                  if (currentQuantity >= obj[i].quantity) {
+                    price = obj[i].price;
+                  }
+                }
+              }
+              let discountPrice;
+              for (const item of allOrdersInCampaign) {
+                discountPrice = item.totalPrice - price * item.quantity;
+                discountPrice +=
+                  (price *
+                    item.quantity *
+                    item.loyalCustomerDiscountPercent) /
+                  100;
+                await CampaignOrder.query()
+                  .update({
+                    discountPrice: discountPrice,
+                  })
+                  .where("id", item.id);
+    
+              }
+            }
+          }
         }
       }
       const disableCustomer = await Customers.query()
@@ -448,7 +497,7 @@ class System {
         data: disableCustomer,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -482,7 +531,7 @@ class System {
         },
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -517,7 +566,7 @@ class System {
         },
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -535,8 +584,8 @@ class System {
       ];
 
       const List = await Categories.query()
-      //TODO ENTITY
-        .select("products.*", "categories.*", ...ListSupplierEntity)
+        //TODO ENTITY
+        .select(...dbEntity.productEntity, ...dbEntity.categoryEntity, ...ListSupplierEntity)
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .join("products", "products.categoryId", "categories.id")
         .orderBy("products.updatedAt", "desc");
@@ -545,7 +594,7 @@ class System {
         data: List,
       });
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 
@@ -563,7 +612,7 @@ class System {
         data: update
       })
     } catch (error) {
-      console.log(error);return res.status(400).send({ message: error });
+      console.log(error); return res.status(400).send({ message: error });
     }
   };
 }

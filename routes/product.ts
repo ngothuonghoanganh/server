@@ -128,7 +128,7 @@ router.delete(
 
 // no use
 router.get(
-  "/products/:supplierId",
+  "/supplier/:supplierId",
   // Authentication.protected,
   // Authentication.checkRole(["Supplier", "Inspector"]),
   validator.params(paramsSupplierIdSchema),

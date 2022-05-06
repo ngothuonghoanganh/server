@@ -34,13 +34,10 @@ class OrderController {
         shippingFee = "",
         products,
         supplierId,
-        isWholeSale = false,
         customerDiscountCodeId = null,
-        inCart = false,
         paymentMethod = "cod",
         loyalcustomerdiscountpercent = 0,
       } = req.body;
-      console.log(addressId)
 
       await this.client.connect();
       let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
@@ -100,7 +97,6 @@ class OrderController {
           } as Transaction);
 
         await this.client.set(`${req.user.id}`, JSON.stringify(data));
-        await this.client.QUIT();
         return res.status(200).send({
           message: "successful",
           data: { ...newOrder },
@@ -200,7 +196,6 @@ class OrderController {
         } as Transaction);
 
       await this.client.set(`${req.user.id}`, JSON.stringify(data));
-      await this.client.QUIT();
       return res.status(200).send({
         message: "successful",
         data: {
@@ -209,11 +204,12 @@ class OrderController {
         },
       });
     } catch (error) {
-      await this.client.QUIT();
 
       console.log(error);
       return res.status(400).send({ message: error });
 
+    }finally{
+      await this.client.QUIT();
     }
   };
 
@@ -1811,9 +1807,9 @@ class OrderController {
 
                 notif.sendNotiForWeb({
                   userId: customer.accountId,
-                  link: item.orderCode,
+                  link: item.ordercode,
                   message:
-                    "Order " + item.orderCode + " has reached a new milestone",
+                    "Order " + item.ordercode + " has reached a new milestone",
                   status: "unread",
                 });
               }
