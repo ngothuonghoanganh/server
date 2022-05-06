@@ -46,6 +46,8 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
+    }finally{
+      await this.client.QUIT();
     }
   };
 
@@ -72,6 +74,8 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
+    }finally{
+      await this.client.QUIT();
     }
   };
 
@@ -95,6 +99,8 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
+    }finally{
+      await this.client.QUIT();
     }
   };
   //cart.prodictid = products.id
@@ -142,6 +148,8 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
+    }finally{
+      await this.client.QUIT();
     }
   };
 }
