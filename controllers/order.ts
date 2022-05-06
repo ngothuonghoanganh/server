@@ -18,13 +18,13 @@ import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import { createClient } from "redis";
 import dbEntity from "../services/dbEntity";
-import category from "./category";
 
 class OrderController {
   client = createClient({
     url: "redis://13.215.133.39:6379",
   });
   public createOrder = async (req: any, res: any) => {
+
     try {
       let {
         campaignId,
@@ -40,6 +40,8 @@ class OrderController {
         paymentMethod = "cod",
         loyalcustomerdiscountpercent = 0,
       } = req.body;
+      console.log(addressId)
+
       await this.client.connect();
       let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
       data = JSON.parse(data);
@@ -207,8 +209,11 @@ class OrderController {
         },
       });
     } catch (error) {
+      await this.client.QUIT();
+
       console.log(error);
       return res.status(400).send({ message: error });
+
     }
   };
 
