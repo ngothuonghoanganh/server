@@ -19,6 +19,7 @@ class CartController {
         campaignId,
         supplierId,
       } = req.body;
+      console.log(this.client)
 
       const id = crypto.randomBytes(8).toString("hex") + `-${Date.now()}`;
       const newCart = {
@@ -36,8 +37,6 @@ class CartController {
       data = JSON.parse(data);
       data.push({ ...newCart });
       await this.client.set(`${req.user.id}`, JSON.stringify(data));
-
-      await this.client.QUIT();
 
       return res.status(200).send({
         message: "successful",
@@ -66,7 +65,6 @@ class CartController {
         }
       }
       await this.client.set(`${req.user.id}`, JSON.stringify(data));
-      await this.client.QUIT();
 
       return res.status(200).send({
         message: "cart updated",
@@ -84,14 +82,12 @@ class CartController {
       const { cartId } = req.params;
       await this.client.connect();
       let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
-      // if (data) {
       data = JSON.parse(data);
       data.splice(
         data.findIndex((item: any) => item.id === cartId),
         1
       );
       await this.client.set(`${req.user.id}`, JSON.stringify(data));
-      await this.client.QUIT();
 
       return res.status(200).send({
         message: "cart deleted",
@@ -140,7 +136,6 @@ class CartController {
         Object.assign(element, { ...product, ...supplier });
       }
 
-      await this.client.QUIT();
       res.status(200).send({
         message: "success",
         data: data,
