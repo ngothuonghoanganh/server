@@ -10,3 +10,5 @@ admin.initializeApp({
 export const bucket = admin.storage().bucket("gs://wsg-authen-144ba.appspot.com");
 
 export const database = admin.database();
+
+export const fireStore = admin.firestore()

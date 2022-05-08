@@ -18,11 +18,12 @@ import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import { createClient } from "redis";
 import dbEntity from "../services/dbEntity";
+import { firestore } from "firebase-admin";
 
 class OrderController {
-  client = createClient({
-    url: "redis://13.215.133.39:6379",
-  });
+  // client = createClient({
+  //   url: "redis://13.215.133.39:6379",
+  // });
   public createOrder = async (req: any, res: any) => {
 
     try {
@@ -38,10 +39,6 @@ class OrderController {
         paymentMethod = "cod",
         loyalcustomerdiscountpercent = 0,
       } = req.body;
-
-      await this.client.connect();
-      let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
-      data = JSON.parse(data);
 
       const address: Address = await Address.query()
         .select()
@@ -76,10 +73,11 @@ class OrderController {
         });
 
         for (const product of products) {
-          data.splice(
-            data.findIndex((item: any) => item.id === product.cartId),
-            1
-          );
+          await firestore().collection('carts').where('id', '==', product.cartId).get().then(rs => {
+            rs.forEach(element => {
+              element.ref.delete()
+            })
+          })
         }
         const transaction = await Transaction.query()
           .select()
@@ -96,7 +94,6 @@ class OrderController {
             supplierId: supplierId,
           } as Transaction);
 
-        await this.client.set(`${req.user.id}`, JSON.stringify(data));
         return res.status(200).send({
           message: "successful",
           data: { ...newOrder },
@@ -143,10 +140,11 @@ class OrderController {
           })
           .where("id", product.productId);
 
-        data.splice(
-          data.findIndex((item: any) => item.id === product.cartId),
-          1
-        );
+        await firestore().collection('carts').where('id', '==', product.cartId).get().then(rs => {
+          rs.forEach(element => {
+            element.ref.delete()
+          })
+        })
       }
 
       newOrderDetails = await OrderDetail.query().insert(details);
@@ -195,7 +193,6 @@ class OrderController {
           supplierId: supplierId,
         } as Transaction);
 
-      await this.client.set(`${req.user.id}`, JSON.stringify(data));
       return res.status(200).send({
         message: "successful",
         data: {
@@ -205,11 +202,8 @@ class OrderController {
       });
     } catch (error) {
 
-      console.log(error);
       return res.status(400).send({ message: error });
 
-    }finally{
-      await this.client.QUIT();
     }
   };
 
@@ -1722,9 +1716,9 @@ class OrderController {
             .andWhere("status", "advanced")
             .andWhere("id", "<>", orderId);
 
-            // advancedOrdersInCampaign
-            // numOfOrder = 3
-            // quantity = 60
+          // advancedOrdersInCampaign
+          // numOfOrder = 3
+          // quantity = 60
 
           if (advancedOrdersInCampaign.length > 0) {
             // const advancedOrder = advancedOrdersInCampaign[0];
