@@ -33,7 +33,7 @@ class CartController {
 
       return res.status(200).send({
         message: "successful",
-        data: cart,
+        data: { id: cart.id },
       });
     } catch (error) {
       console.log(error);
