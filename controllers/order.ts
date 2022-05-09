@@ -162,7 +162,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userId: supplierData.accountId,
           link: newOrder.orderCode,
-          message: "Order " + newOrder.orderCode + "has been set to created",
+          message: "Order " + newOrder.orderCode + " has been set to created",
           status: "unread",
         });
       } else {
@@ -176,7 +176,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userId: supplierData.accountId,
           link: newOrder.orderCode,
-          message: "Order " + newOrder.orderCode + "has been set to unpaid",
+          message: "Order " + newOrder.orderCode + " has been set to unpaid",
           status: "unread",
         });
       }
@@ -288,6 +288,7 @@ class OrderController {
             supplierId: supp.supplierid,
             numOfOrder: 1,
             numOfProduct: order.orderquantity,
+            discountPercent: 0
           });
         } else {
           await LoyalCustomer.query()
@@ -386,7 +387,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userId: accountIdSupp.accountId,
         link: orderCode,
-        message: "Order " + orderCode + "has been set to " + status,
+        message: "Order " + orderCode + " has been set to " + status,
         status: "unread",
       });
       return res.status(200).send({
@@ -740,7 +741,6 @@ class OrderController {
         orderCode,
         type,
         orderId,
-        // description,
         image,
       } = req.body;
 
@@ -892,7 +892,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userId: accountIdSupp.accountId,
         link: orderCode,
-        message: "Order " + orderCode + "has been set to " + status,
+        message: "Order " + orderCode + " has been set to " + status,
         status: "unread",
       });
 
@@ -974,7 +974,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userId: accountIdCus.accountId,
         link: orderCode,
-        message: "Order " + orderCode + "has been set to " + status,
+        message: "Order " + orderCode + " has been set to " + status,
         status: "unread",
       });
 
@@ -988,7 +988,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userId: accountIdSupp.accountId,
         link: orderCode,
-        message: "Order " + orderCode + "has been set to " + status,
+        message: "Order " + orderCode + " has been set to " + status,
         status: "unread",
       });
 
@@ -1222,7 +1222,7 @@ class OrderController {
       notif.sendNotiForWeb({
         userId: suppAcc.accountId,
         link: orderCode,
-        message: "Order " + orderCode + "has been set to " + status,
+        message: "Order " + orderCode + " has been set to " + status,
         status: "unread",
       });
 
@@ -1675,7 +1675,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userId: accountIdSupp.accountId,
           link: orderCode,
-          message: "Order " + orderCode + "has been set to created",
+          message: "Order " + orderCode + " has been set to created",
           status: "unread",
         });
 
@@ -1703,7 +1703,7 @@ class OrderController {
         notif.sendNotiForWeb({
           userId: accountIdSupp.accountId,
           link: orderCode,
-          message: "Order " + orderCode + "has been set to advanced",
+          message: "Order " + orderCode + " has been set to advanced",
           status: "unread",
         });
 
@@ -1896,14 +1896,14 @@ class OrderController {
               notif.sendNotiForWeb({
                 userId: customer.accountId,
                 link: item.ordercode,
-                message: "Order " + item.ordercode + "has been set to unpaid",
+                message: "Order " + item.ordercode + " has been set to unpaid",
                 status: "unread",
               });
             } else {
               notif.sendNotiForWeb({
                 userId: customer.accountId,
                 link: item.ordercode,
-                message: "Order " + item.ordercode + "has been set to created",
+                message: "Order " + item.ordercode + " has been set to created",
                 status: "unread",
               });
             }

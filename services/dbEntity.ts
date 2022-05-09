@@ -185,7 +185,7 @@ class Entity {
     "discountCodes.code as code",
     "discountCodes.description as description",
     "discountCodes.minimumPriceCondition as minimumpricecondition",
-    "discountCodes.startDate as startdate",
+    // "discountCodes.startDate as startdate",
     "discountCodes.endDate as enddate",
     "discountCodes.quantity as quantity",
     "discountCodes.createdAt as createdat",

@@ -45,19 +45,19 @@ router.delete(
 
 router.get(
   "/",
-  // authentication.protected,
-  // authentication.checkRole(['Supplier']),
+  authentication.protected,
+  authentication.checkRole(['Supplier']),
   // validator.body(bodySupplierIdSchema),
   discountcode.getAllDiscountCodeBySupplierId
 );
 
-router.get(
-  "/supplier",
-  authentication.protected,
-  authentication.checkRole(['Supplier']),
-  // validator.body(bodySupplierIdSchema),
-  discountcode.getAllDiscountCodeInSupplier
-);
+// router.get(
+//   "/supplier",
+//   authentication.protected,
+//   authentication.checkRole(['Supplier']),
+//   // validator.body(bodySupplierIdSchema),
+//   discountcode.getAllDiscountCodeInSupplier
+// );
 
 
 export default router;

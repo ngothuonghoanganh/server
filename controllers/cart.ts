@@ -1,4 +1,3 @@
-import { OrderDetail } from "../models/orderdetail";
 // import { Client } from "../models/redis/index";
 import { createClient } from "redis";
 import crypto from "crypto";
