@@ -240,7 +240,7 @@ class Authentication {
         lastName = "",
         email = "",
         phone = "",
-        address = "",
+        address = {},
         roleName = "Customer",
         identificationCard,
         identificationImage
