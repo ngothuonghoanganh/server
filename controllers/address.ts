@@ -5,7 +5,12 @@ class AddressController {
         try {
             const customerId = req.user.id;
             let {
+                provinceId,
                 province,
+                districtId,
+                district,
+                wardId,
+                ward,
                 street,
                 isdefault = 'true'
             } = req.body;
@@ -21,9 +26,14 @@ class AddressController {
             // console.log(currentAddress.length)
             const newAddress: any = await Address.query()
                 .insert({
-                    customerId: customerId,
-                    province: province,
+                    provinceId,
+                    province,
+                    districtId,
+                    district,
+                    wardId,
+                    ward,
                     street: street,
+                    customerId: customerId,
                     isDefault: isdefault
                 })
             return res.status(200).send({
@@ -60,7 +70,7 @@ class AddressController {
             const listAddress: any = await Address.query()
                 .select()
                 .where('customerId', customerId)
-            
+
             // .andWhere('isdefault', true)
 
             return res.status(200).send({
@@ -75,14 +85,24 @@ class AddressController {
 
     public updateAdress = async (req: any, res: any, next: any) => {
         try {
-            const {addressId} = req.params;
+            const { addressId } = req.params;
             let {
+                provinceId,
                 province,
+                districtId,
+                district,
+                wardId,
+                ward,
                 street,
             } = req.body;
             const listAddress: any = await Address.query()
                 .update({
-                    province: province,
+                    provinceId,
+                    province,
+                    districtId,
+                    district,
+                    wardId,
+                    ward,
                     street: street
                 })
                 .where('id', addressId)
@@ -98,7 +118,7 @@ class AddressController {
 
     public deleteAdress = async (req: any, res: any, next: any) => {
         try {
-            const {addressId} = req.params;
+            const { addressId } = req.params;
 
             const isDeleted: any = await Address.query()
                 .del()
@@ -115,7 +135,7 @@ class AddressController {
 
     public getAdressByCustomerId = async (req: any, res: any, next: any) => {
         try {
-            const {customerId} = req.params;
+            const { customerId } = req.params;
 
             const data: any = await Address.query()
                 .select()

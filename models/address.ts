@@ -10,7 +10,12 @@ export class Address extends Model {
 
     id?: string;
     customerId?: string;
-    province?: string;
+    provinceId?: string;
+    province?:string;
+    districtId?:string;
+    district?:string;
+    wardId?:string;
+    ward?:string;
     street?: string;
     isDefault?:boolean;
     createdAt?: Date;

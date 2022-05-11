@@ -13,14 +13,12 @@ class DiscountCodeController {
 
             const { id } = req.user;
             //query list loyal customer
-            const listLoyalCustomer = await LoyalCustomer.query().select(...dbEntity.loyalCustomerEntity).where('supplierid', id);
-            // if (listLoyalCustomer.length === 0) {
-            //     return res.status(200).send('No loyal customer found');
-            // }
+            const listLoyalCustomer = await LoyalCustomer.query().select().where('supplierId', id);
+
             let {
                 code,
                 description,
-                startDate,
+                // startDate,
                 endDate,
                 status = "ready",
                 // productId,
@@ -28,13 +26,13 @@ class DiscountCodeController {
                 discountPrice
             } = req.body;
             let quantity = listLoyalCustomer.length;
-
+            console.log(listLoyalCustomer)
             const newDiscountcode: any = await DiscountCode.query()
                 .insert({
                     supplierId: id,
                     code: code,
                     description: description,
-                    startDate: startDate,
+                    // startDate: startDate,
                     endDate: endDate,
                     quantity: quantity,
                     status: status,
@@ -43,14 +41,17 @@ class DiscountCodeController {
                     discountPrice: discountPrice
                 })
             for (const item of listLoyalCustomer) {
-                await CustomerDiscountCode.query().insert({
+                const insert = await CustomerDiscountCode.query().insert({
                     customerId: item.customerId,
                     discountCodeId: newDiscountcode.id,
-                    status: 'read'
+                    status: 'ready'
+
                 })
+                // console.log(insert)
+
                 const customerId = await Customers.query().select('accountId').where('id', item.customerId).first();
                 notif.sendNotiForWeb({
-                    userid: customerId.accountId,
+                    userId: customerId.accountId,
                     link: id, //supplier id
                     message: "new discount code: " + code,
                     status: "unread",
@@ -100,8 +101,7 @@ class DiscountCodeController {
                 code,
                 description,
                 minimumPriceCondition,
-                productId,
-                startDate,
+                // startDate,
                 endDate,
                 quantity,
                 discountPrice,
@@ -113,10 +113,11 @@ class DiscountCodeController {
                     code: code,
                     description: description,
                     discountPrice: discountPrice,
-                    startDate: startDate,
+                    // startDate: startDate,
                     endDate: endDate,
                     quantity: quantity,
                     status: status,
+                    minimumPriceCondition: minimumPriceCondition
                 })
                 .where('id', discountCodeId)
             if (updateCode === 0) {
@@ -140,9 +141,7 @@ class DiscountCodeController {
             const status = 'deactivated'
             const List = await DiscountCode.query()
                 .select(...dbEntity.discountCodeEntity)
-                .leftJoin('products', 'discountCodes.productId', 'products.id')
                 .where('discountCodes.supplierId', supplierId)
-                // .where('supplierid', supplierId)
                 .andWhere('discountCodes.status', '<>', status)
             return res.status(200).send({
                 message: 'successful',
@@ -153,25 +152,25 @@ class DiscountCodeController {
         }
     };
 
-    public getAllDiscountCodeInSupplier = async (req: any, res: any, next: any) => {
-        try {
-            const supplierId = req.user.id;
-            // console.log(supplierId)
-            // const status = 'deactivated'
-            const List: any = await DiscountCode.query()
-                .select(...dbEntity.discountCodeEntity)
-                .leftJoin('products', 'discountCodes.productId', 'products.id')
-                .where('discountCodes.supplierId', supplierId)
-            // .andWhere('status', '<>', status)
+    // public getAllDiscountCodeInSupplier = async (req: any, res: any, next: any) => {
+    //     try {
+    //         const supplierId = req.user.id;
+    //         // console.log(supplierId)
+    //         // const status = 'deactivated'
+    //         const List: any = await DiscountCode.query()
+    //             .select(...dbEntity.discountCodeEntity)
+    //             .leftJoin('products', 'discountCodes.productId', 'products.id')
+    //             .where('discountCodes.supplierId', supplierId)
+    //         // .andWhere('status', '<>', status)
 
-            return res.status(200).send({
-                message: 'successful',
-                data: List
-            })
-        } catch (error) {
-            console.log(error)
-        }
+    //         return res.status(200).send({
+    //             message: 'successful',
+    //             data: List
+    //         })
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
 
-    };
+    // };
 }
 export default new DiscountCodeController();

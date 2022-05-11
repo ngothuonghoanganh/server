@@ -16,6 +16,7 @@ export class Products extends Model {
     image?: string;
     categoryId?: string;
     status?: string;
+    weight?:Number;
     createdAt?: Date;
     updatedAt?: Date;
 }

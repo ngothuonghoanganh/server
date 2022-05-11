@@ -1,3 +1,4 @@
+// import { Client } from "../models/redis/index";
 import { OrderDetail } from "../models/orderdetail";
 
 import { createClient } from "redis";
@@ -33,7 +34,7 @@ class CartController {
 
       return res.status(200).send({
         message: "successful",
-        data: { fireStoreId: cart.id },
+        data: newCart,
       });
     } catch (error) {
       console.log(error);
