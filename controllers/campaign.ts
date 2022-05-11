@@ -77,7 +77,7 @@ class Campaign {
           advanceFee: advanceFee,
           status: status,
           description: description,
-          range: JSON.stringify(range),
+          range: isShare ? JSON.stringify(range) : [],
           // ...product,
           productName: product[0].name,
           image: product[0].image,
@@ -239,35 +239,35 @@ class Campaign {
 
       const campaigns = supplierId
         ? await Campaigns.query()
-            .select(
-              ...dbEntity.campaignEntity,
-              Campaigns.raw(
-                `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
+          .select(
+            ...dbEntity.campaignEntity,
+            Campaigns.raw(
+              `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
                 count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting`
-              )
             )
-            .leftJoin(
-              "campaignOrders",
-              "campaigns.id",
-              "campaignOrders.campaignId"
-            )
-            .whereIn("campaigns.productId", productIds)
-            .groupBy("campaigns.id")
+          )
+          .leftJoin(
+            "campaignOrders",
+            "campaigns.id",
+            "campaignOrders.campaignId"
+          )
+          .whereIn("campaigns.productId", productIds)
+          .groupBy("campaigns.id")
         : await Campaigns.query()
-            .select(
-              "campaigns.*",
-              Campaigns.raw(
-                `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
+          .select(
+            "campaigns.*",
+            Campaigns.raw(
+              `sum(case when "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced' then "campaignOrders".quantity else 0 end) as quantityorderwaiting,
                 count("campaignOrders".id) filter (where "campaignOrders".status <> 'cancelled' and "campaignOrders".status <> 'returned' and "campaignOrders".status <> 'notAdvanced') as numorderwaiting`
-              )
             )
-            .leftJoin(
-              "campaignOrders",
-              "campaignOrders.id",
-              "campaignOrders.campaignId"
-            )
+          )
+          .leftJoin(
+            "campaignOrders",
+            "campaignOrders.id",
+            "campaignOrders.campaignId"
+          )
 
-            .groupBy("campaigns.id");
+          .groupBy("campaigns.id");
 
       return res.status(200).send({
         data: campaigns,
@@ -416,8 +416,8 @@ class Campaign {
         .select(...dbEntity.productEntity)
         .where("id", campaign.productid)
         .first();
-        // const supplierId=await Suppliers.query().select('suppliers.id')
-        // .join('categories', 'categories.supplierId', 'suppliers.id')
+      // const supplierId=await Suppliers.query().select('suppliers.id')
+      // .join('categories', 'categories.supplierId', 'suppliers.id')
       return res.status(200).send({
         message: "successfully",
         data: {
@@ -571,15 +571,6 @@ class Campaign {
         .groupBy("products.id")
         .groupBy('categories.supplierId')
         .groupBy('suppliers.name')
-      // let campaignDetails;
-      // for (const element of campaign) {
-      //   if (element.isshare) {
-      //     campaignDetails = await CampaignDetail.query()
-      //       .select()
-      //       .where("campaignId", element.id);
-      //     element.range = campaignDetails;
-      //   }
-      // }
 
       return res.status(200).send({
         message: "successful",
@@ -702,8 +693,8 @@ class Campaign {
         await Campaigns.query()
           .update({ status: "done" })
           .where("id", campaignId);
-          // delete all order with status is notAdvanced
-          await CampaignOrder.query().del().where('campaignId', campaignId).andWhere('status', 'notAdvanced');
+        // delete all order with status is notAdvanced
+        await CampaignOrder.query().del().where('campaignId', campaignId).andWhere('status', 'notAdvanced');
         const getCampaigns = await Campaigns.query()
           .select()
           .where("productId", campaign.productId)
@@ -736,14 +727,14 @@ class Campaign {
             notif.sendNotiForWeb({
               userId: customer.accountId,
               link: item.orderCode,
-              message: "Order " + item.orderCode + "has been set to unpaid",
+              message: "Order " + item.orderCode + " has been set to unpaid",
               status: "unread",
             });
           } else {
             notif.sendNotiForWeb({
               userId: customer.accountId,
               link: item.orderCode,
-              message: "Order " + item.orderCode + "has been set to created",
+              message: "Order " + item.orderCode + " has been set to created",
               status: "unread",
             });
           }
