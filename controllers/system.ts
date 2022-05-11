@@ -61,7 +61,7 @@ class System {
         .groupBy("campaigns.id");
 
       orders.push(...ordersInCampaign);
-      
+
       for (const order of orders) {
         // console.log(order.details)
 
@@ -71,12 +71,12 @@ class System {
           .first();
         order.customer = customer;
         const { supplierId }: any = await Products.query()
-        .select("categories.supplierId")
-        .join("categories", "categories.id", "products.categoryId")
-        .where("products.id", order.details[0].productId)
-        .first();
-      const supplierData = await Suppliers.query().select('name as suppliername').where('id', supplierId).first();
-        Object.assign(order, {...order,...supplierData})
+          .select("categories.supplierId")
+          .join("categories", "categories.id", "products.categoryId")
+          .where("products.id", order.details[0].productId)
+          .first();
+        const supplierData = await Suppliers.query().select(...dbEntity.supplierEntity, 'name as suppliername').where('id', supplierId).first();
+        order.supplier = supplierData
       }
       return res.status(200).send({
         message: "successful",
@@ -91,11 +91,12 @@ class System {
     try {
       const status = req.query.status;
       const listProductEntities = [
+        "products.id as productid",
         "products.name as productname",
         "products.retailPrice as productretailprice",
         "products.quantity as productquantity",
       ];
-      const campaigns = await Campaigns.query()
+      const campaigns: any = await Campaigns.query()
         .select(...dbEntity.campaignEntity, ...listProductEntities)
         .join("products", "campaigns.productId", "products.id")
         .where((cd) => {
@@ -103,7 +104,15 @@ class System {
             cd.where("campaigns.status", status);
           }
         });
-
+      for (const element of campaigns) {
+        const { supplierId }: any = await Products.query()
+          .select("categories.supplierId")
+          .join("categories", "categories.id", "products.categoryId")
+          .where("products.id", element.productid)
+          .first();
+        const supplierData = await Suppliers.query().select(...dbEntity.supplierEntity, 'name as suppliername').where('id', supplierId).first();
+        element.supplier = supplierData
+      }
       return res.status(200).send({
         message: "successful",
         data: campaigns,
@@ -469,7 +478,7 @@ class System {
                     discountPrice: discountPrice,
                   })
                   .where("id", item.id);
-    
+
               }
             }
           }

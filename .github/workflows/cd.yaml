@@ -49,10 +49,3 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: sudo docker run --name="server-master" -p 3000:3000 -d swg/server-master
-      - name: CD - Start redis
-        uses: appleboy/ssh-action@master
-        with:
-          host: 13.215.133.39
-          username: ubuntu
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: sudo docker run -p 6379:6379 -d redis

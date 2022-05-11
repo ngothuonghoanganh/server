@@ -1,16 +1,17 @@
 // import { Client } from "../models/redis/index";
+import { OrderDetail } from "../models/orderdetail";
+
 import { createClient } from "redis";
 import crypto from "crypto";
 import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
+import { firestore } from "firebase-admin";
+import { Cart } from "../models/cart";
 
 class CartController {
-  client = createClient({
-    url: "redis://13.215.133.39:6379",
-  });
   public addToCart = async (req: any, res: any, next: any) => {
     try {
-      const customerId = req.user.id; //customer id
+      const customerId = req.user.id;
       let {
         productId,
         quantity,
@@ -18,8 +19,6 @@ class CartController {
         campaignId,
         supplierId,
       } = req.body;
-      console.log(this.client)
-
       const id = crypto.randomBytes(8).toString("hex") + `-${Date.now()}`;
       const newCart = {
         id: id,
@@ -31,11 +30,7 @@ class CartController {
         supplierid: supplierId,
       };
 
-      await this.client.connect();
-      let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
-      data = JSON.parse(data);
-      data.push({ ...newCart });
-      await this.client.set(`${req.user.id}`, JSON.stringify(data));
+      const cart = await firestore().collection("carts").add(newCart)
 
       return res.status(200).send({
         message: "successful",
@@ -44,8 +39,8 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-    }finally{
-      await this.client.QUIT();
+    } finally {
+
     }
   };
 
@@ -53,17 +48,15 @@ class CartController {
     try {
       const { cartId } = req.params;
       let { productId, quantity } = req.body;
-      await this.client.connect();
-      let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
-      // if (data) {
-      data = JSON.parse(data);
-      for (const element of data) {
-        if (element.id === cartId) {
-          element.quantity = quantity;
-          element.productid = productId;
-        }
-      }
-      await this.client.set(`${req.user.id}`, JSON.stringify(data));
+
+      await firestore().collection('carts').where('id', '==', cartId).get().then(rs => {
+        rs.forEach(element => {
+          element.ref.update({
+            quantity: quantity,
+            productid: productId
+          })
+        })
+      })
 
       return res.status(200).send({
         message: "cart updated",
@@ -71,22 +64,19 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-    }finally{
-      await this.client.QUIT();
+    } finally {
+
     }
   };
 
   public deleteCart = async (req: any, res: any, next: any) => {
     try {
       const { cartId } = req.params;
-      await this.client.connect();
-      let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
-      data = JSON.parse(data);
-      data.splice(
-        data.findIndex((item: any) => item.id === cartId),
-        1
-      );
-      await this.client.set(`${req.user.id}`, JSON.stringify(data));
+      await firestore().collection('carts').where('id', '==', cartId).get().then(rs => {
+        rs.forEach(element => {
+          element.ref.delete()
+        })
+      })
 
       return res.status(200).send({
         message: "cart deleted",
@@ -94,18 +84,44 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-    }finally{
-      await this.client.QUIT();
+    } finally {
+
     }
   };
-  //cart.prodictid = products.id
-  //suppliers.id = products.supplierid
+
+
   public getCartByUserId = async (req: any, res: any, next: any) => {
     try {
-      await this.client.connect();
-      let data: any = (await this.client.get(`${req.user.id}`)) || "[]";
-      // if (data) {
-      data = JSON.parse(data);
+
+      const data: any = []
+      let cartConvert = {
+        toFirestore: (data: any) => {
+          return {
+            campaignid: data.campaignid,
+            customerid: data.customerid,
+            id: data.id,
+            inCampaign: data.inCampaign,
+            productid: data.prodictid,
+            quantity: data.quantity,
+            supplierid: data.supplierid
+          }
+        },
+
+        fromFirestore: (snapshot: any, options: any) => {
+          const data = snapshot.data(options);
+          return new Cart(data.campaignid, data.customerid, data.id, data.inCampaign, data.productid, data.quantity, data.supplierid)
+        }
+      }
+
+      await firestore().collection('carts').withConverter(cartConvert as any)
+        .where("customerid", "==", req.user.id)
+        .get().then(rs => {
+          rs.forEach(element => {
+            data.push(element.data())
+          })
+          console.log(rs)
+        })
+
       for (const element of data) {
         const [product, supplier] = await Promise.all([
           Products.query()
@@ -135,6 +151,9 @@ class CartController {
         Object.assign(element, { ...product, ...supplier });
       }
 
+
+
+
       res.status(200).send({
         message: "success",
         data: data,
@@ -142,8 +161,8 @@ class CartController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-    }finally{
-      await this.client.QUIT();
+    } finally {
+
     }
   };
 }
