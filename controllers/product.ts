@@ -28,6 +28,7 @@ class ProductsController {
         image = "",
         categoryId,
         status = "active",
+        weight
       } = req.body;
 
       const prod: any = await Products.query().insert({
@@ -39,6 +40,7 @@ class ProductsController {
         image: JSON.stringify(image),
         categoryId: categoryId,
         status: status,
+        weight: weight
       });
       return res.status(200).send({
         message: "successful",
@@ -53,7 +55,7 @@ class ProductsController {
   public updateProduct = async (req: any, res: any, next: any) => {
     try {
       const { productId } = req.params;
-      let { name, retailPrice, quantity, description, image, categoryId } =
+      let { name, retailPrice, quantity, description, image, categoryId, weight } =
         req.body;
 
       const productUpdated: any = await Products.query()
@@ -64,6 +66,7 @@ class ProductsController {
           quantity: quantity,
           description: description,
           image: JSON.stringify(image),
+          weight: weight
         })
         .where("id", productId);
       // .andWhere("status", "<>", "incampaign");
@@ -216,7 +219,6 @@ class ProductsController {
 
   public getProductById = async (req: any, res: any, next: any) => {
     try {
-      // console.log('testtt')
       const { productId } = req.params;
       const listEntity = [
         "products.id as productid",
@@ -651,18 +653,8 @@ class ProductsController {
         "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
-      // var now = moment();
       var sunday = moment().startOf("week");
       var saturday = moment().endOf("week");
-
-      // console.log(monday)
-      // console.log(sunday)
-
-      // var isNowWeekday = now.isBetween(monday, friday, null, '[]');
-
-      // console.log(`now: ${now}`);
-      // console.log(`monday: ${monday}`);
-      // console.log(`sunday: ${sunday}`);
       const data = await Products.query()
         .select(...dbEntity.productEntity, ...ListSupplierEntity)
         .join("categories", "categories.id", "products.categoryId")
@@ -670,41 +662,15 @@ class ProductsController {
         .whereBetween("products.createdAt", [sunday, saturday])
         .andWhere("products.status", "<>", "deactivated");
       console.log(data);
-      // if (monday && sunday) {
       return res.status(200).send({
         message: "successful",
         data: data,
       });
-      // }
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
     }
   };
-
-  // public getAllProductCreatedByEveryMonth = async (req: any, res: any) => {
-  //   try {
-  //     console.log('testttt')
-  //     const query = ` SELECT
-  //                     DATE_TRUNC('month', "createdat") AS "month",
-  //                     COUNT(*)
-  //                     FROM "events"
-  //                     GROUP BY DATE_TRUNC('month', "event_timestamp")`;
-
-  //     const data = await Products.raw(query);
-  //     console.log(data)
-
-  //     return res.status(200).send({
-  //       message: 'successful',
-  //       data: data
-  //     })
-
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.status(400).send({ message: error })
-
-  //   }
-  // };
 }
 
 export default new ProductsController();

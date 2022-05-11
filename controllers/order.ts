@@ -54,7 +54,7 @@ class OrderController {
       if (campaignId) {
         const newOrder = await CampaignOrder.query().insert({
           customerId: req.user.id,
-          address: address?.street + " " + address?.province,
+          address: `${address.street}, ${address.ward}, ${address.district}, ${address.province}`,
           orderCode: orderCode,
           discountPrice: discountPrice,
           shippingFee: shippingFee,

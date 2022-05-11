@@ -93,6 +93,8 @@ class Entity {
     "products.status as status",
     "products.createdAt as createdat",
     "products.updatedAt as updatedat",
+    "products.weight as weight",
+
   ];
 
   loyalCustomerEntity = [
