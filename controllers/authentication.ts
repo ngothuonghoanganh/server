@@ -242,6 +242,8 @@ class Authentication {
         phone = "",
         address = "",
         roleName = "Customer",
+        identificationCard,
+        identificationImage
       } = req.body;
 
       const salt = await bcrypt.genSalt(10);
@@ -272,8 +274,12 @@ class Authentication {
         newUser = await Suppliers.query().insert({
           accountId: newAccount.id,
           name: firstName + " " + lastName,
+          isDeleted: true,
           email: email,
           address: address,
+          identificationCard: identificationCard,
+          identificationImage: JSON.stringify(identificationImage)
+
         });
 
         delete newAccount.password;
