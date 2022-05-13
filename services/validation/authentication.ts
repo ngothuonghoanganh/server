@@ -16,6 +16,6 @@ export const bodyRegisterSchema = Joi.object({
   lastName: Joi.string().allow(null).allow(""),
   email: Joi.string().required(),
   phone: Joi.string().allow(null).allow(""),
-  address: Joi.string().allow(null).allow(""),
+  address: Joi.object().allow(null).allow({}),
   roleName: Joi.string().allow(null).allow(""),
 });

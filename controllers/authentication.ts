@@ -32,7 +32,7 @@ class Authentication {
         info = await Suppliers.query()
           .select(...Entity.supplierEntity)
           .where("accountId", user.id)
-          .andWhere("isDeleted", false)
+          // .andWhere("isDeleted", false)
           .first();
       } else {
         info = await SystemProfile.query()
@@ -240,7 +240,7 @@ class Authentication {
         lastName = "",
         email = "",
         phone = "",
-        address = "",
+        address = {},
         roleName = "Customer",
         identificationCard,
         identificationImage
