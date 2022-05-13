@@ -225,5 +225,20 @@ class Entity {
     "chatMessages.file as file",
     "chatMessages.status as status",
   ];
+
+  adressEnityt=[
+    "addresses.id as addressid",
+    "addresses.customerId as customerid",
+    "addresses.provinceId as provinceid",
+    "addresses.province as province",
+    "addresses.districtId as districid",
+    "addresses.district as distric",
+    "addresses.wardId as wardid",
+    "addresses.ward as ward",
+    "addresses.street as street",
+    "addresses.isDefault as isdefault",
+    "addresses.createdAt as createdat",
+    "addresses.updatedAt as updatedat",
+  ]
 }
 export default new Entity();
