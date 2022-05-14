@@ -4,7 +4,6 @@ import { createValidator } from "express-joi-validation";
 import Authentication from "../controllers/authentication";
 import Product from "../controllers/product";
 import {
-  activeProductById,
   bodyProductIdsSchema,
   createBodyProductSchema,
   getAllProductByStatus,
@@ -81,9 +80,6 @@ router.get(
   '/getProductCreatedThisWeek',
   Product.getProductCreatedThisWeek
 )
-
-// ở đây cũng lấy toàn bộ product ra nhưng để cho supplier quản lý nên là cần authentication
-// và check cả role của nó nên là userId lấy từ request
 
 router.get(
   '/getProductWithOrderCompleted',
