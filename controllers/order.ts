@@ -380,7 +380,7 @@ class OrderController {
           (order.advancefee || 0)
           }`
         ),
-        isWithdrawable: true,
+        isWithdrawable: false,
         type: "transactionHistory",
         description: `${order.ordercode} is completed.`,
         status: "active",
