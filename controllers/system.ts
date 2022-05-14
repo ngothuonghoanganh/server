@@ -186,10 +186,12 @@ class System {
         "accounts.phone as phone",
         "accounts.isDeleted as accountisdeleted",
       ];
+
       const customername = req.query.customerName;
       const customers = await Customers.query()
-        .select(...ListEntityAccount, ...ListEntityCustomer)
+        .select(...ListEntityAccount, ...ListEntityCustomer, ...dbEntity.adressEnityt, "accounts.reasonForDisabling", "accounts.reasonForEnabling")
         .join("accounts", "accounts.id", "customers.accountId")
+        .join("addresses", "customers.id", "addresses.customerId")
         .where((cd) => {
           if (customername) {
             cd.where("firstname", "like", `%${customername}%`).orWhere(
@@ -198,7 +200,7 @@ class System {
               `%${customername}%`
             );
           }
-        });
+        })
       return res.status(200).send({
         message: "successful",
         data: customers,
@@ -211,6 +213,9 @@ class System {
   public disableSupplier = async (req: any, res: any, next: any) => {
     try {
       const { supplierId } = req.body;
+      const { reasonForDisabling } = req.body
+
+
 
       const products = await Products.query()
         .select("products.id")
@@ -338,6 +343,7 @@ class System {
       const deactivatedAccount = await Accounts.query()
         .update({
           isDeleted: true,
+          reasonForDisabling: reasonForDisabling
         })
         .where("id", accountId.accountId);
 
@@ -356,6 +362,7 @@ class System {
   public disableCustomer = async (req: any, res: any) => {
     try {
       const customerId = req.body.customerId;
+      const reasonForDisabling = req.body.reasonForDisabling;
       const orderRetail: any = await Order.query()
         .select("orders.id", "categories.supplierId", "orders.orderCode")
         .join("orderDetails", "orderDetails.orderId", "orders.id")
@@ -498,6 +505,7 @@ class System {
       const deactivatedAccount = await Accounts.query()
         .update({
           isDeleted: true,
+          reasonForDisabling: reasonForDisabling
         })
         .where("id", cusAccount.accountId);
 
@@ -513,6 +521,7 @@ class System {
   public enableCustomerByCusId = async (req: any, res: any) => {
     try {
       const customerId = req.body.customerId;
+      const reasonForEnabling= req.body.reasonForEnabling;
 
       const update = await Customers.query()
         .update({
@@ -529,6 +538,7 @@ class System {
       const acc = await Accounts.query()
         .update({
           isDeleted: false,
+          reasonForEnabling: reasonForEnabling
         })
         .where("id", accountId.accountId);
 
@@ -547,8 +557,7 @@ class System {
   public enableSupplier = async (req: any, res: any) => {
     try {
       const supplierId = req.body.supplierId;
-      // const dateForUpdate = await Suppliers.query().select('updatedat').where('id', supplierId).first();
-
+      const reasonForEnabling = req.body.reasonForEnabling;
       const data = await Suppliers.query()
         .update({
           isDeleted: false,
@@ -564,6 +573,7 @@ class System {
       const acc = await Accounts.query()
         .update({
           isDeleted: false,
+          reasonForEnabling: reasonForEnabling
         })
         .where("id", accountId.accountId);
 
@@ -593,7 +603,6 @@ class System {
       ];
 
       const List = await Categories.query()
-        //TODO ENTITY
         .select(...dbEntity.productEntity, ...dbEntity.categoryEntity, ...ListSupplierEntity)
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .join("products", "products.categoryId", "categories.id")
