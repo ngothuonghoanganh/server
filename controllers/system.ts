@@ -36,7 +36,7 @@ class System {
           ...dbEntity.campaignOrderEntity,
           CampaignOrder.raw(
             `array_to_json(array_agg(json_build_object(
-            'id','',
+            'id', "campaignOrders".id,
             'image', "image",
             'price', "campaignOrders"."price",
             'quantity', "campaignOrders"."quantity",

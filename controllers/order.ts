@@ -382,7 +382,7 @@ class OrderController {
         ),
         isWithdrawable: true,
         type: "transactionHistory",
-        description:`${order.ordercode} is completed.`,
+        description: `${order.ordercode} is completed.`,
         status: "active",
       } as any);
 
@@ -1427,6 +1427,7 @@ class OrderController {
             `(select "customers"."firstName" as customerfirstname from customers where customers.id = "campaignOrders"."customerId"),
             (select "customers"."lastName" as customerlastname from customers where customers.id = "campaignOrders"."customerId"),
             array_to_json(array_agg(json_build_object(
+            'id', "campaignOrders".id,
             'image', campaigns.image,
             'price', campaigns.price,
             'quantity', "campaignOrders".quantity,
@@ -1494,6 +1495,7 @@ class OrderController {
             `(select "customers"."firstName" as customerfirstname from customers where customers.id = "campaignOrders"."customerId"),
             (select "customers"."lastName" as customerlastname from customers where customers.id = "campaignOrders"."customerId"),
             array_to_json(array_agg(json_build_object(
+            'id', "campaignOrders".id,
             'image', campaigns.image,
             'price', campaigns.price,
             'quantity', "campaignOrders".quantity,
@@ -1542,6 +1544,7 @@ class OrderController {
             `(select "customers"."firstName" as customerfirstname from customers where customers.id = "campaignOrders"."customerId"),
             (select "customers"."lastName" as customerlastname from customers where customers.id = "campaignOrders"."customerId"),
             array_to_json(array_agg(json_build_object(
+            'id', "campaignOrders".id,
             'image', campaigns.image,
             'price', campaigns.price,
             'quantity', "campaignOrders".quantity,
@@ -1979,6 +1982,7 @@ class OrderController {
             `(select "customers"."firstName" as customerfirstname from customers where customers.id = "campaignOrders"."customerId"),
             (select "customers"."lastName" as customerlastname from customers where customers.id = "campaignOrders"."customerId"),
             array_to_json(array_agg(json_build_object(
+            'id', "campaignOrders".id,
             'image', campaigns.image,
             'price', campaigns.price,
             'quantity', "campaignOrders".quantity,
@@ -2041,6 +2045,7 @@ class OrderController {
             ...dbEntity.campaignOrderEntity,
             CampaignOrder.raw(
               `array_to_json(array_agg(json_build_object(
+            'id', "campaignOrders".id,
             'image', campaigns.image,
             'price', campaigns.price,
             'quantity', "campaignOrders".quantity,
