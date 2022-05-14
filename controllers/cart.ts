@@ -131,7 +131,9 @@ class CartController {
               "products.retailPrice as productretailprice",
               "products.quantity as productquantity",
               "products.description as productdescription",
-              "products.image as productimage"
+              "products.image as productimage",
+              "products.weight as productweight"
+
             )
             .where("id", element.productid)
             .first(),
