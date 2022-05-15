@@ -19,4 +19,5 @@ export class Products extends Model {
     weight?:Number;
     createdAt?: Date;
     updatedAt?: Date;
+    reasonUpdate?: string;
 }
