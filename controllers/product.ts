@@ -205,7 +205,7 @@ class ProductsController {
         .where('categories.supplierId', supplierId)
         .andWhere('products.status', '<>', 'deactivated');
       for (let item of prods) {
-        
+
         Object.assign(item, { ...item, ...supplierData })
       }
       return res.status(200).send({
@@ -252,11 +252,16 @@ class ProductsController {
   public disableProduct = async (req: any, res: any) => {
     try {
       const { productId } = req.params;
+      const reasonUpdate = req.body.reasonUpdate;
+
+
       await Products.query()
         .update({
           status: "deactivated",
+          reasonUpdate: req.user.rolename + ": " + reasonUpdate
         })
         .where("id", productId);
+
 
       const inCampaignByProductId: any = await Campaigns.query()
         .select()
@@ -287,13 +292,15 @@ class ProductsController {
 
       const orderCampaign: any = await CampaignOrder.query()
         .select()
-        .where("productId", productId)
+        .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
+        .where("campaigns.productId", productId)
         .andWhere((cd) => {
-          cd.where("status", "advanced")
-            .orWhere("status", "created")
-            .orWhere("status", "unpaid");
+          cd.where("campaignOrders.status", "advanced")
+            .orWhere("campaignOrders.status", "created")
+            .orWhere("campaignOrders.status", "unpaid");
         });
-
+console.log(orderCampaign.length)
+console.log(orderCampaign)
       //send notif for customer for retail
       if (orderRetail.length > 0) {
         for (const item of orderRetail) {
@@ -304,14 +311,14 @@ class ProductsController {
             .where("id", item.id);
           const cusAccountId = await Customers.query()
             .select("accountId")
-            .where("id", item.customerid)
+            .where("id", item.customerId)
             .first();
           notif.sendNotiForWeb({
             userId: cusAccountId.accountId,
-            link: item.ordercode,
+            link: item.orderCode,
             message:
               "Order " +
-              item.ordercode +
+              item.orderCode +
               " has been cancelled because the product has been disabled",
             status: "unread",
           });
@@ -320,7 +327,7 @@ class ProductsController {
             type: "retail",
             retailOrderId: item.id,
             // image: JSON.stringify(image),
-            orderCode: item.ordercode,
+            orderCode: item.orderCode,
             description: "has been cancelled for: product has been disabled",
           } as OrderStatusHistory);
         }
@@ -336,15 +343,15 @@ class ProductsController {
             .where("id", item.id);
           const cusAccountId = await Customers.query()
             .select("accountId")
-            .where("id", item.customerid)
+            .where("id", item.customerId)
             .first();
 
           notif.sendNotiForWeb({
             userId: cusAccountId.accountId,
-            link: item.ordercode,
+            link: item.orderCode,
             message:
               "Order " +
-              item.ordercode +
+              item.orderCode +
               " has been cancelled because the product has been disabled",
             status: "unread",
           });
@@ -353,7 +360,7 @@ class ProductsController {
             type: "campaign",
             campaignOrderId: item.id,
             // image: JSON.stringify(image),
-            orderCode: item.ordercode,
+            orderCode: item.orderCode,
             description: "has been cancelled for: product has been disabled",
           } as OrderStatusHistory);
         }
@@ -368,7 +375,7 @@ class ProductsController {
       //send notif for supp abt
       const suppAccountId = await Suppliers.query()
         .select("accountId")
-        .where("id", suppId.supplierid)
+        .where("id", suppId.supplierId)
         .first();
 
       notif.sendNotiForWeb({
@@ -383,7 +390,7 @@ class ProductsController {
         ordercode: null,
         iswithdrawable: false,
         type: "penalty",
-        supplierid: suppId.supplierid,
+        supplierid: suppId.supplierId,
       } as Transaction);
 
       return res.status(200).send({
@@ -399,10 +406,10 @@ class ProductsController {
   public activeProductById = async (req: any, res: any) => {
     try {
       const productId = req.body.productId;
-
       const update = await Products.query()
         .update({
           status: "active",
+          
         })
         .where("status", "deactivated")
         .andWhere("id", productId)
@@ -480,7 +487,7 @@ class ProductsController {
         .orWhere("suppliers.name", "like", "%" + value + "%")
         .andWhere("products.status", "<>", "deactivated");
 
-    
+
       return res.status(200).send({
         message: "success",
         data: prod,
@@ -630,6 +637,7 @@ class ProductsController {
         .join("categories", "categories.id", "products.categoryId")
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .where("status", status);
+      console.log(data)
 
       return res.status(200).send({
         message: "successful",
@@ -655,6 +663,9 @@ class ProductsController {
       ];
       var sunday = moment().startOf("week");
       var saturday = moment().endOf("week");
+      console.log(sunday)
+      console.log(saturday)
+
       const data = await Products.query()
         .select(...dbEntity.productEntity, ...ListSupplierEntity)
         .join("categories", "categories.id", "products.categoryId")
