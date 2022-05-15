@@ -149,7 +149,7 @@ class System {
       ];
       const suppliername = req.query.supplierName;
       const suppliers = await Suppliers.query()
-        .select(...ListEntitysupplier, ...ListEntityAccount)
+        .select(...ListEntitysupplier, ...ListEntityAccount, "accounts.reasonForDisabling", "accounts.reasonForEnabling")
         .join("accounts", "accounts.id", "suppliers.accountId")
         .where((cd) => {
           if (suppliername) {
@@ -601,6 +601,7 @@ class System {
         "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
       ];
+
 
       const List = await Categories.query()
         .select(...dbEntity.productEntity, ...dbEntity.categoryEntity, ...ListSupplierEntity)
