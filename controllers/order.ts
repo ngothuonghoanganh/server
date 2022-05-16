@@ -365,21 +365,12 @@ class OrderController {
       transactionController.createTransaction({
         ordercode: order.ordercode,
         supplierId: supp.supplierid,
-        advanceFee: Transaction.raw(`${order.advancefee || 0}`),
-        platformFee: Transaction.raw(
-          `${((order.totalprice - (order.discountprice || 0)) * 2) / 100
-          }`
-        ),
-        paymentFee: Transaction.raw(
-          `${((order.totalprice - (order.discountprice || 0)) * 2) / 100
-          }`
-        ),
-        orderValue: Transaction.raw(
-          `${order.totalprice -
+        advanceFee: order.advancefee || 0,
+        platformFee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
+        paymentFee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
+        orderValue: order.totalprice -
           (order.discountprice || 0) -
-          (order.advancefee || 0)
-          }`
-        ),
+          (order.advancefee || 0),
         isWithdrawable: false,
         type: "transactionHistory",
         description: `${order.ordercode} is completed.`,
