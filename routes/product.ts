@@ -23,12 +23,12 @@ router.get(
   Product.getAllProductAndSupplierInformation
 );
 
-router.put(
-  '/active',
-  Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
-  Product.activeProduct
-)
+// router.put(
+//   '/active',
+//   Authentication.protected,
+//   Authentication.checkRole(["Supplier"]),
+//   Product.activeProduct
+// )
 
 router.post(
   "/",

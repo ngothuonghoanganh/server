@@ -140,8 +140,9 @@ class User {
   public getAllCustomer = async (req: any, res: any, next: any) => {
     try {
       const List: any = await Customers.query()
-        .select(...dbEntity.customerEntity)
-        .where("isDeleted", false);
+        .select(...dbEntity.customerEntity, 'accounts.reasonForDisabling','accounts.reasonForEnabling')
+        .join('accounts', 'accounts.id', 'customers.accountId')
+        // .where("isDeleted", false);
 
       return res.status(200).send({
         message: "successful",
