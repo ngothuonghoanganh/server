@@ -363,7 +363,7 @@ class OrderController {
       } as any);
 
       transactionController.createTransaction({
-        ordercode: order.ordercode,
+        orderCode: order.ordercode,
         supplierId: supp.supplierid,
         advanceFee: order.advancefee || 0,
         platformFee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
