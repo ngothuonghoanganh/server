@@ -198,19 +198,10 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-      const order: any =
-      (await Order.query().select().where("orderCode", "6c6425e5d6-1651474143661").first()) ||
-      (await CampaignOrder.query()
-        .select()
-        .where("orderCode", '6c6425e5d6-1651474143661')
-        .first());
-      console.log(order.campaignId)
-      if (order.campaignId === undefined){
-        console.log('undefined roi ne')
-      }
+     console.log(req.user)
       return res.status(200).send({
         message: 'successful',
-        data: order
+        data: req.user
       })
     } catch (error) {
       console.log(error);

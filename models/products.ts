@@ -19,4 +19,7 @@ export class Products extends Model {
     weight?:Number;
     createdAt?: Date;
     updatedAt?: Date;
+    reasonForDisabling?: string;
+    reasonForEnabling?: string;
+
 }

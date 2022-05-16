@@ -23,12 +23,12 @@ router.get(
   Product.getAllProductAndSupplierInformation
 );
 
-router.put(
-  '/active',
-  Authentication.protected,
-  Authentication.checkRole(["Supplier"]),
-  Product.activeProduct
-)
+// router.put(
+//   '/active',
+//   Authentication.protected,
+//   Authentication.checkRole(["Supplier"]),
+//   Product.activeProduct
+// )
 
 router.post(
   "/",
@@ -53,6 +53,8 @@ router.post(
 
 router.post(
   '/activeProduct/id',
+  Authentication.protected,
+  Authentication.checkRole(["Supplier", "Inspector"]),
   // validator.body(activeProductById),
   Product.activeProductById
 )
@@ -117,7 +119,7 @@ router.delete(
   "/:productId",
   Authentication.protected,
   Authentication.checkRole(["Supplier", "Inspector"]),
-  validator.params(paramProductIdSchema),
+  // validator.params(paramProductIdSchema),
   Product.disableProduct
 );
 

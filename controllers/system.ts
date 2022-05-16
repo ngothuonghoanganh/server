@@ -130,6 +130,9 @@ class System {
         "accounts.googleId as googleid",
         "accounts.phone as phone",
         "accounts.isDeleted as accountisdeleted",
+        "accounts.reasonForDisabling as reasonForDisabling",
+        "accounts.reasonForEnabling as reasonForEnabling",
+
       ];
 
       const ListEntitysupplier = [
@@ -149,7 +152,7 @@ class System {
       ];
       const suppliername = req.query.supplierName;
       const suppliers = await Suppliers.query()
-        .select(...ListEntitysupplier, ...ListEntityAccount)
+        .select(...ListEntitysupplier, ...ListEntityAccount, "accounts.reasonForDisabling", "accounts.reasonForEnabling")
         .join("accounts", "accounts.id", "suppliers.accountId")
         .where((cd) => {
           if (suppliername) {
@@ -201,6 +204,8 @@ class System {
             );
           }
         })
+        .orderBy("customers.updatedAt", "desc");
+        
       return res.status(200).send({
         message: "successful",
         data: customers,
@@ -600,7 +605,11 @@ class System {
         "suppliers.avt as supplieravt",
         "suppliers.isDeleted as supplierisdeleted",
         "suppliers.address as supplieraddress",
+        "products.reasonForDisabling as reasonForDisabling",
+        "products.reasonForEnabling as reasonForEnabling",
+
       ];
+
 
       const List = await Categories.query()
         .select(...dbEntity.productEntity, ...dbEntity.categoryEntity, ...ListSupplierEntity)
@@ -616,23 +625,23 @@ class System {
     }
   };
 
-  public activeProduct = async (req: any, res: any) => {
-    try {
-      const productId = req.body.productId;
+  // public activeProduct = async (req: any, res: any) => {
+  //   try {
+  //     const productId = req.body.productId;
 
-      const update = await Products.query().select().update({
-        status: 'active'
-      })
-        .where('id', productId).first();
+  //     const update = await Products.query().select().update({
+  //       status: 'active'
+  //     })
+  //       .where('id', productId).first();
 
-      return res.status(200).send({
-        message: "successful",
-        data: update
-      })
-    } catch (error) {
-      console.log(error); return res.status(400).send({ message: error });
-    }
-  };
+  //     return res.status(200).send({
+  //       message: "successful",
+  //       data: update
+  //     })
+  //   } catch (error) {
+  //     console.log(error); return res.status(400).send({ message: error });
+  //   }
+  // };
 }
 
 export default new System();
