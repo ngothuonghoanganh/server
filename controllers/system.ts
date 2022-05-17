@@ -205,7 +205,7 @@ class System {
           }
         })
         .orderBy("customers.updatedAt", "desc");
-        
+
       return res.status(200).send({
         message: "successful",
         data: customers,
@@ -526,7 +526,7 @@ class System {
   public enableCustomerByCusId = async (req: any, res: any) => {
     try {
       const customerId = req.body.customerId;
-      const reasonForEnabling= req.body.reasonForEnabling;
+      const reasonForEnabling = req.body.reasonForEnabling;
 
       const update = await Customers.query()
         .update({
@@ -607,15 +607,30 @@ class System {
         "suppliers.address as supplieraddress",
         "products.reasonForDisabling as reasonForDisabling",
         "products.reasonForEnabling as reasonForEnabling",
-
       ];
 
-
-      const List = await Categories.query()
+      const List: any = await Categories.query()
         .select(...dbEntity.productEntity, ...dbEntity.categoryEntity, ...ListSupplierEntity)
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .join("products", "products.categoryId", "categories.id")
-        .orderBy("products.updatedAt", "desc");
+        .groupBy('products.id')
+        .groupBy('categories.id')
+        .groupBy('suppliers.id')
+
+      // console.log(List);
+      for (const item of List) {
+        const data: any = await Campaigns.query().select(
+          Campaigns.raw(`SUM("campaigns"."maxQuantity") as quantityincampaign`)
+        )
+          .where('campaigns.productId', item.productid)
+          .andWhere(cd => {
+            cd.where('campaigns.status', 'ready')
+              .orWhere('campaigns.status', 'active')
+          }).first();
+        item.quantityincampaign = data.quantityincampaign || 0;
+        item.quantitynotincampaign = item.quantity - (data.quantityincampaign || 0);
+      }
+
       return res.status(200).send({
         message: "successful",
         data: List,
