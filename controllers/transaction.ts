@@ -1,4 +1,6 @@
-import { Transaction } from "../models/transaction";
+import {
+  Transaction
+} from "../models/transaction";
 import QueryString from "qs";
 import crypto from "crypto";
 import moment from "moment";
@@ -80,11 +82,15 @@ class TransactionController {
 
       console.log(vnp_Params["vnp_TxnRef"]);
       vnp_Params = this.sortObject(vnp_Params);
-      const signData = QueryString.stringify(vnp_Params, { encode: false });
+      const signData = QueryString.stringify(vnp_Params, {
+        encode: false
+      });
       let hmac = crypto.createHmac("sha512", secretKey);
       let signed = hmac.update(new Buffer(signData, "utf-8")).digest("hex");
       vnp_Params["vnp_SecureHash"] = signed;
-      vnpUrl += "?" + QueryString.stringify(vnp_Params, { encode: false });
+      vnpUrl += "?" + QueryString.stringify(vnp_Params, {
+        encode: false
+      });
 
       return vnpUrl;
     } catch (error) {
@@ -110,8 +116,14 @@ class TransactionController {
 
   public createWithdrawableRequest = async (req: any, res: any, next: any) => {
     try {
-      const { ewalletsecrect, ewalletcode, id } = req.user;
-      const { ordercode } = req.body;
+      const {
+        ewalletsecrect,
+        ewalletcode,
+        id
+      } = req.user;
+      const {
+        ordercode
+      } = req.body;
 
       const ipAddr =
         req.headers["x-forwarded-for"] ||
@@ -163,11 +175,15 @@ class TransactionController {
       }
 
       vnp_Params = this.sortObject(vnp_Params);
-      const signData = QueryString.stringify(vnp_Params, { encode: false });
+      const signData = QueryString.stringify(vnp_Params, {
+        encode: false
+      });
       let hmac = crypto.createHmac("sha512", secretKey);
       let signed = hmac.update(new Buffer(signData, "utf-8")).digest("hex");
       vnp_Params["vnp_SecureHash"] = signed;
-      vnpUrl += "?" + QueryString.stringify(vnp_Params, { encode: false });
+      vnpUrl += "?" + QueryString.stringify(vnp_Params, {
+        encode: false
+      });
       await Transaction.query()
         .update({
           isWithdrawable: false,
@@ -182,7 +198,9 @@ class TransactionController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 
@@ -204,33 +222,51 @@ class TransactionController {
 
   public getTransaction = async (req: any, res: any) => {
     try {
-      const [income, penalty] = await Promise.all([
+      const [account, income, penalty, transactionHistory] = await Promise.all([
         Transaction.query()
-          .select(...dbEntity.transactionEntity)
-          .where("supplierId", req.user.id)
-          .andWhere("type", "income"),
+        .select(...dbEntity.transactionEntity)
+        .where("supplierId", req.user.id)
+        .andWhere("type", "income")
+        .andWhere("isWithdrawable", true).first(),
         Transaction.query()
-          .select(...dbEntity.transactionEntity)
-          .where("supplierId", req.user.id)
-          .andWhere("type", "penalty"),
+        .select(...dbEntity.transactionEntity)
+        .where("supplierId", req.user.id)
+        .andWhere("type", "income"),
+        Transaction.query()
+        .select(...dbEntity.transactionEntity)
+        .where("supplierId", req.user.id)
+        .andWhere("type", "penalty"),
+        Transaction.query()
+        .select(...dbEntity.transactionEntity)
+        .where("supplierId", req.user.id)
+        .andWhere("type", "transactionHistory"),
       ]);
 
       return res.status(200).send({
         message: "successful",
         data: {
+          account,
           income,
           penalty,
+          transactionHistory
         },
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 
   public confirmTransactionRequest = async (req: any, res: any) => {
     try {
-      const { ordercode, type, penaltyId, supplierId } = req.query;
+      const {
+        ordercode,
+        type,
+        penaltyId,
+        supplierId
+      } = req.query;
 
       let transaction = 0;
       if (type === "income") {
@@ -258,7 +294,9 @@ class TransactionController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 
@@ -275,7 +313,9 @@ class TransactionController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 }
