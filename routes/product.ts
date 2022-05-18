@@ -64,12 +64,12 @@ router.post(
   Product.searchProduct
 )
 
-router.post(
-  '/getAllProdWithCampaignStatus',
-  validator.body(getAllProdWithStatus),
-  Product.getAllProdWithCampaignStatus
+// router.post(
+//   '/getAllProdWithCampaignStatus',
+//   validator.body(getAllProdWithStatus),
+//   Product.getAllProdWithCampaignStatus
 
-)
+// )
 
 router.post(
   '/getAllProductByStatus',

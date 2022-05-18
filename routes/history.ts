@@ -13,11 +13,11 @@ router.get(
     OrderStatusHistory.getRetailHistoryById
 )
 
-router.post(
-    '/orderCode',
-    validator.body(bodyOrderCodeSchema),
-    OrderStatusHistory.getRetailHistoryByOrderId
-)
+// router.post(
+//     '/orderCode',
+//     validator.body(bodyOrderCodeSchema),
+//     OrderStatusHistory.getRetailHistoryByOrderId
+// )
 
 router.post(
     '/listOrderCode',

@@ -617,7 +617,6 @@ class System {
         .groupBy('categories.id')
         .groupBy('suppliers.id')
 
-      // console.log(List);
       for (const item of List) {
         const data: any = await Campaigns.query().select(
           Campaigns.raw(`SUM("campaigns"."maxQuantity") as quantityincampaign`)
