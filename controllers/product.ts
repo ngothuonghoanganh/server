@@ -550,45 +550,45 @@ class ProductsController {
     }
   };
 
-  public getAllProdWithCampaignStatus = async (req: any, res: any) => {
-    try {
-      const campaignStatus = req.body.campaignStatus;
-      console.log(campaignStatus);
-      let ListSupplierEntity = [
-        "products.id as productid",
-        "suppliers.id as supplierid",
-        "suppliers.accountId as accountid",
-        "suppliers.name as suppliername",
-        "suppliers.email as supplieremai",
-        "suppliers.avt as supplieravt",
-        "suppliers.isDeleted as supplierisdeleted",
-        "suppliers.address as supplieraddress",
-      ];
+  // public getAllProdWithCampaignStatus = async (req: any, res: any) => {
+  //   try {
+  //     const campaignStatus = req.body.campaignStatus;
+  //     console.log(campaignStatus);
+  //     let ListSupplierEntity = [
+  //       "products.id as productid",
+  //       "suppliers.id as supplierid",
+  //       "suppliers.accountId as accountid",
+  //       "suppliers.name as suppliername",
+  //       "suppliers.email as supplieremai",
+  //       "suppliers.avt as supplieravt",
+  //       "suppliers.isDeleted as supplierisdeleted",
+  //       "suppliers.address as supplieraddress",
+  //     ];
 
-      const products = await Campaigns.query()
-        .select("productId")
-        .where("status", campaignStatus)
-        .groupBy("productId");
-      const productIds = products.map((item: any) => item.productid);
+  //     const products = await Campaigns.query()
+  //       .select("productId")
+  //       .where("status", campaignStatus)
+  //       .groupBy("productId");
+  //     const productIds = products.map((item: any) => item.productid);
 
-      const List = await Products.query()
-        .select(dbEntity.productEntity, ...ListSupplierEntity)
-        .join("categories", "categories.id", "products.categoryId")
-        .join("suppliers", "suppliers.id", "categories.supplierId")
-        .whereIn("products.id", productIds)
-        .where("products.status", "<>", "deactivated");
-      // .groupBy('products.id')
-      // .groupBy('supplier.id')
+  //     const List = await Products.query()
+  //       .select(dbEntity.productEntity, ...ListSupplierEntity)
+  //       .join("categories", "categories.id", "products.categoryId")
+  //       .join("suppliers", "suppliers.id", "categories.supplierId")
+  //       .whereIn("products.id", productIds)
+  //       .where("products.status", "<>", "deactivated");
+  //     // .groupBy('products.id')
+  //     // .groupBy('supplier.id')
 
-      return res.status(200).send({
-        message: "successful",
-        data: List,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send({ message: error });
-    }
-  };
+  //     return res.status(200).send({
+  //       message: "successful",
+  //       data: List,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(400).send({ message: error });
+  //   }
+  // };
 
   public getProductWithOrderCompleted = async (req: any, res: any) => {
     try {
