@@ -31,31 +31,12 @@ class OrderHistoryController {
     }
   };
 
-  public getRetailHistoryById = async (req: any, res: any, next: any) => {
-    try {
-      const id = req.query.id;
-      const history = await OrderStatusHistory.query()
-        .select(...dbEntity.orderStatusHistoriesEntity)
-        .where("id", id);
-      return res.status(200).send({
-        message: "successful",
-        data: history,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send({ message: error });
-    }
-  };
-
-  // public getRetailHistoryByOrderId = async (req: any, res: any, next: any) => {
+  // public getRetailHistoryById = async (req: any, res: any, next: any) => {
   //   try {
-  //     //order id can from retail history and campaign history
-  //     const orderCode = req.body.orderCode;
-  //     // console.log(orderId)
+  //     const id = req.query.id;
   //     const history = await OrderStatusHistory.query()
   //       .select(...dbEntity.orderStatusHistoriesEntity)
-  //       .where("orderCode", orderCode)
-  //       .orderBy("createdAt", "asc");
+  //       .where("id", id);
   //     return res.status(200).send({
   //       message: "successful",
   //       data: history,
@@ -65,6 +46,25 @@ class OrderHistoryController {
   //     return res.status(400).send({ message: error });
   //   }
   // };
+
+  public getRetailHistoryByOrderId = async (req: any, res: any, next: any) => {
+    try {
+      //order id can from retail history and campaign history
+      const orderCode = req.body.orderCode;
+      // console.log(orderId)
+      const history = await OrderStatusHistory.query()
+        .select(...dbEntity.orderStatusHistoriesEntity)
+        .where("orderCode", orderCode)
+        .orderBy("createdAt", "asc");
+      return res.status(200).send({
+        message: "successful",
+        data: history,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).send({ message: error });
+    }
+  };
 
   public insertOrderHistoryForReturning = async (req: any, res: any) => {
     try {
