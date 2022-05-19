@@ -21,9 +21,6 @@ import dbEntity from "../services/dbEntity";
 import { firestore } from "firebase-admin";
 
 class OrderController {
-  // client = createClient({
-  //   url: "redis://13.215.133.39:6379",
-  // });
   public createOrder = async (req: any, res: any) => {
 
     try {
@@ -90,7 +87,7 @@ class OrderController {
           transactionController.createTransaction({
             // ordercode: orderCode,
             isWithdrawable: false,
-            type: "income",
+            type: "totalIncome",
             supplierId: supplierId,
           } as Transaction);
 
@@ -189,7 +186,7 @@ class OrderController {
       if (!transaction)
         transactionController.createTransaction({
           isWithdrawable: false,
-          type: "income",
+          type: "totalIncome",
           supplierId: supplierId,
         } as Transaction);
 
@@ -356,7 +353,7 @@ class OrderController {
           }`
         ),
         isWithdrawable: true,
-        type: "income",
+        type: "totalIncome",
         description:
           "The order is completed. Vendor is able to withdraw money.",
         status: "active",
@@ -372,7 +369,7 @@ class OrderController {
           (order.discountprice || 0) -
           (order.advancefee || 0),
         isWithdrawable: false,
-        type: "transactionHistory",
+        type: "orderTransaction",
         description: `${order.ordercode} is completed.`,
         status: "active",
       } as any);
