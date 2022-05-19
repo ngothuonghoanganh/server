@@ -7,11 +7,11 @@ import { bodyOrderCodeListSchema, bodyOrderCodeSchema,bodyOrderUpdateStatusSchem
 const router = express.Router();
 const validator = createValidator();
 
-router.get(
-    '/',
-    validator.query(queryOrderHistoryIdSchema),
-    OrderStatusHistory.getRetailHistoryById
-)
+// router.get(
+//     '/',
+//     validator.query(queryOrderHistoryIdSchema),
+//     OrderStatusHistory.getRetailHistoryById
+// )
 
 router.post(
     '/orderCode',

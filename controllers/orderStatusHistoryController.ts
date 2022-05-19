@@ -31,21 +31,21 @@ class OrderHistoryController {
     }
   };
 
-  public getRetailHistoryById = async (req: any, res: any, next: any) => {
-    try {
-      const id = req.query.id;
-      const history = await OrderStatusHistory.query()
-        .select(...dbEntity.orderStatusHistoriesEntity)
-        .where("id", id);
-      return res.status(200).send({
-        message: "successful",
-        data: history,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send({ message: error });
-    }
-  };
+  // public getRetailHistoryById = async (req: any, res: any, next: any) => {
+  //   try {
+  //     const id = req.query.id;
+  //     const history = await OrderStatusHistory.query()
+  //       .select(...dbEntity.orderStatusHistoriesEntity)
+  //       .where("id", id);
+  //     return res.status(200).send({
+  //       message: "successful",
+  //       data: history,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(400).send({ message: error });
+  //   }
+  // };
 
   public getRetailHistoryByOrderId = async (req: any, res: any, next: any) => {
     try {
