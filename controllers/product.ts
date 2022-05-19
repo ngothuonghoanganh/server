@@ -417,12 +417,12 @@ class ProductsController {
     try {
       const productId = req.body.productId;
       const product = await Products.query().select().where('id', productId).first();
-      const reasonForEnabling= req.body.reasonForEnabling;
+      const reasonForEnabling = req.body.reasonForEnabling;
 
       //default la inspector deactive product
       let update;
       if ((JSON.parse(product.reasonForDisabling || '{"actionBy":"Inspector"}')).actionBy === req.user.rolename) {
-         update = await Products.query()
+        update = await Products.query()
           .update({
             status: "active",
             reasonForDisabling: {
@@ -449,7 +449,6 @@ class ProductsController {
   public getRatingByListProducts = async (req: any, res: any, next: any) => {
     try {
       const productIds = req.body.productIds;
-      const nullValue = "";
       const disableValue = 'removed';
 
       const campaignOrder: any = await CampaignOrder.query()
@@ -462,8 +461,14 @@ class ProductsController {
         )
         .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .whereIn("campaigns.productId", productIds)
-        .andWhere("campaignOrders.comment", "<>", nullValue)
-        .andWhere("campaignOrders.comment", "<>", nullValue)
+        .andWhere((cd) => {
+          cd.where(
+            "campaignOrders.comment",
+            "<>",
+            null
+          ).orWhere('campaignOrders.comment', '<>', disableValue);
+        })
+        
         .groupBy("campaigns.productId");
 
       const retailOrder: any = await OrderDetail.query()
@@ -473,8 +478,13 @@ class ProductsController {
           OrderDetail.raw(`coalesce(SUM (rating),0) AS rating`)
         )
         .whereIn("orderDetails.productId", productIds)
-        .andWhere("orderDetails.comment", "<>", nullValue)
-        .orWhere('orderDetails.comment', "<>", disableValue)
+        .andWhere((cd) => {
+          cd.where(
+            "orderDetails.comment",
+            "<>",
+            null
+          ).orWhere('orderDetails.comment', '<>', disableValue);
+        })
         .groupBy("orderDetails.productId");
 
       // const listRating = await Comments.query()

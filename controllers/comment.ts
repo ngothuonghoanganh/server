@@ -121,52 +121,58 @@ class Comment {
     }
   };
 
-  public countNumOfCommentByProductId = async (
-    req: any,
-    res: any,
-  ) => {
-    try {
-      const productId = req.body.productId;
-      let totalNumOfComment = 0;
-      let averageRating;
-      const nullValue = "";
-      const disableValue = 'removed';
+  // public countNumOfCommentByProductId = async (
+  //   req: any,
+  //   res: any,
+  // ) => {
+  //   try {
+  //     const productId = req.body.productId;
+  //     let totalNumOfComment = 0;
+  //     let averageRating;
+  //     const nullValue = "";
+  //     const disableValue = 'removed';
 
-      const campaignOrder: any = await CampaignOrder.query()
-        .select("campaignOrders.comment", "campaignOrders.rating")
-        .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
-        .where("campaigns.productId", productId)
-        .andWhere("campaignOrders.comment", "<>", nullValue)
-        .orWhere('campaignOrders.comment', "<>", disableValue)
+  //     const campaignOrder: any = await CampaignOrder.query()
+  //       .select("campaignOrders.comment", "campaignOrders.rating")
+  //       .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
+  //       .where("campaigns.productId", productId)
+  //       .andWhere(cd => {
+  //         cd.where("campaignOrders.comment", "<>", nullValue)
+  //           .orWhere('campaignOrders.comment', "<>", disableValue)
+  //       })
 
-      const retailOrder: any = await OrderDetail.query()
-        .select("orderDetails.comment", "orderDetails.rating")
-        .where("orderDetails.productId", productId)
-        .andWhere("orderDetails.comment", "<>", nullValue)
-        .orWhere('orderDetails.comment', "<>", disableValue);
 
-      campaignOrder.push(...retailOrder);
+  //     const retailOrder: any = await OrderDetail.query()
+  //       .select("orderDetails.comment", "orderDetails.rating")
+  //       .where("orderDetails.productId", productId)
+  //       .andWhere(cd => {
+  //         cd.where("orderDetails.comment", "<>", nullValue)
+  //           .orWhere('orderDetails.comment', "<>", disableValue);
+  //       })
 
-      if (campaignOrder.length > 0) {
-        totalNumOfComment = campaignOrder.length;
-        averageRating =
-          campaignOrder
-            .map((item: any) => item.rating)
-            .reduce((prev: any, next: any) => prev + next) / totalNumOfComment;
 
-        return res.status(200).send({
-          message: "successful",
-          data: { comments: campaignOrder, totalNumOfComment, averageRating },
-        });
-      }
-      return res.status(200).send({
-        message: "no result",
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send({ message: error });
-    }
-  };
+  //     campaignOrder.push(...retailOrder);
+
+  //     if (campaignOrder.length > 0) {
+  //       totalNumOfComment = campaignOrder.length;
+  //       averageRating =
+  //         campaignOrder
+  //           .map((item: any) => item.rating)
+  //           .reduce((prev: any, next: any) => prev + next) / totalNumOfComment;
+
+  //       return res.status(200).send({
+  //         message: "successful",
+  //         data: { comments: campaignOrder, totalNumOfComment, averageRating },
+  //       });
+  //     }
+  //     return res.status(200).send({
+  //       message: "no result",
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(400).send({ message: error });
+  //   }
+  // };
 
   public countNumOfOrderCompleted = async (req: any, res: any, next: any) => {
     try {

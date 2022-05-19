@@ -29,11 +29,11 @@ router.post(
   Comment.countNumOfOrderCompleted
 );
 
-router.post(
-  "/countComments",
-  validator.body(countNumOfCommentByProductId),
-  Comment.countNumOfCommentByProductId
-);
+// router.post(
+//   "/countComments",
+//   validator.body(countNumOfCommentByProductId),
+//   Comment.countNumOfCommentByProductId
+// );
 
 router.put(
   '/disable/id',
