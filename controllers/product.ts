@@ -450,6 +450,8 @@ class ProductsController {
     try {
       const productIds = req.body.productIds;
       const nullValue = "";
+      const disableValue = 'removed';
+
       const campaignOrder: any = await CampaignOrder.query()
         .select(
           "campaigns.productId",
@@ -461,6 +463,7 @@ class ProductsController {
         .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .whereIn("campaigns.productId", productIds)
         .andWhere("campaignOrders.comment", "<>", nullValue)
+        .andWhere("campaignOrders.comment", "<>", nullValue)
         .groupBy("campaigns.productId");
 
       const retailOrder: any = await OrderDetail.query()
@@ -471,6 +474,7 @@ class ProductsController {
         )
         .whereIn("orderDetails.productId", productIds)
         .andWhere("orderDetails.comment", "<>", nullValue)
+        .orWhere('orderDetails.comment', "<>", disableValue)
         .groupBy("orderDetails.productId");
 
       // const listRating = await Comments.query()
