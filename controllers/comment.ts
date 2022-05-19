@@ -79,8 +79,7 @@ class Comment {
         "customers.lastName",
       ];
 
-      const nullValue = "";
-
+      const disableValue = "removed";
       // select * from campaignorder join customer on campaignorder.customerid = customer.id
       // where campaignorder.productid =${productId}
       // and where (campaignorder.comment <> ${""} or campaignorder.comment <> null )
@@ -90,11 +89,11 @@ class Comment {
         .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
         .where("campaigns.productId", productId)
         .andWhere((cd) => {
-          cd.where("campaignOrders.comment", "<>", nullValue).orWhere(
+          cd.where(
             "campaignOrders.comment",
             "<>",
             null
-          );
+          ).orWhere('campaignOrders.comment', '<>', disableValue);
         });
 
       const retailOrder: any = await OrderDetail.query()
@@ -103,11 +102,11 @@ class Comment {
         .join("customers", "customers.id", "orders.customerId")
         .where("orderDetails.productId", productId)
         .andWhere((cd) => {
-          cd.where("orderDetails.comment", "<>", nullValue).orWhere(
+          cd.where(
             "orderDetails.comment",
             "<>",
             null
-          );
+          ).orWhere('orderDetails.comment', '<>', disableValue);
         });
 
       campaignOrder.push(...retailOrder);
@@ -125,24 +124,26 @@ class Comment {
   public countNumOfCommentByProductId = async (
     req: any,
     res: any,
-    next: any
   ) => {
     try {
       const productId = req.body.productId;
       let totalNumOfComment = 0;
       let averageRating;
       const nullValue = "";
+      const disableValue = 'removed';
 
       const campaignOrder: any = await CampaignOrder.query()
         .select("campaignOrders.comment", "campaignOrders.rating")
         .join('campaigns', 'campaignOrders.campaignId', 'campaigns.id')
         .where("campaigns.productId", productId)
-        .andWhere("campaignOrders.comment", "<>", nullValue);
+        .andWhere("campaignOrders.comment", "<>", nullValue)
+        .orWhere('campaignOrders.comment', "<>", disableValue)
 
       const retailOrder: any = await OrderDetail.query()
         .select("orderDetails.comment", "orderDetails.rating")
         .where("orderDetails.productId", productId)
-        .andWhere("orderDetails.comment", "<>", nullValue);
+        .andWhere("orderDetails.comment", "<>", nullValue)
+        .orWhere('orderDetails.comment', "<>", disableValue);
 
       campaignOrder.push(...retailOrder);
 
