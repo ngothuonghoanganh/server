@@ -1,9 +1,7 @@
-import { Accounts } from "../models/accounts";
 import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import { Order } from "../models/orders";
 import { OrderStatusHistory } from "../models/orderstatushistory";
-import { Products } from "../models/products";
 import { Suppliers } from "../models/suppliers";
 import dbEntity from "../services/dbEntity";
 import notif from "../services/realtime/notification";
