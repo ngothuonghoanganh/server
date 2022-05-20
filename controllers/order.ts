@@ -79,7 +79,7 @@ class OrderController {
         const transaction = await Transaction.query()
           .select()
           .where("supplierId", supplierId)
-          .andWhere("type", "income")
+          .andWhere("type", "totalIncome")
           .andWhere("status", "active")
           .first();
 
@@ -1122,7 +1122,7 @@ class OrderController {
 
         //send notif for supp
         let accountIdSupp = await Suppliers.query()
-          .select("accountid")
+          .select("accountId")
           .where("id", supplierId)
           .first();
 

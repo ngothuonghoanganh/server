@@ -1,3 +1,4 @@
+import { Accounts } from "../models/accounts";
 import { CampaignOrder } from "../models/campaingorder";
 import { Customers } from "../models/customers";
 import { Order } from "../models/orders";
@@ -68,11 +69,8 @@ class OrderHistoryController {
 
   public insertOrderHistoryForReturning = async (req: any, res: any) => {
     try {
-      //no role required
-      //no login
 
-      //status tùy từng loại mà insert
-      let { orderId, orderCode, type, description, image, status } = req.body;
+      let { orderId, orderCode, type, description, image, status, supplierId } = req.body;
       let insertData;
       if (type === "retail") {
         insertData = await OrderStatusHistory.query().insert({
@@ -221,33 +219,10 @@ class OrderHistoryController {
             status: "unread",
           });
 
-          //supp
-          //TODO: supplierId do not have in campaignorder and retailorder
-          let supplierDataForRetail: any;
-          let supplierDataForCampaign: any;
-          let accountIdSupp;
-          if (type === "retail") {
-            supplierDataForRetail = await Order.query()
-              .select("supplierId")
-              .where("id", orderId)
-              .first();
-            accountIdSupp = await Suppliers.query()
-              .select("accountId")
-              .where("id", supplierDataForRetail.supplierId)
-              .first();
-          } else {
-            supplierDataForCampaign = await Products.query()
-              .select("products.supplierId")
-              .join("campaignOrders", "campaignOrders.productId", "products.id")
-              .where("campaignOrders.id", orderId)
-              .first();
-            accountIdSupp = await Suppliers.query()
-              .select("accountId")
-              .where("id", supplierDataForCampaign.supplierId)
-              .first();
-          }
+          const supplierData = await Suppliers.query().select().where('id', supplierId).first();
+
           notif.sendNotiForWeb({
-            userId: accountIdSupp.accountId,
+            userId: supplierData.accountId,
             link: orderCode,
             message: "Order " + orderCode + " has been set to " + status,
             status: "unread",
