@@ -16,7 +16,6 @@ import orderStatusHistoryController from "./orderStatusHistoryController";
 import { Suppliers } from "../models/suppliers";
 import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
-import { createClient } from "redis";
 import dbEntity from "../services/dbEntity";
 import { firestore } from "firebase-admin";
 
@@ -179,7 +178,7 @@ class OrderController {
       const transaction = await Transaction.query()
         .select()
         .where("supplierId", supplierId)
-        .andWhere("type", "income")
+        .andWhere("type", "totalIncome")
         .andWhere("status", "active")
         .first();
 
