@@ -79,7 +79,7 @@ class OrderController {
         const transaction = await Transaction.query()
           .select()
           .where("supplierId", supplierId)
-          .andWhere("type", "income")
+          .andWhere("type", "totalIncome")
           .andWhere("status", "active")
           .first();
 
