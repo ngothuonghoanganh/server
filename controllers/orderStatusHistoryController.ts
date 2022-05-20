@@ -124,31 +124,33 @@ class OrderHistoryController {
 
         //TODO: supplier id do not have in order and product
         //send notif for supplier
-        let supplierDataForRetail: any;
-        let supplierDataForCampaign: any;
-        let accountIdSupp;
-        if (type === "retail") {
-          supplierDataForRetail = await Order.query()
-            .select("supplierId")
-            .where("id", orderId)
-            .first();
-          accountIdSupp = await Suppliers.query()
-            .select("accountId")
-            .where("id", supplierDataForRetail.supplierid)
-            .first();
-        } else {
-          supplierDataForCampaign = await Products.query()
-            .select("products.supplierId")
-            .join("campaignOrders", "campaignOrders.productId", "products.id")
-            .where("campaignOrders.id", orderId)
-            .first();
-          accountIdSupp = await Suppliers.query()
-            .select("accountId")
-            .where("id", supplierDataForCampaign.supplierid)
-            .first();
-        }
+        // let supplierDataForRetail: any;
+        // let supplierDataForCampaign: any;
+        // let accountIdSupp;
+        // if (type === "retail") {
+        //   supplierDataForRetail = await Order.query()
+        //     .select("supplierId")
+        //     .where("id", orderId)
+        //     .first();
+        //   accountIdSupp = await Suppliers.query()
+        //     .select("accountId")
+        //     .where("id", supplierDataForRetail.supplierid)
+        //     .first();
+        // } else {
+        //   supplierDataForCampaign = await Products.query()
+        //     .select("products.supplierId")
+        //     .join("campaignOrders", "campaignOrders.productId", "products.id")
+        //     .where("campaignOrders.id", orderId)
+        //     .first();
+        //   accountIdSupp = await Suppliers.query()
+        //     .select("accountId")
+        //     .where("id", supplierDataForCampaign.supplierid)
+        //     .first();
+        // }
+        const supplierData = await Suppliers.query().select().where('id', supplierId).first();
+
         notif.sendNotiForWeb({
-          userId: accountIdSupp.accountId,
+          userId: supplierData.accountId,
           link: orderCode,
           message: "Order " + orderCode + " has been set to " + status,
           status: "unread",
