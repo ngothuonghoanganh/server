@@ -36,6 +36,7 @@ import serverPage from "./routes/serverpage";
 import Logger from "./lib/logger";
 import cronjob from "./controllers/cron/cronjob";
 import chat from "./controllers/chat";
+import pricingRouter from "./routes/pricing";
 
 const upload = multer();
 dotenv.config();
@@ -99,6 +100,8 @@ app.use("/api/transaction", transactionRouter);
 app.use("/api/system", systemRouter);
 app.use("/api/notif", notifRouter);
 app.use("/", serverPage);
+app.use("/api/pricing", pricingRouter);
+
 
 try {
   server.listen(process.env.PORT || 3000, (): void => {

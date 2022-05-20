@@ -14,7 +14,6 @@ import { Transaction } from "objection";
 import { OrderDetail } from "../models/orderdetail";
 import moment from "moment";
 import dbEntity from "../services/dbEntity";
-import user from "./user";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -136,7 +135,7 @@ class ProductsController {
           .select(...dbEntity.productEntity, ...ListSupplierEntity)
           .join("suppliers", "suppliers.id", "categories.supplierId")
           .join("products", "products.categoryId", "categories.id")
-          .where("products.status", "<>", "deactivated");
+          .where("products.status", "<>", "deactivated").orderBy('products.updatedAt', 'DESC')
 
       return res.status(200).send({
         message: "successful",
@@ -167,7 +166,8 @@ class ProductsController {
           if (req.query.categoryId) {
             cd.where("categories.id", req.query.categoryId);
           }
-        });
+        }).orderBy('products.updatedAt', 'DESC')
+
 
       // for (const prod of prods) {
       //   const totalMaxQuantity: any = (await Campaigns.query()
@@ -207,7 +207,7 @@ class ProductsController {
         .select(...listEntity)
         .join('categories', 'categories.id', 'products.categoryId')
         .where('categories.supplierId', supplierId)
-        .andWhere('products.status', '<>', 'deactivated');
+        .andWhere('products.status', '<>', 'deactivated').orderBy('products.updatedAt', 'DESC')
       for (let item of prods) {
 
         Object.assign(item, { ...item, ...supplierData })
@@ -469,7 +469,8 @@ class ProductsController {
           ).orWhere('campaignOrders.comment', '<>', disableValue);
         })
         
-        .groupBy("campaigns.productId");
+        .groupBy("campaigns.productId").orderBy('campaignOrders.updatedAt', 'DESC')
+
 
       const retailOrder: any = await OrderDetail.query()
         .select(
@@ -485,7 +486,8 @@ class ProductsController {
             null
           ).orWhere('orderDetails.comment', '<>', disableValue);
         })
-        .groupBy("orderDetails.productId");
+        .groupBy("orderDetails.productId").orderBy('orderDetails.updatedAt', 'DESC')
+        
 
       // const listRating = await Comments.query()
       //   .select("productid", Comments.raw(`AVG(rating) as rating`))
@@ -520,7 +522,9 @@ class ProductsController {
         .join("products", "products.categoryId", "categories.id")
         .where("products.name", "like", "%" + value + "%")
         .orWhere("suppliers.name", "like", "%" + value + "%")
-        .andWhere("products.status", "<>", "deactivated");
+        .andWhere("products.status", "<>", "deactivated")
+        .orderBy('products.updatedAt', 'DESC')
+
 
 
       return res.status(200).send({
@@ -547,7 +551,9 @@ class ProductsController {
       const data: any = await Products.query()
         .select(...dbEntity.productEntity)
         .whereIn("categoryId", listCategories)
-        .andWhere("status", "<>", "deactivated");
+        .andWhere("status", "<>", "deactivated")
+        .orderBy('products.updatedAt', 'DESC')
+
       for (let item of data) {
         const supplier = await Suppliers.query().select(...supplierEntity)
           .join('categories', 'categories.supplierId', 'suppliers.id')
@@ -645,7 +651,8 @@ class ProductsController {
         .join("categories", "categories.id", "products.categoryId")
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .whereIn("products.id", productIds)
-        .where("products.status", "<>", "deactivated");
+        .where("products.status", "<>", "deactivated")
+        .orderBy('products.updatedAt', 'DESC')
 
       return res.status(200).send({
         message: "successful",
@@ -674,8 +681,9 @@ class ProductsController {
         .select(...ListSupplierEntity, ...dbEntity.productEntity)
         .join("categories", "categories.id", "products.categoryId")
         .join("suppliers", "suppliers.id", "categories.supplierId")
-        .where("status", status);
-      console.log(data)
+        .where("status", status)
+        .orderBy('products.updatedAt', 'DESC');
+      // console.log(data)
 
       return res.status(200).send({
         message: "successful",
@@ -712,7 +720,8 @@ class ProductsController {
         .join("categories", "categories.id", "products.categoryId")
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .whereBetween("products.createdAt", [sunday, saturday])
-        .andWhere("products.status", "<>", "deactivated");
+        .andWhere("products.status", "<>", "deactivated")
+        .orderBy('products.updatedAt', 'DESC');
       console.log(data);
       return res.status(200).send({
         message: "successful",

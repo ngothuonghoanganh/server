@@ -253,6 +253,7 @@ class Campaign {
           )
           .whereIn("campaigns.productId", productIds)
           .groupBy("campaigns.id")
+          .orderBy('campaigns.updatedAt', 'DESC')
         : await Campaigns.query()
           .select(
             "campaigns.*",
@@ -267,7 +268,9 @@ class Campaign {
             "campaignOrders.campaignId"
           )
 
-          .groupBy("campaigns.id");
+          .groupBy("campaigns.id")
+          .orderBy('campaigns.updatedAt', 'DESC')
+
 
       return res.status(200).send({
         data: campaigns,
@@ -295,7 +298,8 @@ class Campaign {
         .leftJoin("campaignOrders", "campaigns.id", "campaignOrders.campaignId")
         .whereIn("campaigns.productId", productIds)
         .andWhere("campaigns.status", status)
-        .groupBy("campaigns.id");
+        .groupBy("campaigns.id")
+        .orderBy('campaigns.updatedAt', 'DESC');
       // for (const element of campaigns) {
       //   if (element.isshare) {
       //     const campaignDetails = await CampaignDetail.query()
@@ -346,7 +350,8 @@ class Campaign {
           )
         )
         .join("products", "campaigns.productId", "products.id")
-        .whereIn(`products.id`, productIds);
+        .whereIn(`products.id`, productIds)
+        .orderBy('campaigns.updatedAt', 'DESC');
 
       return res.status(200).send({
         data: campaigns,
@@ -571,6 +576,7 @@ class Campaign {
         .groupBy("products.id")
         .groupBy('categories.supplierId')
         .groupBy('suppliers.name')
+        .orderBy('campaigns.updatedAt', 'DESC');
 
       return res.status(200).send({
         message: "successful",
@@ -609,7 +615,8 @@ class Campaign {
         .where("campaigns.toDate", "<", value)
         .andWhere("campaigns.status", "active")
         .groupBy("campaigns.id")
-        .groupBy("products.id");
+        .groupBy("products.id")
+        .orderBy('campaigns.updatedAt', 'DESC');
 
       const orderCampaign: any = await CampaignOrder.query()
         .select(

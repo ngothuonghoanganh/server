@@ -1550,7 +1550,8 @@ class OrderController {
         // .where("campaigns.supplierid", userId)
         .where("campaigns.id", campaignId)
         .andWhere('campaignOrders.status', '<>', 'notAdvanced')
-        .groupBy("campaignOrders.id");
+        .groupBy("campaignOrders.id")
+        .orderBy('campaignOrders.updatedAt', 'DESC');
 
       return res.status(200).send({
         message: "successful",
@@ -1987,11 +1988,12 @@ class OrderController {
         .join("campaigns", "campaigns.id", "campaignOrders.campaignId")
         .where("campaignOrders.status", status)
         .groupBy("campaignOrders.id")
-        .groupBy("campaigns.id");
+        .groupBy("campaigns.id")
+        .orderBy('campaignOrders.updatedAt', 'DESC');
 
       orders.push(...ordersInCampaign);
 
-      console.log(orders);
+      // console.log(orders);
       for (const element of orders) {
         const productId = element.details[0].productId;
         const { supplierId }: any = await Products.query()
