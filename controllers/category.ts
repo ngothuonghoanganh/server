@@ -31,7 +31,7 @@ class CategoriesController {
       const List: any = await Categories.query()
         .select(...Entity.categoryEntity)
         .where("isDeleted", false)
-        .andWhere("supplierId", id);
+        .andWhere("supplierId", id).orderBy('categories.updatedAt', 'DESC')
 
 
       for (const item of List) {
@@ -51,14 +51,12 @@ class CategoriesController {
   public getAllCateByQuery = async (req: any, res: any, next: any) => {
     try {
       const { supplierId } = req.query;
-      // console.log(userId)
       const List: any = await Categories.query()
         .select(...dbEntity.categoryEntity)
-        // .where('isDeleted', false)
         .join('products', 'products.categoryId', 'categories.id')
-        .where('categories.supplierId', supplierId)
+        .where('categories.supplierId', supplierId).orderBy('categories.updatedAt', 'DESC')
 
-      // console.log(List)
+
       for (const item of List) {
         const numOfProduct: any = await Products.query().select().count().where('categoryId', item.id).first();
         item.numOfProduct = numOfProduct.count;
@@ -126,7 +124,7 @@ class CategoriesController {
       const List = await Categories.query()
         .select(...dbEntity.categoryEntity)
         .where("isDeleted", false)
-        .andWhere("userId", userId);
+        .andWhere("userId", userId).orderBy('updatedAt', 'DESC')
       return res.status(200).send({
         data: List,
         message: "got the list categories",
