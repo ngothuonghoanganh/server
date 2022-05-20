@@ -1122,7 +1122,7 @@ class OrderController {
 
         //send notif for supp
         let accountIdSupp = await Suppliers.query()
-          .select("accountid")
+          .select("accountId")
           .where("id", supplierId)
           .first();
 
