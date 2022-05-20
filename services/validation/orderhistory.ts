@@ -20,4 +20,5 @@ export const bodyOrderUpdateStatusSchema = Joi.object({
   description: Joi.string().required(),
   image: Joi.array().required(),
   status: Joi.string().required(),
+  supplierId: Joi.string().required(),
 });
