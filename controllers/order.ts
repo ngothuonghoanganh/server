@@ -1965,7 +1965,7 @@ class OrderController {
 
       const ordersInCampaign = await CampaignOrder.query()
         .select(
-          ...dbEntity.campaignEntity,
+          ...dbEntity.campaignOrderEntity,
           CampaignOrder.raw(
             `(select "customers"."firstName" as customerfirstname from customers where customers.id = "campaignOrders"."customerId"),
             (select "customers"."lastName" as customerlastname from customers where customers.id = "campaignOrders"."customerId"),
