@@ -470,7 +470,7 @@ class ProductsController {
         })
         
         .groupBy("campaigns.productId").orderBy('campaignOrders.updatedAt', 'DESC')
-
+        .groupBy("campaignOrders.updatedAt");
 
       const retailOrder: any = await OrderDetail.query()
         .select(
@@ -487,6 +487,7 @@ class ProductsController {
           ).orWhere('orderDetails.comment', '<>', disableValue);
         })
         .groupBy("orderDetails.productId").orderBy('orderDetails.updatedAt', 'DESC')
+        .groupBy("orderDetails.updatedAt");
         
 
       // const listRating = await Comments.query()
