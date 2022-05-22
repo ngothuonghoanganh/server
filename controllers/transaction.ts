@@ -196,9 +196,9 @@ class TransactionController {
       const transactions = await Transaction
         .query()
         .select(...dbEntity.transactionEntity, "suppliers.name")
-        .join("suppliers", "suppliers.id", "transaction.supplierId")
+        .join("suppliers", "suppliers.id", "transactions.supplierId")
         // .where("transaction.type", "")
-        .where("transaction.status", "waiting");
+        .where("transactions.status", "waiting");
       return res.render("transaction", {
         body: "hello",
         transactions
