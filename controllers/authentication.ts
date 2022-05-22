@@ -104,6 +104,11 @@ class Authentication {
   public protected = async (req: any, res: any, next: any) => {
     try {
       const token = req.cookies.jwt || req.headers.cookie;
+      if (!token && !req.cookies.jwt) {
+        return res.status(200).send({
+          redirectUrl: '/login'
+        })
+      }
       if (!token) {
         return res
           .status(401)
@@ -252,7 +257,7 @@ class Authentication {
         .select(...Entity.roleEntity)
         .where("roleName", roleName)
         .first();
-      
+
       const newAccount = await Accounts.query().insert({
         username: username,
         password: password,

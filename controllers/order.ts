@@ -367,7 +367,7 @@ class OrderController {
         orderValue: order.totalprice -
           (order.discountprice || 0) -
           (order.advancefee || 0),
-        isWithdrawable: false,
+        isWithdrawable: true,
         type: "orderTransaction",
         description: `${order.ordercode} is completed.`,
         status: "active",

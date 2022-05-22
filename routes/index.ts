@@ -8,6 +8,7 @@ const validator = createValidator();
 //lấy schema từ validation trong services
 import { querySchema } from "../services/validation/index";
 import Payment from "../controllers/payment";
+import transaction from "../controllers/transaction";
 import { createClient } from "redis";
 
 const router = express.Router();
@@ -15,23 +16,21 @@ const router = express.Router();
 router.get(
   "/",
   authentication.protected,
-  // authentication.checkRole(["Supplier", "Customer"]),
-  //thêm validator được xác thực bơi schema vào middleware
-  // validator.query(querySchema),
   async (req: any, res: any, next) => {
     try {
-      // const client = createClient();
-      // client.on("error", (err) => console.log("Redis Client Error", err));
-      // await client.connect();
-      // await client.set(
-      //   "test",
-      //   JSON.stringify({
-      //     test: "successful",
-      //   })
-      // );
-      console.log(req.user);
-      // console.log(await client.get("query"));
-      return res.status(200).send("test commit 1");
+      const paymentlink = transaction.createPaymentLink({
+        bankcode: "NCB",
+        orderDescription: "test",
+        ordertype: "total income",
+        amount: 1000000,
+        language: "",
+        transactionId: "849adec7-2527-4391-b38d-caca7caf027f",
+        vnp_ReturnUrl: process.env.vnp_ReturnUrl,
+        vnp_HashSecret: process.env.vnp_HashSecret,
+        vnp_Url: process.env.vnp_Url,
+        vnp_TmnCode: process.env.vnp_TmnCode
+      });
+      return res.redirect(paymentlink)
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
