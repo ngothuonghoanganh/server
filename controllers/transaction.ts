@@ -294,7 +294,7 @@ class TransactionController {
         orderCode: orderCode,
         orderId: orderId
       });
-      
+
       res.writeHead(301,
         { Location: paymentLink }
       );
@@ -409,7 +409,8 @@ class TransactionController {
   confirmTransactionRequest = async (req: any, res: any) => {
     try {
       const { transactionId, orderCode, orderId, orderType } = req.query
-      if (transactionId && transactionId !== undefined) {
+      console.log(transactionId)
+      if (transactionId && transactionId !== undefined && transactionId !== "undefined") {
         await Transaction.query().update({
           status: "done",
           isWithdrawable: false
@@ -421,7 +422,7 @@ class TransactionController {
           return res.status(200).send("successful")
         }
       }
-      if (orderCode && orderId && orderCode !== undefined && orderId !== undefined) {
+      if (orderCode && orderId && orderCode !== undefined && orderId !== undefined && orderCode !== "undefined" && orderId !== "undefined") {
         if (orderType === "retail") {
           orderStatusHistoryController.createHistory({
             orderStatus: "successRefund",
@@ -439,9 +440,10 @@ class TransactionController {
             description: "is refunded",
           } as OrderStatusHistory);
         }
+        return res.redirect("/process-transaction/cusotmer")
       }
 
-      return res.redirect("/process-transaction")
+      return res.redirect("/process-transaction/supplier")
     } catch (error) {
       console.log(error);
       return res
