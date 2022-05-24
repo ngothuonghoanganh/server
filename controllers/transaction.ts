@@ -294,8 +294,12 @@ class TransactionController {
         orderCode: orderCode,
         orderId: orderId
       });
+      res.writeHead(301,
+        { Location: paymentLink }
+      );
 
-      return res.redirect(paymentLink)
+      return res.end()
+      // return res.redirect(paymentLink)
     } catch (error) {
       console.log(error);
       return res
