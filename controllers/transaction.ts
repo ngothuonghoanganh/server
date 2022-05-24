@@ -222,6 +222,9 @@ class TransactionController {
 
   public processTransactionCustomer = async (req: any, res: any) => {
     try {
+      const orderIsRefunded = await OrderStatusHistory.query().select().where("orderStatus", "successRefund")
+      const orderCodeIsRefunded = orderIsRefunded.map(item => item.orderCode)
+
       const orders: any = await Order.query()
         .select(
           ...dbEntity.orderEntity,
@@ -230,8 +233,8 @@ class TransactionController {
           )
         )
         .join("orderStatusHistories", "orders.id", "orderStatusHistories.retailOrderId")
-        .where("orderStatusHistories.orderStatus", "requestRefund")
-        .andWhere("orderStatusHistories.orderStatus", "<>", "successRefund")
+        .whereNotIn("orders.orderCode", orderCodeIsRefunded)
+        .andWhere("orderStatusHistories.orderStatus", "requestRefund")
         .groupBy("orders.id")
 
       const campaignOrders: any = await CampaignOrder.query()
@@ -242,8 +245,8 @@ class TransactionController {
           )
         )
         .join("orderStatusHistories", "campaignOrders.id", "orderStatusHistories.campaignOrderId")
-        .where("orderStatusHistories.orderStatus", "requestRefund")
-        .andWhere("orderStatusHistories.orderStatus", "<>", "successRefund")
+        .whereNotIn("campaignOrders.orderCode", orderCodeIsRefunded)
+        .andWhere("orderStatusHistories.orderStatus", "requestRefund")
         .groupBy("campaignOrders.id")
 
       orders.push(...campaignOrders)
