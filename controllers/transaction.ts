@@ -5,6 +5,11 @@ import QueryString from "qs";
 import crypto from "crypto";
 import moment from "moment";
 import dbEntity from "../services/dbEntity";
+import { Order } from "../models/orders";
+import { Customers } from "../models/customers";
+import { CampaignOrder } from "../models/campaingorder";
+import orderStatusHistoryController from "./orderStatusHistoryController";
+import { OrderStatusHistory } from "../models/orderstatushistory";
 
 class TransactionController {
   public createTransaction = async (transaction: Transaction) => {
@@ -66,7 +71,10 @@ class TransactionController {
     vnp_ReturnUrl,
     vnp_HashSecret,
     vnp_Url,
-    vnp_TmnCode
+    vnp_TmnCode,
+    orderCode,
+    orderId,
+    type
   }: any) => {
     try {
       const ipAddr = "13.215.133.39";
@@ -95,7 +103,7 @@ class TransactionController {
         vnp_TxnRef: moment(date).format("HHmmss"),
         vnp_OrderInfo: orderInfo,
         vnp_OrderType: orderType,
-        vnp_ReturnUrl: returnUrl + `/transaction/payment?transactionId=${transactionId}`,
+        vnp_ReturnUrl: returnUrl + `/transaction/payment?transactionId=${transactionId}&orderCode=${orderCode}&orderId=${orderId}&orderType=${type}`,
         vnp_Amount: amount * 100,
         vnp_IpAddr: ipAddr,
         vnp_CreateDate: moment(date).format("yyyyMMDDHHmmss")
@@ -191,13 +199,12 @@ class TransactionController {
     }
   };
 
-  public processTransaction = async (req: any, res: any) => {
+  public processTransactionSupplier = async (req: any, res: any) => {
     try {
       const transactions = await Transaction
         .query()
         .select(...dbEntity.transactionEntity, "suppliers.name")
         .join("suppliers", "suppliers.id", "transactions.supplierId")
-        // .where("transaction.type", "")
         .where("transactions.status", "waiting");
       return res.render("transaction", {
         body: "hello",
@@ -212,6 +219,93 @@ class TransactionController {
         });
     }
   };
+
+  public processTransactionCustomer = async (req: any, res: any) => {
+    try {
+      const orders: any = await Order.query()
+        .select(
+          ...dbEntity.orderEntity,
+          Order.raw(
+            `json_agg(to_jsonb("orderStatusHistories") - 'retailOrderId') as histories`
+          )
+        )
+        .join("orderStatusHistories", "orders.id", "orderStatusHistories.retailOrderId")
+        .where("orderStatusHistories.orderStatus", "requestRefund")
+        .andWhere("orderStatusHistories.orderStatus", "<>", "successRefund")
+        .groupBy("orders.id")
+
+      const campaignOrders: any = await CampaignOrder.query()
+        .select(
+          ...dbEntity.campaignOrderEntity,
+          Order.raw(
+            `json_agg(to_jsonb("orderStatusHistories") - 'campaignOrderId') as histories`
+          )
+        )
+        .join("orderStatusHistories", "campaignOrders.id", "orderStatusHistories.campaignOrderId")
+        .where("orderStatusHistories.orderStatus", "requestRefund")
+        .andWhere("orderStatusHistories.orderStatus", "<>", "successRefund")
+        .groupBy("campaignOrders.id")
+
+      orders.push(...campaignOrders)
+
+      for (const order of orders) {
+        const customer = await Customers.query().select().where("id", order.customerid).first()
+        order.customer = customer
+      }
+
+      return res.render("transactionRefundCustomer", {
+        body: "Customer",
+        orders
+      })
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(400)
+        .send({
+          message: error
+        });
+    }
+  }
+
+  public processTransaction = async (req: any, res: any) => {
+    try {
+      const {
+        amount,
+        ewalletsecret,
+        ewalletcode,
+        bankCode,
+        orderDescription,
+        orderType,
+        orderCode,
+        orderId,
+        type } = req.query
+
+      const paymentLink = this.createPaymentLink({
+        bankcode: bankCode,
+        orderDescription: orderDescription,
+        ordertype: orderType,
+        amount: amount,
+        language: "",
+        vnp_ReturnUrl: process.env.vnp_ReturnUrl,
+        vnp_HashSecret: ewalletsecret,
+        vnp_Url: process.env.vnp_Url,
+        vnp_TmnCode: ewalletcode,
+        type: type,
+        orderCode: orderCode,
+        orderId: orderId
+      });
+      console.log(paymentLink)
+
+      return res.redirect(paymentLink)
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(400)
+        .send({
+          message: error
+        });
+    }
+  }
 
   public createWithdrawableRequest = async (req: any, res: any) => {
     try {
@@ -310,18 +404,41 @@ class TransactionController {
 
   confirmTransactionRequest = async (req: any, res: any) => {
     try {
-      const { transactionId } = req.query
+      const { transactionId, orderCode, orderId, orderType } = req.query
+      if (transactionId) {
 
-      await Transaction.query().update({
-        status: "done",
-        isWithdrawable: false
-      }).where("id", transactionId)
+        await Transaction.query().update({
+          status: "done",
+          isWithdrawable: false
+        }).where("id", transactionId)
 
-      const transaction = await Transaction.query().select().where("id", transactionId).first()
+        const transaction = await Transaction.query().select().where("id", transactionId).first()
 
-      if (transaction.type === "penalty") {
-        return res.status(200).send("successful")
-      } else return res.redirect("/process-transaction")
+        if (transaction.type === "penalty") {
+          return res.status(200).send("successful")
+        }
+      }
+      if (orderCode && orderId) {
+        if (orderType === "retail") {
+          orderStatusHistoryController.createHistory({
+            orderStatus: "successRefund",
+            type: "retail",
+            retailOrderId: orderId,
+            orderCode: orderCode,
+            description: "is refunded",
+          } as OrderStatusHistory);
+        } else {
+          orderStatusHistoryController.createHistory({
+            orderStatus: "successRefund",
+            type: "campaign",
+            campaignOrderId: orderId,
+            orderCode: orderCode,
+            description: "is refunded",
+          } as OrderStatusHistory);
+        }
+      }
+
+      return res.redirect("/process-transaction")
     } catch (error) {
       console.log(error);
       return res
