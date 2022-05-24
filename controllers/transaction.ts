@@ -440,7 +440,7 @@ class TransactionController {
             description: "is refunded",
           } as OrderStatusHistory);
         }
-        return res.redirect("/process-transaction/cusotmer")
+        return res.redirect("/process-transaction/customer")
       }
 
       return res.redirect("/process-transaction/supplier")
