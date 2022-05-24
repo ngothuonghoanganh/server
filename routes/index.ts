@@ -10,6 +10,8 @@ import { querySchema } from "../services/validation/index";
 import Payment from "../controllers/payment";
 import transaction from "../controllers/transaction";
 import { createClient } from "redis";
+import { Transaction } from "../models/transaction";
+import moment from "moment";
 
 const router = express.Router();
 
@@ -39,5 +41,54 @@ router.get(
 );
 
 router.post("/", Payment.createPayment);
+
+router.get("/statistical/supplier", authentication.protected, async (req: any, res: any, next) => {
+  try {
+
+    const supplierId = req.user.id
+    const startDateInMonth = moment().startOf("M")
+    const endDateInMonth = moment().endOf("M")
+
+    const [orders, income, totalIncomeInThisMonth, totalOrderInThisMonth] = await Promise.all([Transaction.query().select(Transaction.raw(` 
+    to_char(date_trunc('month', "createdAt"), 'YYYY') AS year,
+    to_char(date_trunc('month', "createdAt"), 'Mon') AS month,
+    to_char(date_trunc('month', "createdAt"), 'MM') AS "monthNumber",
+    count(*) as totalOrders`))
+      .where("type", "orderTransaction")
+      .andWhere("supplierId", supplierId)
+      .groupBy("year", "month", "monthNumber"),
+    Transaction.query().select(Transaction.raw(` 
+      to_char(date_trunc('month', "createdAt"), 'YYYY') AS year,
+      to_char(date_trunc('month', "createdAt"), 'Mon') AS month,
+      to_char(date_trunc('month', "createdAt"), 'MM') AS "monthNumber",
+      sum(amount) as totalIncome`))
+      .where("type", "orderTransaction")
+      .andWhere("supplierId", supplierId)
+      .groupBy("year", "month", "monthNumber"),
+    Transaction.query()
+      .select().sum("amount")
+      .whereBetween("createdAt", [startDateInMonth, endDateInMonth])
+      .andWhere("supplierId", supplierId)
+      .andWhere("type", "orderTransaction")
+      .first(),
+    Transaction.query()
+      .select().count("*")
+      .whereBetween("createdAt", [startDateInMonth, endDateInMonth])
+      .andWhere("supplierId", supplierId)
+      .andWhere("type", "orderTransaction")
+      .first()
+    ])
+
+    return res.status(200).send({
+      orders,
+      income,
+      totalIncomeInThisMonth,
+      totalOrderInThisMonth
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ message: error });
+  }
+})
 
 export default router;
