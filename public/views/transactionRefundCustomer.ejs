@@ -52,7 +52,7 @@
         amount=parseFloat((element.totalprice - element.discountprice) + (element.paymentmethod !== "cod" && parseFloat(element.shippingfee))) 
         if (!element.paymentid && element.advancedid) { 
           amount=parseFloat( parseFloat( element.advancefee ) + (element.paymentmethod !== "cod" && parseFloat(element.shippingfee)) ) } 
-        const link = `/process-transaction?amount=${amount}&ewalletsecret=${element.customer.eWalletSecret}&ewalletcode=${element.customer.eWalletCode}&bankCode=NCB&orderDescription=${element.ordercode}&orderType=orderFinalization&orderCode=${element.ordercode}&orderId=${element.id}&type=${element.advancedid && "campaign"}`
+        const link = `http://13.215.133.39:3000/process-transaction?amount=${amount}&ewalletsecret=${element.customer.eWalletSecret}&ewalletcode=${element.customer.eWalletCode}&bankCode=NCB&orderDescription=${element.ordercode}&orderType=orderFinalization&orderCode=${element.ordercode}&orderId=${element.id}&type=${element.advancedid && "campaign"}`
         %>
           <tr>
             <td>

@@ -294,6 +294,7 @@ class TransactionController {
         orderCode: orderCode,
         orderId: orderId
       });
+      
       res.writeHead(301,
         { Location: paymentLink }
       );
