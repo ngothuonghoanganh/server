@@ -24,7 +24,6 @@ class LoyalcustomerController {
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });
-
     }
   };
 
@@ -38,6 +37,7 @@ class LoyalcustomerController {
           minOrder: minOrder,
           minProduct: minProduct,
           discountPercent: discountPercent,
+          name: name,
         })
         .where("id", id);
 

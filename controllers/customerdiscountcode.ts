@@ -30,7 +30,8 @@ class CustomerDiscountCodeController {
     public getListDiscountCodeByStatus = async (req: any, res: any, next: any) => {
         try {
             const status = req.query.status;
-            const customerId = req.user.id
+            const customerId = req.user.id;
+         
             const ListEntity = [
                 'customerDiscountCodes.customerId as customerid',
                 'customerDiscountCodes.id as id',
@@ -91,13 +92,9 @@ class CustomerDiscountCodeController {
                 return res.status(200).send('discount code is used')
             }
 
-            const currentDiscountCodeId: any = await CustomerDiscountCode.query()
-                .select('discountCodeId')
-                .where('id', customerDiscountCodeId)
-                .first()
             return res.status(200).send({
                 message: 'successful',
-                data: currentDiscountCodeId
+                data: updateStatusForCusDiscountCode
             })
         } catch (error) {
             console.log(error)
@@ -117,6 +114,15 @@ class CustomerDiscountCodeController {
                 'customerDiscountCodes.discountCodeId as discountcodeid',
                 'customerDiscountCodes.status as customerdiscountcodestatus',
             ]
+            let ListSupplierEntity = [
+                "suppliers.id as supplierid",
+                "suppliers.accountId as accountid",
+                "suppliers.name as suppliername",
+                "suppliers.email as supplieremail",
+                "suppliers.avt as supplieravt",
+                "suppliers.isDeleted as supplierisdeleted",
+                "suppliers.address as supplieraddress",
+            ];
 
             const discountCodeEntity = [
                 'discountCodes.supplierId as supplierid',
@@ -132,7 +138,7 @@ class CustomerDiscountCodeController {
             ]
 
             const ListCusDiscountCode = await CustomerDiscountCode.query()
-                .select(discountCodeEntity, ...ListEntity)
+                .select(...discountCodeEntity, ...ListEntity,...ListSupplierEntity)
                 .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
                 .where('discountCodes.supplierId', suppId)
                 .andWhere('discountCodes.minimumPriceCondition', '<=', minPriceCondition)
