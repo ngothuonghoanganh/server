@@ -92,13 +92,9 @@ class CustomerDiscountCodeController {
                 return res.status(200).send('discount code is used')
             }
 
-            const currentDiscountCodeId: any = await CustomerDiscountCode.query()
-                .select('discountCodeId')
-                .where('id', customerDiscountCodeId)
-                .first()
             return res.status(200).send({
                 message: 'successful',
-                data: currentDiscountCodeId
+                data: updateStatusForCusDiscountCode
             })
         } catch (error) {
             console.log(error)
