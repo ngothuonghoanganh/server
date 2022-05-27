@@ -120,23 +120,23 @@ class Campaign {
         advanceFee = 0,
         range = [],
       } = req.body;
-      if (isShare) {
-        let availableCampaign = null;
-        availableCampaign = await Campaigns.query()
-          .select()
-          .where("productId", productId)
-          .andWhere("isShare", true)
-          .andWhere("toDate", ">", fromdate)
-          .andWhere("fromDate", "<", todate)
-          .andWhere((cd) => {
-            cd.where("status", "ready").orWhere("status", "active");
-          });
-        if (availableCampaign.length > 0) {
-          return res.status(200).send({
-            message: "There is another campaign set during this time",
-          });
-        }
-      }
+      // if (isShare) {
+      //   let availableCampaign = null;
+      //   availableCampaign = await Campaigns.query()
+      //     .select()
+      //     .where("productId", productId)
+      //     .andWhere("isShare", true)
+      //     .andWhere("toDate", ">", fromdate)
+      //     .andWhere("fromDate", "<", todate)
+      //     .andWhere((cd) => {
+      //       cd.where("status", "ready").orWhere("status", "active");
+      //     });
+      //   if (availableCampaign.length > 0) {
+      //     return res.status(200).send({
+      //       message: "There is another campaign set during this time",
+      //     });
+      //   }
+      // }
 
       let campaign: any = null;
       campaign = await Campaigns.query()
