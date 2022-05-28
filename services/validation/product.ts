@@ -9,7 +9,7 @@ export const createBodyProductSchema = Joi.object({
   categoryId: Joi.string().allow(null).allow(""),
   status: Joi.string().allow(null).allow(""),
   typeofproduct: Joi.string().allow(null).allow(""),
-  weight: Joi.number().integer().min(0),
+  weight: Joi.number().min(0),
 });
 
 export const paramProductIdSchema = Joi.object({
@@ -54,7 +54,7 @@ export const updateBodyProductSchema = Joi.object({
   categoryId: Joi.string().allow(null).allow(""),
   status: Joi.string().allow(null).allow(""),
   typeofproduct: Joi.string().allow(null).allow(""),
-  weight: Joi.number().integer().min(0),
+  weight: Joi.number().min(0),
 });
 
 
