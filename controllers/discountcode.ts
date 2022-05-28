@@ -26,7 +26,7 @@ class DiscountCodeController {
                 discountPrice
             } = req.body;
             let quantity = listLoyalCustomer.length;
-            console.log(listLoyalCustomer)
+            console.log(req.body)
             const newDiscountcode: any = await DiscountCode.query()
                 .insert({
                     supplierId: id,
@@ -37,7 +37,7 @@ class DiscountCodeController {
                     quantity: quantity,
                     status: status,
                     // productid: productId,
-                    minimumPriceCondition: minimumPriceCondition,
+                    minimumPriceCondition,
                     discountPrice: discountPrice
                 })
             for (const item of listLoyalCustomer) {
