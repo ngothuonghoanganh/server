@@ -118,9 +118,9 @@ class Authentication {
       const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
       if (verify.rolename === "Supplier") {
         const account = await Accounts.query().select().where("id", verify.userid).first();
-        if (!account.isDeleted) {
+        if (account.isDeleted) {
           return res.status(200).send({
-            redirectUrl: '/deactived'
+            redirectUrl: '/deactivated'
           })
         }
         currentUser = await Suppliers.query()
