@@ -6,7 +6,6 @@ import { createValidator } from "express-joi-validation";
 
 
 const router = express.Router();
-const validator = createValidator();
 
 router.post("/", authentication.protected, loyalCustomerController.create);
 router.get("/", authentication.protected, loyalCustomerController.getAll);
