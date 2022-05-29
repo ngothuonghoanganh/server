@@ -240,5 +240,17 @@ class Entity {
     "addresses.createdAt as createdat",
     "addresses.updatedAt as updatedat",
   ]
+
+  loyaCustomerConditionEntity=[
+    "loyalCustomerConditions.id as id",
+    "loyalCustomerConditions.supplierId as supplierid",
+    "loyalCustomerConditions.minOrder as minorder",
+    "loyalCustomerConditions.minProduct as minproduct",
+    "loyalCustomerConditions.discountPercent as discountpercent",
+    "loyalCustomerConditions.createdAt as createdat",
+    "loyalCustomerConditions.updatedAt as updatedat",
+    "loyalCustomerConditions.name as name",
+
+  ]
 }
 export default new Entity();
