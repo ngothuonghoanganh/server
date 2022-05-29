@@ -13,7 +13,7 @@ export class DiscountCode extends Model {
   code?: string;
   description?: string;
   minimumPriceCondition?: Number;
-  startDate?: Date;
+  // startDate?: Date;
   endDate?: Date;
   quantity?: Number;
   createdAt?: Date;
