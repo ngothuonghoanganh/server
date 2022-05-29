@@ -679,7 +679,6 @@ class Campaign {
         .select()
         .where("campaignId", campaignId)
         .andWhere("status", "advanced");
-
       if (ordersInCampaign) {
         const orderId = ordersInCampaign.map((item: any) => item.id);
         await Promise.all([
@@ -706,6 +705,7 @@ class Campaign {
           .select()
           .where("productId", campaign.productId)
           .andWhere("status", "active");
+          // console.log(getCampaigns)
 
         if (getCampaigns.length === 0) {
           await Products.query()
@@ -727,7 +727,7 @@ class Campaign {
 
           const customer = await Customers.query()
             .select()
-            .where("id", item.customerid)
+            .where("id", item.customerId)
             .first();
 
           if (item.paymentMethod === "online") {

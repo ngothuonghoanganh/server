@@ -1836,6 +1836,7 @@ class OrderController {
           (acc: any, curr: any) => parseInt(acc) + parseInt(curr.quantity),
           0
         );
+        console.log(currentQuantity)
         let campaign;
         if (isShare) {
           campaign = await Campaigns.query()
@@ -1843,13 +1844,23 @@ class OrderController {
             .where("id", campaignId)
             .andWhere("maxQuantity", "<=", currentQuantity)
             .first();
+          console.log('isShare TRUE')
+
         } else {
           campaign = await Campaigns.query()
             .select()
             .where("id", campaignId)
             .andWhere("quantity", "<=", currentQuantity)
             .first();
+          console.log('isShare FALSE')
+
+
         }
+        console.log(campaign)
+        console.log(isShare)
+        console.log(campaignId)
+
+
         if (campaign) {
           const orderId = ordersInCampaign.map((item: any) => item.id);
           await Promise.all([
@@ -1887,33 +1898,34 @@ class OrderController {
           for (const item of ordersInCampaign) {
             orderStatusHistoryController.createHistory({
               orderStatus:
-                item.paymentmethod === "online" ? "unpaid" : "created",
+                item.paymentMethod === "online" ? "unpaid" : "created",
               type: "campaign",
               campaignOrderId: item.id,
-              orderCode: item.ordercode,
+              retailOrderId: type === 'retail' ? item.id : null,
+              orderCode: item.orderCode,
               description:
-                item.paymentmethod === "online"
+                item.paymentMethod === "online"
                   ? "requires full payment via VNPAY E-Wallet"
                   : "is created",
             } as OrderStatusHistory);
 
             const customer = await Customers.query()
               .select()
-              .where("id", item.customerid)
+              .where("id", item.customerId)
               .first();
 
             if (item.paymentMethod === "online") {
               notif.sendNotiForWeb({
                 userId: customer.accountId,
-                link: item.ordercode,
-                message: "Order " + item.ordercode + " has been set to unpaid",
+                link: item.orderCode,
+                message: "Order " + item.orderCode + " has been set to unpaid",
                 status: "unread",
               });
             } else {
               notif.sendNotiForWeb({
                 userId: customer.accountId,
-                link: item.ordercode,
-                message: "Order " + item.ordercode + " has been set to created",
+                link: item.orderCode,
+                message: "Order " + item.orderCode + " has been set to created",
                 status: "unread",
               });
             }
