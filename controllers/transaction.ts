@@ -10,6 +10,7 @@ import { Customers } from "../models/customers";
 import { CampaignOrder } from "../models/campaingorder";
 import orderStatusHistoryController from "./orderStatusHistoryController";
 import { OrderStatusHistory } from "../models/orderstatushistory";
+import { Pricing } from "../models/pricing";
 
 class TransactionController {
   public createTransaction = async (transaction: Transaction) => {
@@ -149,10 +150,13 @@ class TransactionController {
 
   public getTransaction = async (req: any, res: any) => {
     try {
+
       const [account,
         income,
         penalty,
-        transactionHistory
+        transactionHistory,
+        pricingActive,
+        pricingHistory
       ] = await Promise.all([
         Transaction
           .query()
@@ -175,7 +179,9 @@ class TransactionController {
           .query()
           .select(...dbEntity.transactionEntity)
           .where("supplierId", req.user.id)
-          .andWhere("type", "orderTransaction")
+          .andWhere("type", "orderTransaction"),
+        Pricing.query().select().where("status", "active").first(),
+        Pricing.query().select()
       ]);
 
       return res
@@ -186,7 +192,9 @@ class TransactionController {
             account,
             income,
             penalty,
-            transactionHistory
+            transactionHistory,
+            pricingActive: pricingActive || {},
+            pricingHistory
           }
         });
     } catch (error) {
@@ -328,12 +336,12 @@ class TransactionController {
         orderDescription,
         orderType
       } = req.body;
-      if(!ewalletcode || !ewalletsecret){
+      if (!ewalletcode || !ewalletsecret) {
         res
-        .status(400)
-        .send({
-          message: 'ewallet secret and ewallet code not found! Please update it',
-        });
+          .status(400)
+          .send({
+            message: 'ewallet secret and ewallet code not found! Please update it',
+          });
       }
 
       const paymentLink = this.createPaymentLink({
@@ -348,12 +356,12 @@ class TransactionController {
         vnp_Url: process.env.vnp_Url,
         vnp_TmnCode: ewalletcode
       });
-      if(!paymentLink){
+      if (!paymentLink) {
         res
-        .status(400)
-        .send({
-          message: 'ewallet secret and ewallet code are invalid! Please update it',
-        });
+          .status(400)
+          .send({
+            message: 'ewallet secret and ewallet code are invalid! Please update it',
+          });
       }
 
       const transaction = await Transaction.query().select().where("id", transactionId).first()
