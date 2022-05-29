@@ -117,11 +117,23 @@ class Authentication {
       let currentUser;
       const verify: any = jwt.verify(token, process.env.JWT_SECRET as string);
       if (verify.rolename === "Supplier") {
+        const account = await Accounts.query().select().where("id", verify.userid).first();
+        if (!account.isDeleted) {
+          return res.status(200).send({
+            redirectUrl: '/deactived'
+          })
+        }
         currentUser = await Suppliers.query()
           .select(...Entity.supplierEntity)
           .where("accountId", verify.userid)
           .andWhere("isDeleted", false)
           .first();
+
+        if (!currentUser) {
+          return res.status(200).send({
+            redirectUrl: '/waiting-access'
+          })
+        }
       } else if (verify.rolename === "Customer") {
         currentUser = await Customers.query()
           .select(...Entity.customerEntity)
