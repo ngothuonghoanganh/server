@@ -198,11 +198,12 @@ class Supplier {
 
   public test = async (req: any, res: any) => {
     try {
-     console.log(req.user)
-      return res.status(200).send({
-        message: 'successful',
-        data: req.user
-      })
+      const campaign = await Campaigns.query()
+      .select()
+      .where("id", 'cdcac53f-1750-4b01-9992-f03f25538b10')
+      .andWhere("quantity", "<=", 110)
+      .first();
+      console.log(campaign)
     } catch (error) {
       console.log(error);
       return res.status(400).send({ message: error });

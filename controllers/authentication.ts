@@ -105,7 +105,7 @@ class Authentication {
     try {
       const token = req.cookies.jwt || req.headers.cookie;
       if (!token && !req.cookies.jwt) {
-        return res.status(200).send({
+        return res.status(401).send({
           redirectUrl: '/login'
         })
       }
