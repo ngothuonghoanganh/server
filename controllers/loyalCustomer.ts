@@ -93,8 +93,8 @@ class LoyalcustomerController {
 
   public getAll = async (req: any, res: any, next: any) => {
     try {
-      const data = await LoyalCustomerCondition.query().select(...dbEntity.loyalCustomerEntity);
-
+      const data = await LoyalCustomerCondition.query().select(...dbEntity.loyaCustomerConditionEntity);
+      console.log(data)
       return res.status(200).send({
         data: data,
         message: "successful",
