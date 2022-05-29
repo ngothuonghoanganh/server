@@ -328,6 +328,13 @@ class TransactionController {
         orderDescription,
         orderType
       } = req.body;
+      if(!ewalletcode || !ewalletsecret){
+        res
+        .status(400)
+        .send({
+          message: 'ewallet secret and ewallet code not found! Please update it',
+        });
+      }
 
       const paymentLink = this.createPaymentLink({
         bankcode: bankCode,
@@ -341,6 +348,13 @@ class TransactionController {
         vnp_Url: process.env.vnp_Url,
         vnp_TmnCode: ewalletcode
       });
+      if(!paymentLink){
+        res
+        .status(400)
+        .send({
+          message: 'ewallet secret and ewallet code are invalid! Please update it',
+        });
+      }
 
       const transaction = await Transaction.query().select().where("id", transactionId).first()
 
