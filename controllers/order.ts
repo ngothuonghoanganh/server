@@ -18,6 +18,7 @@ import { Customers } from "../models/customers";
 import notif from "../services/realtime/notification";
 import dbEntity from "../services/dbEntity";
 import { firestore } from "firebase-admin";
+import { Pricing } from "../models/pricing";
 
 class OrderController {
   public createOrder = async (req: any, res: any) => {
@@ -333,16 +334,18 @@ class OrderController {
         });
       }
 
+      const pricing = await Pricing.query().select().where("status", "active").first()
+
       transactionController.update({
         // ordercode: order.ordercode,
         supplierId: supp.supplierid,
         advanceFee: Transaction.raw(`"advanceFee" + ${order.advancefee || 0}`),
         platformFee: Transaction.raw(
-          `"platformFee" + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `"platformFee" + ${((order.totalprice - (order.discountprice || 0)) * (pricing.platformFeePercent as number || 0)) / 100
           }`
         ),
         paymentFee: Transaction.raw(
-          `"paymentFee" + ${((order.totalprice - (order.discountprice || 0)) * 2) / 100
+          `"paymentFee" + ${((order.totalprice - (order.discountprice || (pricing.paymentFeePercent as number || 0))) * 2) / 100
           }`
         ),
         orderValue: Transaction.raw(
@@ -362,8 +365,8 @@ class OrderController {
         orderCode: order.ordercode,
         supplierId: supp.supplierid,
         advanceFee: order.advancefee || 0,
-        platformFee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
-        paymentFee: ((order.totalprice - (order.discountprice || 0)) * 2) / 100,
+        platformFee: ((order.totalprice - (order.discountprice || 0)) * (pricing.platformFeePercent as number || 0)) / 100,
+        paymentFee: ((order.totalprice - (order.discountprice || 0)) * (pricing.paymentFeePercent as number || 0)) / 100,
         orderValue: order.totalprice -
           (order.discountprice || 0) -
           (order.advancefee || 0),
@@ -544,13 +547,15 @@ class OrderController {
           .first());
       if (cancelLinkRequestor === "Supplier") {
         if (order && order.status === "processing") {
+          const pricing = await Pricing.query().select().where("status", "active").first()
+
           transactionController.createTransaction({
             description:
               "charge money because Supplier cancel order in status: processing",
             isWithdrawable: false,
             type: "penalty",
             supplierId: supplierId,
-            penaltyFee: (order.totalprice || 0) * 0.2,
+            penaltyFee: (order.totalprice || 0) * ((pricing.platformFeePercent as number || 0) / 100),
             orderCode: orderCode || null,
           } as any);
         }
