@@ -112,7 +112,7 @@ class OrderController {
             return prev + next;
           }),
         orderCode: orderCode,
-        address: address?.street + " " + address?.province,
+        address: `${address.street}, ${address.ward}, ${address.district}, ${address.province}`,
       });
       let newOrderDetails: any = [];
       const details = [];
