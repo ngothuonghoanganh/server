@@ -15,6 +15,7 @@ import { OrderDetail } from "../models/orderdetail";
 import moment from "moment";
 import dbEntity from "../services/dbEntity";
 import campaign from "./campaign";
+import { Accounts } from "../models/accounts";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -43,6 +44,22 @@ class ProductsController {
         status: status,
         weight: weight
       });
+
+      if (prod) {
+        const inspectorAccounts = await Accounts.query().select()
+          .join("roles","accounts.roleId","roles.id")
+          .where("roles.roleName","Inspector")
+
+        for (const element of inspectorAccounts) {
+            notif.sendNotiForWeb({
+              userId: element.id,
+              link: prod.id,
+              message: "new product: " + prod.name + " has created",
+              status: "unread",
+            })
+        }
+      }
+
       return res.status(200).send({
         message: "successful",
         data: prod,
@@ -78,6 +95,22 @@ class ProductsController {
           data: 0,
         });
       }
+
+      if (productUpdated > 0) {
+        const inspectorAccounts = await Accounts.query().select()
+          .join("roles","accounts.roleId","roles.id")
+          .where("roles.roleName","Inspector")
+
+        for (const element of inspectorAccounts) {
+            notif.sendNotiForWeb({
+              userId: element.id,
+              link: productId,
+              message: "new product: " + name + " has updated",
+              status: "unread",
+            })
+        }
+      }
+      
       return res.status(200).send({
         message: "updated product: " + name,
         data: productUpdated,
