@@ -82,9 +82,13 @@ class Authentication {
         .first();
       if (user) {
         const validPassword = await bcrypt.compare(password, user.password);
+        // console.log(user)
+
         if (!validPassword) {
           return res.status(400).send("Invalid Password");
         }
+        // console.log(user)
+
       } else {
         return res.status(401).send("User does not exist");
       }

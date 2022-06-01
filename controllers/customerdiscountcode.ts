@@ -140,6 +140,7 @@ class CustomerDiscountCodeController {
             const ListCusDiscountCode = await CustomerDiscountCode.query()
                 .select(...discountCodeEntity, ...ListEntity,...ListSupplierEntity)
                 .join('discountCodes', 'discountCodes.id', 'customerDiscountCodes.discountCodeId')
+                .join('suppliers', 'suppliers.id', 'discountCodes.supplierId')
                 .where('discountCodes.supplierId', suppId)
                 .andWhere('discountCodes.minimumPriceCondition', '<=', minPriceCondition)
                 .andWhere('customerDiscountCodes.status', status)

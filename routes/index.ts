@@ -67,14 +67,14 @@ router.get("/statistical/supplier", authentication.protected, async (req: any, r
       .groupBy("year", "month", "monthNumber"),
     Transaction.query()
       .select().sum("amount")
-      .whereBetween("createdAt", [startDateInMonth, endDateInMonth])
-      .andWhere("supplierId", supplierId)
+      // .whereBetween("createdAt", [startDateInMonth, endDateInMonth])
+      .where("supplierId", supplierId)
       .andWhere("type", "orderTransaction")
       .first(),
     Transaction.query()
       .select().count("*")
-      .whereBetween("createdAt", [startDateInMonth, endDateInMonth])
-      .andWhere("supplierId", supplierId)
+      // .whereBetween("createdAt", [startDateInMonth, endDateInMonth])
+      .where("supplierId", supplierId)
       .andWhere("type", "orderTransaction")
       .first()
     ])
