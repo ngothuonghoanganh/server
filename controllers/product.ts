@@ -14,6 +14,7 @@ import { Transaction } from "objection";
 import { OrderDetail } from "../models/orderdetail";
 import moment from "moment";
 import dbEntity from "../services/dbEntity";
+import campaign from "./campaign";
 
 class ProductsController {
   public createNewProduct = async (req: any, res: any, next: any) => {
@@ -244,10 +245,19 @@ class ProductsController {
         .where("products.id", productId)
         .first();
 
+      const campaign: any = await Campaigns.query().select().sum('maxQuantity').where('productId', productId)
+        .andWhere(cd => {
+          cd.where('status', 'ready')
+            .orWhere('status', 'active')
+        }).first()
+
       console.log(data);
       return res.status(200).send({
         message: "success",
-        data: data,
+        data: {
+          ...data,
+          maxquantityincampaign: campaign.sum
+        }
       });
     } catch (error) {
       console.log(error);
@@ -468,7 +478,7 @@ class ProductsController {
             null
           ).orWhere('campaignOrders.comment', '<>', disableValue);
         })
-        
+
         .groupBy("campaigns.productId").orderBy('campaignOrders.updatedAt', 'DESC')
         .groupBy("campaignOrders.updatedAt");
 
@@ -488,7 +498,7 @@ class ProductsController {
         })
         .groupBy("orderDetails.productId").orderBy('orderDetails.updatedAt', 'DESC')
         .groupBy("orderDetails.updatedAt");
-        
+
 
       // const listRating = await Comments.query()
       //   .select("productid", Comments.raw(`AVG(rating) as rating`))
