@@ -1441,6 +1441,11 @@ class OrderController {
 
       orders.push(...ordersInCampaign);
 
+      for (const order of orders) {
+        const histories = await OrderStatusHistory.query().select(...dbEntity.orderStatusHistoriesEntity).where("orderCode", order.ordercode)
+        order.histories = histories
+      }
+
       return res.status(200).send({
         message: "successful",
         data: orders,
