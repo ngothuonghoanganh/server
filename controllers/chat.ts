@@ -1,7 +1,18 @@
-import { Chat } from "../models/chat";
-import { Customers } from "../models/customers";
-import { database } from "../models/firebase/firebase";
-import { Suppliers } from "../models/suppliers";
+import {
+  Chat
+} from "../models/chat";
+import {
+  Customers
+} from "../models/customers";
+import {
+  database
+} from "../models/firebase/firebase";
+import {
+  Suppliers
+} from "../models/suppliers";
+import {
+  SystemProfile
+} from "../models/systemprofile";
 import dbEntity from "../services/dbEntity";
 
 class ChatController {
@@ -10,16 +21,19 @@ class ChatController {
       return database.ref("chat-message").on("value", async (snapshot) => {
         // console.log(snapshot.val());
         if (snapshot.val()) {
-          await Chat.query().insert({ ...snapshot.val(), status: "unread" });
+          await Chat.query().insert({
+            ...snapshot.val(),
+            status: "unread"
+          });
           let [chatmessagesTo, chatmessagesFrom] = await Promise.all([
             Chat.query()
-              .select(...dbEntity.chatEntity)
-              .where("to", snapshot.val().to)
-              .andWhere("from", snapshot.val().from),
+            .select(...dbEntity.chatEntity)
+            .where("to", snapshot.val().to)
+            .andWhere("from", snapshot.val().from),
             Chat.query()
-              .select(...dbEntity.chatEntity)
-              .where("from", snapshot.val().to)
-              .andWhere("to", snapshot.val().from),
+            .select(...dbEntity.chatEntity)
+            .where("from", snapshot.val().to)
+            .andWhere("to", snapshot.val().from),
           ]);
           chatmessagesTo.push(...chatmessagesFrom);
           chatmessagesTo = chatmessagesTo.sort(
@@ -35,12 +49,17 @@ class ChatController {
                 "avt as avt"
               )
               .where("accountId", snapshot.val().from)
-              .andWhere("isDeleted", false)
+              // .andWhere("isDeleted", false)
               .first()) ||
             (await Suppliers.query()
               .select("accountId as id", "name as name", " avt as avt")
               .where("accountId", snapshot.val().from)
-              .andWhere("isDeleted", false)
+              // .andWhere("isDeleted", false)
+              .first()) ||
+            (await SystemProfile.query()
+              .select("accountId as id", "name as name", " avt as avt")
+              .where("accountId", snapshot.val().from)
+              // .andWhere("isDeleted", false)
               .first());
 
           const toInfo =
@@ -52,12 +71,17 @@ class ChatController {
                 "avt as avt"
               )
               .where("accountId", snapshot.val().to)
-              .andWhere("isDeleted", false)
+              // .andWhere("isDeleted", false)
               .first()) ||
             (await Suppliers.query()
               .select("accountId as id", "name as name", " avt as avt")
               .where("accountId", snapshot.val().to)
-              .andWhere("isDeleted", false)
+              // .andWhere("isDeleted", false)
+              .first()) ||
+            (await SystemProfile.query()
+              .select("accountId as id", "name as name", " avt as avt")
+              .where("accountId", snapshot.val().to)
+              // .andWhere("isDeleted", false)
               .first());
 
           await database
@@ -68,7 +92,10 @@ class ChatController {
             });
           await database
             .ref("message/" + snapshot.val().to + "/" + snapshot.val().from)
-            .set({ data: chatmessagesTo, userinfo: fromInfo });
+            .set({
+              data: chatmessagesTo,
+              userinfo: fromInfo
+            });
         }
       });
     } catch (error) {
@@ -92,7 +119,9 @@ class ChatController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 
@@ -117,7 +146,9 @@ class ChatController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 
@@ -140,14 +171,21 @@ class ChatController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 
   public getChatAllowTime = async (req: any, res: any, next: any) => {
     try {
       // const from = req.user.accountid;
-      const { from, to, startDate, endDate } = req.body;
+      const {
+        from,
+        to,
+        startDate,
+        endDate
+      } = req.body;
       // const from = req.body.from;
       // const to = req.body.to;
 
@@ -179,7 +217,9 @@ class ChatController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send({ message: error });
+      return res.status(400).send({
+        message: error
+      });
     }
   };
 }

@@ -309,7 +309,7 @@ class Authentication {
       if (newUser && newAccount) {
         const customerService = await Accounts.query().select("accounts.id as id")
         .join("roles","accounts.roleId","roles.id")
-        .where("roles.roleName","CustomerService").first()
+        .where("roles.roleName", "CustomerService").first()
        database.ref("chat-message").set({
         to: newAccount.id,
         from: customerService.id,
