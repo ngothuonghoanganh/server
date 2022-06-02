@@ -313,7 +313,7 @@ class Authentication {
        database.ref("chat-message").set({
         to: newAccount.id,
         from: customerService.id,
-        message: `Wellcome ${(firstName || "") + " " + (firstName || "lastName")} to SWG`,
+        message: `Wellcome ${(firstName || "") + " " + (lastName || "")} to SWG`,
        })
       }
 
