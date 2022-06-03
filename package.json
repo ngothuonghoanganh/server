@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@googleapis/docs": "^0.4.1",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.10",
@@ -38,6 +39,7 @@
     "express-joi-validation": "^5.0.1",
     "firebase": "^9.6.7",
     "firebase-admin": "^9.9.0",
+    "googleapis": "^100.0.0",
     "http-proxy-middleware": "^2.0.0",
     "jest": "^27.0.4",
     "jest-extended": "^0.11.5",
