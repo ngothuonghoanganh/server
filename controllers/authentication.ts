@@ -8,7 +8,7 @@ import { Customers } from "../models/customers";
 import { Suppliers } from "../models/suppliers";
 import { SystemProfile } from "../models/systemprofile";
 import Entity from "../services/dbEntity";
-
+import { database } from "../models/firebase/firebase";
 class Authentication {
   private sendJWTToken = async (user: any, statusCode: number, res: any) => {
     try {
@@ -304,6 +304,17 @@ class Authentication {
         });
 
         delete newAccount.password;
+      }
+
+      if (newUser && newAccount) {
+        const customerService = await Accounts.query().select("accounts.id as id")
+        .join("roles","accounts.roleId","roles.id")
+        .where("roles.roleName", "CustomerService").first()
+       database.ref("chat-message").set({
+        to: newAccount.id,
+        from: customerService.id,
+        message: `Wellcome ${(firstName || "") + " " + (lastName || "")} to SWG`,
+       })
       }
 
       return res.status(200).send({

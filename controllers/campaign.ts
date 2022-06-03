@@ -7,6 +7,7 @@ import moment from "moment";
 import { Suppliers } from "../models/suppliers";
 import { OrderStatusHistory } from "../models/orderstatushistory";
 import orderStatusHistoryController from "./orderStatusHistoryController";
+import MailController from "./mail";
 import dbEntity from "../services/dbEntity";
 
 class Campaign {
@@ -493,7 +494,7 @@ class Campaign {
         .andWhere("status", "ready");
 
       const product = await Campaigns.query()
-        .select("productId", "code")
+        .select("productId", "code", 'price', "description")
         .where("id", campaignId)
         .first();
 
@@ -502,21 +503,31 @@ class Campaign {
           status: "incampaign",
         })
         .where("id", product.productId);
-      const supplierId: any = Products.query()
-        .select("categories.supplierId")
+      const supplierId: any = await Products.query()
+        .select("products.*","categories.supplierId")
         .join("categories", "categories.id", "products.categoryId")
         .where("products.id", product.productId);
 
+      console.log(supplierId)
       const accountCustomer: any = await Customers.query()
-        .select("customers.accountId")
+        .select("customers.*")
         .join("loyalCustomers", "loyalCustomers.customerId", "customers.id")
-        .where("loyalCustomers.supplierId", supplierId);
-
-      // const customerAccountIds = accountCustomer.map(
-      //   (item: any) => item.accountId
-      // );
+        .where("loyalCustomers.supplierId", supplierId[0].supplierId);
 
       for (const item of accountCustomer) {
+        console.log(supplierId[0].image[0])
+        const template = MailController.mailCampaignTemplate({
+          productName: supplierId[0].name,
+          campaignName: product.description,
+          customerName: `${item.firstName} ${item.lastName}`,
+          campaignCode: product.code,
+          productPrice: supplierId[0].retailPrice,
+          productDiscountPrice: product.price,
+          productImage: (JSON.parse(supplierId[0].image ?? "[]")[0].url)
+        })
+
+        MailController.sendMail(item.email,template,"New Campaign")
+
         notif.sendNotiForWeb({
           userId: item.accountId,
           link: campaignId,
