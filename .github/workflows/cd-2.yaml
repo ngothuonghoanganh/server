@@ -23,7 +23,7 @@ jobs:
       - name: CD - Pull source code
         uses: appleboy/ssh-action@master
         with:
-          host: 52.220.29.223
+          host: 54.251.255.212
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY_BK }}
           script: cd /home/ubuntu/server && git fetch origin main && git reset --hard origin/main && git pull
@@ -31,21 +31,21 @@ jobs:
         uses: appleboy/ssh-action@master
         continue-on-error: true
         with:
-          host: 52.220.29.223
+          host: 54.251.255.212
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY_BK }}
           script: sudo docker stop server-master && sudo docker rm server-master && sudo docker images -a | sudo grep "swg/server-master" | sudo awk '{print $3}' | sudo xargs docker rmi
       - name: CD - Build Docker image
         uses: appleboy/ssh-action@master
         with:
-          host: 52.220.29.223
+          host: 54.251.255.212
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY_BK }}
           script: cd /home/ubuntu/server && sudo docker build . -t swg/server-master
       - name: CD - Start Express container
         uses: appleboy/ssh-action@master
         with:
-          host: 52.220.29.223
+          host: 54.251.255.212
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY_BK }}
           script: sudo docker run --name="server-master" -p 3000:3000 -d swg/server-master
