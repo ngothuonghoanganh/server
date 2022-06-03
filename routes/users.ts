@@ -25,7 +25,7 @@ router.post("/login/google", Authentication.loginWithGoogle);
 
 router.post(
   "/register",
-  validator.body(bodyRegisterSchema),
+  // validator.body(bodyRegisterSchema),
   Authentication.createUser
 );
 

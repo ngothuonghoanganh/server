@@ -18,6 +18,6 @@ export const bodyRegisterSchema = Joi.object({
   phone: Joi.string().allow(null).allow(""),
   address: Joi.object().allow(null).allow({}),
   roleName: Joi.string().allow(null).allow(""),
-  identificationCard: Joi.string().required(),
-  identificationImage: Joi.array().required(),
+  identificationCard: Joi.string().allow(null).allow(""),
+  identificationImage: Joi.array().allow(null).allow(""),
 });
