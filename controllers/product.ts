@@ -551,7 +551,6 @@ class ProductsController {
     try {
       const value = req.body.value;
       const listEntity = [
-        "products.id as productid",
         "suppliers.id as supplierid",
         "suppliers.accountId as accountid",
         "suppliers.name as suppliername",
@@ -561,7 +560,7 @@ class ProductsController {
         "suppliers.address as supplieraddress",
       ];
       const prod: any = await Categories.query()
-        .select("products.*", ...listEntity)
+        .select(...dbEntity.productEntity, ...listEntity)
         .join("suppliers", "suppliers.id", "categories.supplierId")
         .join("products", "products.categoryId", "categories.id")
         .where("products.name", "like", "%" + value + "%")
